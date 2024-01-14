@@ -5,7 +5,11 @@ import static com.Trazability.Camunda.GetTaskCamunda.*;
 import com.Trazability.DataBase.Data;
 import com.Trazability.Projects.AnnotationAnalyzer;
 import com.google.gson.JsonObject;
+
+import Interfaces.Traceability;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -16,7 +20,7 @@ import org.camunda.bpm.model.bpmn.instance.StartEvent;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String bpmnFilePath = loadBpmnModelInstance();
 
         BpmnModelInstance modelInstance = null;
@@ -47,10 +51,19 @@ public class Main {
         if (successBpmn && successProject) {
             System.out.println(
                     "Tanto la información de BPMN como la de proyectos se procesaron y guardaron exitosamente.");
-            Data data = new Data("D:\\Laboral\\Trazability\\output\\MSG-Foundation.json",
-                    "D:\\Laboral\\Trazability\\output\\MSGF-Test.json", "MSG-Foundation");
+            Data data = new Data("D:\\Laboral\\BPbSw-Traceability\\output\\MSG-Foundation.json", 
+                         "D:\\Laboral\\BPbSw-Traceability\\output\\MSGF-Test.json", 
+                         "MSG-Foundation");
+            
             if (data.isDataInitialized()) {
                 System.out.println("La informacion se ha guardado con exito.");
+                
+                /* Create and display the form */
+               java.awt.EventQueue.invokeLater(new Runnable() {
+           public void run() {
+               new Traceability().setVisible(true);
+           }
+       });
             } else {
                 System.err.println("Error al guardar la informacion.");
             }

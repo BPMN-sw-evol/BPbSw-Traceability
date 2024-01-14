@@ -14,10 +14,10 @@
     }
   },
   "MSGF-CentralSys" : {
-    "BPM Class: CreditAnalystCoupleServices" : {
-      "BPM Class: CreditAnalystCoupleServices" : {
+    "BPM Class: CreditAnalystServices" : {
+      "BPM Class: CreditAnalystServices" : {
         "type" : "UserTask",
-        "name" : "Revisar información pareja"
+        "name" : "Revisar detalles de solicitud"
       },
       "BPM Method: getProcessVariablesById (getter)" : {
         "container" : "CreditRequestDTO",
@@ -30,10 +30,10 @@
         "variables" : "allFine"
       }
     },
-    "BPM Class: CreditAnalystValidateService" : {
-      "BPM Class: CreditAnalystValidateService" : {
+    "BPM Class: CreditCommitteeServices" : {
+      "BPM Class: CreditCommitteeServices" : {
         "type" : "UserTask",
-        "name" : "Verificar validez"
+        "name" : "Evaluar crédito"
       },
       "BPM Method: getProcessVariablesById (getter)" : {
         "container" : "CreditRequestDTO",
@@ -46,17 +46,46 @@
         "variables" : "isValid"
       }
     },
-    "BPM Class: CreditCommitteServices" : {
-      "BPM Class: CreditCommitteServices" : {
+    "BPM Class: LegalOfficeSupportsServices" : {
+      "BPM Class: LegalOfficeSupportsServices" : {
         "type" : "UserTask",
-        "name" : "Verificar viabilidad financiera"
+        "name" : "Revisar soportes de solicitud"
       },
       "BPM Method: getProcessVariablesById (getter)" : {
         "container" : "CreditRequestDTO",
         "variables" : [ "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "marriageYears", "bothEmployees", "housePrices", "quotaValue", "coupleSavings", "countReviewsBpm" ]
       },
       "BPM Method: approveTask (setter)" : {
-        "variables" : "financialViability"
+        "variables" : "validSupports"
+      },
+      "BPM Method: rejectTask (setter)" : {
+        "variables" : "validSupports"
+      }
+    },
+    "BPM Class: LegalOfficeViabilityServices" : {
+      "BPM Class: LegalOfficeViabilityServices" : {
+        "type" : "UserTask",
+        "name" : "Determinar viabilidad financiera"
+      },
+      "BPM Method: getProcessVariablesById (getter)" : {
+        "container" : "CreditRequestDTO",
+        "variables" : [ "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "marriageYears", "bothEmployees", "housePrices", "quotaValue", "coupleSavings", "countReviewsBpm" ]
+      },
+      "BPM Method: approveTask (setter)" : {
+        "variables" : "legalConcept"
+      },
+      "BPM Method: rejectTask (setter)" : {
+        "variables" : "legalConcept"
+      }
+    },
+    "BPM Class: TreasuryServices" : {
+      "BPM Class: TreasuryServices" : {
+        "type" : "UserTask",
+        "name" : "Aprobar proceso de pago"
+      },
+      "BPM Method: getProcessVariablesById (getter)" : {
+        "container" : "CreditRequestDTO",
+        "variables" : [ "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "marriageYears", "bothEmployees", "housePrices", "quotaValue", "coupleSavings", "countReviewsBpm" ]
       }
     }
   },

@@ -1,20 +1,22 @@
 package com.Trazability.DataBase;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 
 public class Data {
-    private int history = -1;
+    private int history;
     private JSONObject projectInfo;
     private JSONObject bpmnInfo;
     private ArrayList<String> variables = new ArrayList<String>();
     private ArrayList<String> type = new ArrayList<String>();
     private Connections con = new Connections();
     
-    public Data(String ruta,String ruta2,String name){
+    public Data(String ruta,String ruta2,String name) throws IOException{
         try {
             BufferedReader file = new BufferedReader(new java.io.FileReader(ruta));
             String s = "";
@@ -34,26 +36,27 @@ public class Data {
             
             this.history = con.createHistory(name);
 
-            setProjects();
-            setClasses();
-            setContainer();
-            setVariables();
-            setMethod();
-            setMethodUsed();
-            setProcess();
-            setElementType();
-            setElement();
-            setElementUsed();
-        } catch (Exception e) {
-            System.out.println("Error al leer el archivo:"+e);
-        }
-    }
+           setProjects();
+           setClasses();
+           setContainer();
+           setVariables();
+           setMethod();
+           setMethodUsed();
+           setProcess();
+           setElementType();
+           setElement();
+           setElementUsed();
+        } catch (FileNotFoundException e) {
+    System.out.println("Error al leer el archivo: " + e.getMessage());
+}
 
-    public boolean isDataInitialized() {
-        return projectInfo != null && bpmnInfo != null && history != -1;
     }
-
     
+    public boolean isDataInitialized() {
+    return projectInfo != null && bpmnInfo != null && history != -1;
+}
+
+
     private void setProjects(){
         for (String i : this.projectInfo.keySet()) {
             con.insertProject(i);
