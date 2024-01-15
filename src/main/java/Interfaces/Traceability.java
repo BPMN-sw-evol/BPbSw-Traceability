@@ -1,6 +1,6 @@
 package Interfaces;
 
-import com.Trazability.Color.BpmnColorModifier;
+import com.Trazability.Color.BpmnColor;
 import com.Trazability.DataBase.Connections;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -19,182 +22,173 @@ public class Traceability extends javax.swing.JFrame {
 
     public Traceability() {
         initComponents();
+        initializeFrame();
+    }
+
+    private void initializeFrame() {
         this.setResizable(false);
         this.setTitle("TRACEABILITY");
         loadVariableNames(); // Cargar nombres de variables al iniciar
-        addVariableSelectionListener(); // Agrega proyectos segun la variable
-        getProjectSelectionListener(); // Obtener el id segun el proyecto
-        getMethodSelectionListener(); // Obtener el id segun la clase
+        addVariableSelectionListener(); // Agrega proyectos según la variable
+        getProjectSelectionListener(); // Obtener el id según el proyecto
+        getMethodSelectionListener(); // Obtener el id según la clase
     }
 
     private void loadVariableNames() {
-        List<String> variableNames = con.getAllVariableNames(); // Obtener nombres de variables desde la base de datos
-
-        if (variableNames != null && !variableNames.isEmpty()) {
-            VARIABLES.removeAllItems(); // Limpiar elementos previos en el JComboBox
-
-            // Agregar los nombres de las variables al JComboBox
-            for (String name : variableNames) {
-                VARIABLES.addItem(name);
+        try {
+            List<String> variableNames = con.getAllVariableNames();
+            if (variableNames != null && !variableNames.isEmpty()) {
+                updateComboBox(VARIABLES, variableNames);
+            } else {
+                throw new RuntimeException("No se encontraron nombres de variables.");
             }
-        } else {
-            // Manejo de error si no se encuentran nombres de variables
-            System.err.println("No se encontraron nombres de variables.");
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
+    private void updateComboBox(JComboBox<String> comboBox, List<String> items) {
+        comboBox.removeAllItems();
+        items.forEach(comboBox::addItem);
+    }
+
     private void addVariableSelectionListener() {
-        VARIABLES.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    String selectedVariable = (String) VARIABLES.getSelectedItem(); // Obtener la variable seleccionada del combo box
-                    
-                    // Aquí deberías obtener el ID de la variable seleccionada, supongamos que lo guardaste en selectedVariableId
-                    selectedVariableId = con.searchVariableByName(selectedVariable);
-                    
-                    // Llamar al método searchProjectByVariableId utilizando el ID de la variable seleccionada
-                    List<String> projectNames = con.searchProjectByVariableId(selectedVariableId);
-                    
-                    String processName = con.searchProcessByVariableId(selectedVariableId);
-                    
-                    // Verificar si se encontraron nombres de proyecto
-                    if (projectNames != null && !projectNames.isEmpty()) {
-                        // Crear un modelo para la lista LPROJECTS y añadir los nombres de proyecto encontrados
-                        DefaultListModel<String> model = new DefaultListModel<>();
-                        for (String projectName : projectNames) {
-                            model.addElement(projectName);
-                        }
-                        LPROJECTS.setModel(model); // Establecer el modelo en la lista LPROJECTS
-                        
-                        // Obtener la cantidad de proyectos y establecerla en CountProjects
-                        int numProjects = projectNames.size();
-                        CountProjects.setText(Integer.toString(numProjects)); // Mostrar solo el número de proyectos
-                    } else {
-                        // Manejar casos en los que no se encuentren nombres de proyecto o haya errores
-                        System.err.println("Nombres de proyecto no encontrados o error en la búsqueda.");
-                    }
-                    
-                    if (processName != null && !processName.isEmpty()) {
-                        PROCESS.setText(processName);
-                    } else {
-                        // Manejar casos en los que no se encuentren nombres de proyecto o haya errores
-                        System.err.println("Nombre de proceso no encontrado o error en la búsqueda.");
-                    }
-                    
-                    // Llamar al método getUsedElement utilizando el ID de la variable seleccionada
-                    getUsedElement(selectedVariableId);
-                } catch (IOException ex) {
-                    Logger.getLogger(Traceability.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        VARIABLES.addActionListener(e -> {
+            try {
+                handleVariableSelection();
+            } catch (IOException ex) {
+                handleException(ex);
             }
         });
+    }
+
+    private void handleVariableSelection() throws IOException {
+        String selectedVariable = getSelectedVariable();
+        selectedVariableId = con.searchVariableByName(selectedVariable);
+
+        List<String> projectNames = con.searchProjectByVariableId(selectedVariableId);
+        String processName = con.searchProcessByVariableId(selectedVariableId);
+        String participant = new BpmnColor().findParticipantName();
+
+        updateProjectsList(projectNames);
+        updateProcessName(processName);
+        updateParticipant(participant);
+
+        // Restablecer a cero los campos de conteo en caso de que no haya proyectos
+        if (projectNames == null || projectNames.isEmpty()) {
+            CountProjects.setText("0");
+            CountClasses.setText("0");
+            CountMethods.setText("0");
+        }
+
+        getUsedElement(selectedVariableId);
+    }
+
+    private String getSelectedVariable() {
+        return (String) VARIABLES.getSelectedItem();
+    }
+
+    private void updateProjectsList(List<String> projectNames) {
+        if (projectNames != null && !projectNames.isEmpty()) {
+            DefaultListModel<String> model = new DefaultListModel<>();
+            projectNames.forEach(model::addElement);
+            LPROJECTS.setModel(model);
+            CountProjects.setText(Integer.toString(projectNames.size()));
+        } else {
+            DefaultListModel<String> defaultModel = new DefaultListModel<>();
+            defaultModel.addElement("No projects found for this variable.");
+            LPROJECTS.setModel(defaultModel);
+            CountProjects.setText("0");
+        }
+    }
+
+    private void updateProcessName(String processName) {
+        if (processName != null && !processName.isEmpty()) {
+            PROCESS.setText(processName);
+        } else {
+            PROCESS.setText("Process name not found or error in the search.");
+        }
+    }
+
+    private void updateParticipant(String participant) {
+        if (participant != null && !participant.isEmpty()) {
+            PARTICIPANT.setText(participant);
+        }
+    }
+
+    private void handleException(Exception e) {
+        Logger.getLogger(Traceability.class.getName()).log(Level.SEVERE, null, e);
     }
 
     private void getProjectSelectionListener() {
-        LPROJECTS.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    String selectedProject = LPROJECTS.getSelectedValue(); // Obtener el proyecto seleccionado de la lista
-
-                    // Obtener el ID del proyecto seleccionado
-                    projectId = con.searchProject(selectedProject);
-
-                    // Obtener el nombre del contenedor usando el ID del proyecto
-                    String containerName = con.searchContainerName(projectId);
-
-                    if (containerName != null && !containerName.isEmpty()) {
-                        // Mostrar el resultado en la variable CONTAINER
-                        CONTAINER.setText(containerName);
-                    } else {
-                        CONTAINER.setText("variable not selected");
-                    }
-
-                    // Llamar al método searchClassById utilizando el ID del proyecto seleccionado
-                    List<String> classNames = con.searchClassById(projectId);
-                    if (classNames != null && !classNames.isEmpty()) {
-
-                        DefaultListModel<String> model = new DefaultListModel<>();
-
-                        for (String className : classNames) {
-                            model.addElement(className);
-                        }
-
-                        LCLASSES.setModel(model); // Establecer el modelo en la lista LCLASSES
-
-                        // Obtener la cantidad de proyectos y establecerla en CountMethods
-                        int numClasses = classNames.size();
-                        CountClasses.setText(Integer.toString(numClasses)); // Mostrar solo el número de proyectos
-
-                    } else {
-                        DefaultListModel<String> defaultModel = new DefaultListModel<>();
-                        defaultModel.addElement("Project not selected");
-                        LCLASSES.setModel(defaultModel);
-                    }
-
-                }
+        LPROJECTS.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                handleProjectSelection();
             }
         });
+    }
+
+    private void handleProjectSelection() {
+        String selectedProject = LPROJECTS.getSelectedValue();
+        projectId = con.searchProject(selectedProject);
+
+        String containerName = con.searchContainerName(projectId);
+        CONTAINER.setText(containerName != null && !containerName.isEmpty() ? containerName : "variable not selected");
+
+        List<String> classNames = con.searchClassById(projectId);
+        updateList(LCLASSES, classNames, CountClasses, "Project not selected");
+
+        // Restablecer a cero los campos de conteo en caso de que no haya Clases
+        if (classNames == null || classNames.isEmpty()) {
+            CountClasses.setText("0");
+            CountMethods.setText("0");
+        }
     }
 
     private void getMethodSelectionListener() {
-        LCLASSES.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent event) {
-                if (!event.getValueIsAdjusting()) {
-                    String selectedClass = LCLASSES.getSelectedValue(); // Obtener la clase seleccionada
-                    int classId = con.searchClass(selectedClass); // Obtener el ID de la clase
-
-                    // Llamar al método searchMethodById utilizando el ID de la clase seleccionada
-                    List<String> methodNames = con.searchMethodById(classId);
-
-                    if (methodNames != null && !methodNames.isEmpty()) {
-
-                        // Llamar al método para agregar los métodos a la lista LMETHODS
-                        DefaultListModel<String> model = new DefaultListModel<>();
-
-                        for (String methodName : methodNames) {
-                            model.addElement(methodName);
-                        }
-
-                        LMETHODS.setModel(model); // Establecer el modelo en la lista LMETHODS
-
-                        // Obtener la cantidad de proyectos y establecerla en CountMethods
-                        int numMethods = methodNames.size();
-                        CountMethods.setText(Integer.toString(numMethods)); // Mostrar solo el número de proyectos
-
-                    } else {
-                        DefaultListModel<String> defaultModel = new DefaultListModel<>();
-                        defaultModel.addElement("Class not selected");
-                        LMETHODS.setModel(defaultModel);
-                    }
-                }
+        LCLASSES.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                handleClassSelection();
             }
         });
     }
 
-    private void getUsedElement(int selectedVariableId) throws IOException {
+    private void handleClassSelection() {
+        String selectedClass = LCLASSES.getSelectedValue();
+        int classId = con.searchClass(selectedClass);
+
+        List<String> methodNames = con.searchMethodById(classId);
+        updateList(LMETHODS, methodNames, CountMethods, "Class not selected");
         
-        // Llamar a la función para pintar las actividades
-            BpmnColorModifier modifier = new BpmnColorModifier();
-        // Verificar que selectedVariableId tiene un valor válido
+        // Restablecer a cero los campos de conteo en caso de que no haya Metodos
+        if (methodNames == null || methodNames.isEmpty()) {
+            CountMethods.setText("0");
+        }
+    }
+
+    private void updateList(JList<String> list, List<String> items, JLabel countLabel, String emptyMessage) {
+        if (items != null && !items.isEmpty()) {
+            DefaultListModel<String> model = new DefaultListModel<>();
+            items.forEach(model::addElement);
+            list.setModel(model);
+            countLabel.setText(Integer.toString(items.size()));
+        } else {
+            DefaultListModel<String> defaultModel = new DefaultListModel<>();
+            defaultModel.addElement(emptyMessage);
+            list.setModel(defaultModel);
+        }
+    }
+
+    private void getUsedElement(int selectedVariableId) throws IOException {
+        BpmnColor modifier = new BpmnColor();
         if (selectedVariableId <= 0) {
             System.err.println("Error: ID de variable no válido.");
             return;
         }
 
-        // Llamar al método searchElementsUsed utilizando el ID de la variable seleccionada
         List<String> usedElementNames = con.searchElementsUsed(selectedVariableId);
 
-        // Imprimir los resultados de la consulta
         if (!usedElementNames.isEmpty() && !usedElementNames.get(0).equals("Elemento no encontrado")) {
-            System.out.println("Resultados de la consulta para la variable con ID " + selectedVariableId + ":");
-            for (String name : usedElementNames) {
-                System.out.println("Nombre usado por elemento: " + name);
-                modifier.buscarIdsActividad(name);
-
-            }
-            
             modifier.modifyActivityColors(usedElementNames);
         } else {
             System.out.println("No se encontraron elementos usados para la variable con ID " + selectedVariableId);
@@ -207,7 +201,7 @@ public class Traceability extends javax.swing.JFrame {
 
         jFrame1 = new javax.swing.JFrame();
         jPanel1 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
+        PARTICIPANT = new javax.swing.JLabel();
         PROCESS = new javax.swing.JLabel();
         PPROJECTS = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
@@ -243,9 +237,9 @@ public class Traceability extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
-        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setText("Select a variable");
+        PARTICIPANT.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
+        PARTICIPANT.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        PARTICIPANT.setText("Select a variable");
 
         PROCESS.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
         PROCESS.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -440,10 +434,10 @@ public class Traceability extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGap(25, 25, 25)
                         .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(159, 159, 159)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(PROCESS, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(105, 105, 105)
+                        .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(PROCESS, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(24, 24, 24))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(6, 6, 6)
@@ -468,7 +462,7 @@ public class Traceability extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
+                    .addComponent(PARTICIPANT)
                     .addComponent(PROCESS)
                     .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -545,6 +539,7 @@ public class Traceability extends javax.swing.JFrame {
     public javax.swing.JList<String> LCLASSES;
     public javax.swing.JList<String> LMETHODS;
     public javax.swing.JList<String> LPROJECTS;
+    public javax.swing.JLabel PARTICIPANT;
     public javax.swing.JPanel PCLASSES;
     public javax.swing.JPanel PMETHODS;
     public javax.swing.JPanel PMODEL;
@@ -552,7 +547,6 @@ public class Traceability extends javax.swing.JFrame {
     private javax.swing.JLabel PROCESS;
     public javax.swing.JComboBox<String> VARIABLES;
     private javax.swing.JFrame jFrame1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
     public javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;

@@ -98,43 +98,6 @@ public class Connections {
         }
     }
 
-    public int searchVariableByName(String name) {
-        try {
-            String sql = "SELECT id_variable FROM variable WHERE variable_name = ?";
-            ps = conexion.prepareStatement(sql);
-            ps.setString(1, name);
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt("id_variable");
-            } else {
-                return -1; // El elemento no se encontró
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al realizar la busqueda: " + e);
-            return -1;
-        }
-    }
-
-    public List<String> getAllVariableNames() {
-        List<String> variableNames = new ArrayList<>();
-        try {
-            String sql = "SELECT variable_name FROM variable";
-            ps = conexion.prepareStatement(sql);
-            rs = ps.executeQuery();
-
-            while (rs.next()) {
-                String variableName = rs.getString("variable_name");
-                variableNames.add(variableName);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al realizar la búsqueda: " + e);
-        } finally {
-            // Cerrar recursos (ps, rs) aquí si es necesario
-        }
-        return variableNames;
-    }
-
     public void insertContainer(String name, int id_project) {
         try {
             String sql = "INSERT INTO data_container (name_container,id_project) VALUES (?,?)";
@@ -164,24 +127,6 @@ public class Connections {
         } catch (SQLException e) {
             System.err.println("Error al realizar la busqueda: " + e);
             return -1;
-        }
-    }
-
-    public String searchContainerName(int id_project) {
-        try {
-            String sql = "SELECT name_container FROM data_container WHERE id_project = ?";
-            ps = conexion.prepareStatement(sql);
-            ps.setInt(1, id_project);
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return rs.getString("name_container");
-            } else {
-                return "";
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al realizar la búsqueda: " + e);
-            return "Error al realizar la búsqueda";
         }
     }
 
@@ -247,47 +192,6 @@ public class Connections {
         }
     }
 
-    public List<String> searchProjectByVariableId(int variableId) {
-        List<String> projectNames = new ArrayList<>();
-
-        try {
-            // Consultar la tabla 'contained_in' para obtener el 'id_data_container' a partir del 'id' de la variable
-            String containerQuery = "SELECT id_data_container FROM contained_in WHERE id_variable = ?";
-            PreparedStatement containerPs = conexion.prepareStatement(containerQuery);
-            containerPs.setInt(1, variableId);
-            ResultSet containerRs = containerPs.executeQuery();
-
-            while (containerRs.next()) {
-                int dataContainerId = containerRs.getInt("id_data_container");
-
-                // Consultar la tabla 'data_container' para obtener el 'id_project' a partir del 'id_data_container'
-                String dataContainerQuery = "SELECT id_project FROM data_container WHERE id_data_container = ?";
-                PreparedStatement dataContainerPs = conexion.prepareStatement(dataContainerQuery);
-                dataContainerPs.setInt(1, dataContainerId);
-                ResultSet dataContainerRs = dataContainerPs.executeQuery();
-
-                if (dataContainerRs.next()) {
-                    int projectId = dataContainerRs.getInt("id_project");
-
-                    // Consultar la tabla 'project' para obtener el 'name_project' a partir del 'id_project'
-                    String projectQuery = "SELECT name_project FROM project WHERE id_project = ?";
-                    PreparedStatement projectPs = conexion.prepareStatement(projectQuery);
-                    projectPs.setInt(1, projectId);
-                    ResultSet projectRs = projectPs.executeQuery();
-
-                    if (projectRs.next()) {
-                        String projectName = projectRs.getString("name_project");
-                        projectNames.add(projectName);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al realizar la búsqueda: " + e);
-        }
-
-        return projectNames;
-    }
-
     public void insertClass(int id_project, String name) {
         try {
             String sql = "INSERT INTO class (id_project,name_class) VALUES (?,?)";
@@ -317,26 +221,6 @@ public class Connections {
             System.err.println("Error al realizar la busqueda: " + e);
             return -1;
         }
-    }
-
-    public List<String> searchClassById(int id_project) {
-        List<String> classNames = new ArrayList<>();
-
-        try {
-            String sql = "SELECT name_class FROM class WHERE id_project = ?";
-            ps = conexion.prepareStatement(sql);
-            ps.setInt(1, id_project);
-            rs = ps.executeQuery();
-
-            while (rs.next()) {
-                String className = rs.getString("name_class");
-                classNames.add(className);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al realizar la búsqueda: " + e);
-        }
-
-        return classNames;
     }
 
     public void insertMethod(int id_class, String name) {
@@ -369,26 +253,6 @@ public class Connections {
             System.err.println("Error al realizar la busqueda: " + e);
             return -1;
         }
-    }
-    
-    public List<String> searchMethodById(int id_class) {
-        List<String> methodNames = new ArrayList<>();
-
-        try {
-            String sql = "SELECT name_method FROM method WHERE id_class = ?";
-            ps = conexion.prepareStatement(sql);
-            ps.setInt(1, id_class);
-            rs = ps.executeQuery();
-
-            while (rs.next()) {
-                String methodName = rs.getString("name_method");
-                methodNames.add(methodName);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al realizar la búsqueda: " + e);
-        }
-
-        return methodNames;
     }
 
     public void insertMethodUsed(int id_variable, int id_method, boolean modify) {
@@ -452,50 +316,6 @@ public class Connections {
             return -1;
         }
     }
-    
-    public String searchProcessByVariableId(int id_variable) {
-    try {
-        // Consultar la tabla 'used_by_element' para obtener el 'id_element' a partir del 'id_variable'
-        String elementQuery = "SELECT id_element FROM used_by_element WHERE id_variable = ?";
-        PreparedStatement elementPs = conexion.prepareStatement(elementQuery);
-        elementPs.setInt(1, id_variable);
-        ResultSet elementRs = elementPs.executeQuery();
-
-        if (elementRs.next()) {
-            int elementId = elementRs.getInt("id_element");
-
-            // Consultar la tabla 'element' para obtener el 'id_process' a partir del 'id_element'
-            String processQuery = "SELECT id_process FROM element WHERE id_element = ?";
-            PreparedStatement processPs = conexion.prepareStatement(processQuery);
-            processPs.setInt(1, elementId);
-            ResultSet processRs = processPs.executeQuery();
-
-            if (processRs.next()) {
-                int processId = processRs.getInt("id_process");
-
-                // Consultar la tabla 'process' para obtener el 'process_name' a partir del 'id_process'
-                String processNameQuery = "SELECT process_name FROM process WHERE id_process = ?";
-                PreparedStatement processNamePs = conexion.prepareStatement(processNameQuery);
-                processNamePs.setInt(1, processId);
-                ResultSet processNameRs = processNamePs.executeQuery();
-
-                if (processNameRs.next()) {
-                    return processNameRs.getString("process_name");
-                } else {
-                    return "Nombre de proceso no encontrado";
-                }
-            } else {
-                return "ID de proceso no encontrado en la tabla 'element'";
-            }
-        } else {
-            return "ID de elemento no encontrado en la tabla 'used_by_element'";
-        }
-    } catch (SQLException e) {
-        System.err.println("Error al realizar la búsqueda: " + e);
-        return "Error al realizar la búsqueda";
-    }
-}
-
 
     public void insertElementType(String name) {
         try {
@@ -591,53 +411,233 @@ public class Connections {
             return -1;
         }
     }
-    
-    public List<String> searchElementsUsed(int id_variable) {
-    List<String> usedElementNames = new ArrayList<>();
 
-    try {
-        // Consultar la tabla 'used_by_element' para obtener los IDs de los elementos
-        String sql = "SELECT id_element FROM used_by_element WHERE id_variable = ?";
-        ps = conexion.prepareStatement(sql);
-        ps.setInt(1, id_variable);
-        rs = ps.executeQuery();
+    // -------------------------------------------------
+    public int searchVariableByName(String name) {
+        try {
+            String sql = "SELECT id_variable FROM variable WHERE variable_name = ?";
+            ps = conexion.prepareStatement(sql);
+            ps.setString(1, name);
+            rs = ps.executeQuery();
 
-        // Iterar sobre los resultados obtenidos
-        while (rs.next()) {
-            int elementId = rs.getInt("id_element");
-
-            // Consultar la tabla 'element' para obtener el nombre del elemento
-            String elementName = getElementNameById(elementId);
-
-            if (elementName != null) {
-                usedElementNames.add(elementName);
+            if (rs.next()) {
+                return rs.getInt("id_variable");
+            } else {
+                return -1; // El elemento no se encontró
             }
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la busqueda: " + e);
+            return -1;
+        }
+    }
+
+    public List<String> getAllVariableNames() {
+        List<String> variableNames = new ArrayList<>();
+        try {
+            String sql = "SELECT variable_name FROM variable";
+            ps = conexion.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String variableName = rs.getString("variable_name");
+                variableNames.add(variableName);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la búsqueda: " + e);
+        } finally {
+            // Cerrar recursos (ps, rs) aquí si es necesario
+        }
+        return variableNames;
+    }
+
+    public String searchContainerName(int id_project) {
+        try {
+            String sql = "SELECT name_container FROM data_container WHERE id_project = ?";
+            ps = conexion.prepareStatement(sql);
+            ps.setInt(1, id_project);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("name_container");
+            } else {
+                return "";
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la búsqueda: " + e);
+            return "Error al realizar la búsqueda";
+        }
+    }
+
+    public List<String> searchProjectByVariableId(int variableId) {
+        List<String> projectNames = new ArrayList<>();
+
+        try {
+            // Consultar la tabla 'contained_in' para obtener el 'id_data_container' a partir del 'id' de la variable
+            String containerQuery = "SELECT id_data_container FROM contained_in WHERE id_variable = ?";
+            PreparedStatement containerPs = conexion.prepareStatement(containerQuery);
+            containerPs.setInt(1, variableId);
+            ResultSet containerRs = containerPs.executeQuery();
+
+            while (containerRs.next()) {
+                int dataContainerId = containerRs.getInt("id_data_container");
+
+                // Consultar la tabla 'data_container' para obtener el 'id_project' a partir del 'id_data_container'
+                String dataContainerQuery = "SELECT id_project FROM data_container WHERE id_data_container = ?";
+                PreparedStatement dataContainerPs = conexion.prepareStatement(dataContainerQuery);
+                dataContainerPs.setInt(1, dataContainerId);
+                ResultSet dataContainerRs = dataContainerPs.executeQuery();
+
+                if (dataContainerRs.next()) {
+                    int projectId = dataContainerRs.getInt("id_project");
+
+                    // Consultar la tabla 'project' para obtener el 'name_project' a partir del 'id_project'
+                    String projectQuery = "SELECT name_project FROM project WHERE id_project = ?";
+                    PreparedStatement projectPs = conexion.prepareStatement(projectQuery);
+                    projectPs.setInt(1, projectId);
+                    ResultSet projectRs = projectPs.executeQuery();
+
+                    if (projectRs.next()) {
+                        String projectName = projectRs.getString("name_project");
+                        projectNames.add(projectName);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la búsqueda: " + e);
         }
 
-        return usedElementNames;
-    } catch (SQLException e) {
-        System.err.println("Error al realizar la búsqueda: " + e);
-        return Collections.emptyList(); // Devolver una lista vacía en caso de error
+        return projectNames;
     }
-}
+
+    public List<String> searchClassById(int id_project) {
+        List<String> classNames = new ArrayList<>();
+
+        try {
+            String sql = "SELECT name_class FROM class WHERE id_project = ?";
+            ps = conexion.prepareStatement(sql);
+            ps.setInt(1, id_project);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String className = rs.getString("name_class");
+                classNames.add(className);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la búsqueda: " + e);
+        }
+
+        return classNames;
+    }
+
+    public List<String> searchMethodById(int id_class) {
+        List<String> methodNames = new ArrayList<>();
+
+        try {
+            String sql = "SELECT name_method FROM method WHERE id_class = ?";
+            ps = conexion.prepareStatement(sql);
+            ps.setInt(1, id_class);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String methodName = rs.getString("name_method");
+                methodNames.add(methodName);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la búsqueda: " + e);
+        }
+
+        return methodNames;
+    }
+
+    public String searchProcessByVariableId(int id_variable) {
+        try {
+            // Consultar la tabla 'used_by_element' para obtener el 'id_element' a partir del 'id_variable'
+            String elementQuery = "SELECT id_element FROM used_by_element WHERE id_variable = ?";
+            PreparedStatement elementPs = conexion.prepareStatement(elementQuery);
+            elementPs.setInt(1, id_variable);
+            ResultSet elementRs = elementPs.executeQuery();
+
+            if (elementRs.next()) {
+                int elementId = elementRs.getInt("id_element");
+
+                // Consultar la tabla 'element' para obtener el 'id_process' a partir del 'id_element'
+                String processQuery = "SELECT id_process FROM element WHERE id_element = ?";
+                PreparedStatement processPs = conexion.prepareStatement(processQuery);
+                processPs.setInt(1, elementId);
+                ResultSet processRs = processPs.executeQuery();
+
+                if (processRs.next()) {
+                    int processId = processRs.getInt("id_process");
+
+                    // Consultar la tabla 'process' para obtener el 'process_name' a partir del 'id_process'
+                    String processNameQuery = "SELECT process_name FROM process WHERE id_process = ?";
+                    PreparedStatement processNamePs = conexion.prepareStatement(processNameQuery);
+                    processNamePs.setInt(1, processId);
+                    ResultSet processNameRs = processNamePs.executeQuery();
+
+                    if (processNameRs.next()) {
+                        return processNameRs.getString("process_name");
+                    } else {
+                        return "Nombre de proceso no encontrado";
+                    }
+                } else {
+                    return "ID de proceso no encontrado en la tabla 'element'";
+                }
+            } else {
+                return "ID de elemento no encontrado en la tabla 'used_by_element'";
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la búsqueda: " + e);
+            return "Error al realizar la búsqueda";
+        }
+    }
+
+    public List<String> searchElementsUsed(int id_variable) {
+        List<String> usedElementNames = new ArrayList<>();
+
+        try {
+            // Consultar la tabla 'used_by_element' para obtener los IDs de los elementos
+            String sql = "SELECT id_element FROM used_by_element WHERE id_variable = ?";
+            ps = conexion.prepareStatement(sql);
+            ps.setInt(1, id_variable);
+            rs = ps.executeQuery();
+
+            // Iterar sobre los resultados obtenidos
+            while (rs.next()) {
+                int elementId = rs.getInt("id_element");
+
+                // Consultar la tabla 'element' para obtener el nombre del elemento
+                String elementName = getElementNameById(elementId);
+
+                if (elementName != null) {
+                    usedElementNames.add(elementName);
+                }
+            }
+
+            return usedElementNames;
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la búsqueda: " + e);
+            return Collections.emptyList(); // Devolver una lista vacía en caso de error
+        }
+    }
 
 // Método adicional para obtener el nombre del elemento por su ID
-private String getElementNameById(int elementId) {
-    try {
-        String sql = "SELECT element_name FROM element WHERE id_element = ?";
-        PreparedStatement elementPs = conexion.prepareStatement(sql);
-        elementPs.setInt(1, elementId);
-        ResultSet elementRs = elementPs.executeQuery();
+    private String getElementNameById(int elementId) {
+        try {
+            String sql = "SELECT element_name FROM element WHERE id_element = ?";
+            PreparedStatement elementPs = conexion.prepareStatement(sql);
+            elementPs.setInt(1, elementId);
+            ResultSet elementRs = elementPs.executeQuery();
 
-        if (elementRs.next()) {
-            return elementRs.getString("element_name");
-        } else {
-            return null; // El elemento no se encontró
+            if (elementRs.next()) {
+                return elementRs.getString("element_name");
+            } else {
+                return null; // El elemento no se encontró
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener el nombre del elemento: " + e);
+            return null;
         }
-    } catch (SQLException e) {
-        System.err.println("Error al obtener el nombre del elemento: " + e);
-        return null;
     }
-}
 
 }

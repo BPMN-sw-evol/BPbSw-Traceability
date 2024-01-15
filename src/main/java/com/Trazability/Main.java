@@ -5,9 +5,6 @@ import static com.Trazability.Camunda.GetTaskCamunda.*;
 import com.Trazability.DataBase.Data;
 import com.Trazability.Projects.AnnotationAnalyzer;
 import com.google.gson.JsonObject;
-
-import Interfaces.Traceability;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -58,12 +55,6 @@ public class Main {
             if (data.isDataInitialized()) {
                 System.out.println("La informacion se ha guardado con exito.");
                 
-                /* Create and display the form */
-               java.awt.EventQueue.invokeLater(new Runnable() {
-           public void run() {
-               new Traceability().setVisible(true);
-           }
-       });
             } else {
                 System.err.println("Error al guardar la informacion.");
             }
