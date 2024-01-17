@@ -2,7 +2,6 @@ package com.Trazability.Projects;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,7 +21,7 @@ import java.util.List;
 public class AnnotationAnalyzer {
     public static void analyzeAnnotationsInProject(String projectPath, String outputFileName) {
         File projectDirectory = new File(projectPath);
-        String NameProject = projectDirectory.getName().toString();
+        String NameProject = projectDirectory.getName();
 
         if (!projectDirectory.exists() || !projectDirectory.isDirectory()) {
             System.err.println("Invalid project path.");
@@ -47,24 +46,14 @@ public class AnnotationAnalyzer {
             }
         }
 
-        try {
-            // Verifica si el objeto result tiene al menos un campo antes de imprimir
-            if (result.size() > 0) {
-
-                if (!outputFileName.isEmpty() || !outputFileName.equals("")) {
-                    String outputFile = saveJsonToFile(result, outputFileName, NameProject);
-
-                    if (outputFile.isEmpty()) System.out.println("Error: No se pudo guardar el archivo JSON.");
-                    
-                } else {
-                    // Imprime el JSON resultante después de procesar todas las anotaciones
-                    String json = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
-                            .writeValueAsString(result);
-                    System.out.println(json);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        // Verifica si el objeto result tiene al menos un campo antes de imprimir
+        if (result.size() > 0) {
+            
+            String outputFile = saveJsonToFile(result, outputFileName);
+            
+            if (outputFile.isEmpty()) System.out.println("Error: No se pudo guardar el archivo JSON.");
+            
+            
         }
     }
 
@@ -185,7 +174,7 @@ public class AnnotationAnalyzer {
         return fieldName;
     }
 
-    private static String saveJsonToFile(ObjectNode result, String outputFileName, String NameProject) {
+    private static String saveJsonToFile(ObjectNode result, String outputFileName) {
         File outputFile = null;
         try {
             // Carpeta de salida constante

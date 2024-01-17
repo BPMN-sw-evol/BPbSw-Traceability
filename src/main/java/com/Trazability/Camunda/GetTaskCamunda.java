@@ -111,9 +111,9 @@ public class GetTaskCamunda {
             // Crear un FileWriter en el directorio "output" con el nombre del archivo
             // original y extensión .json
             String filePath = outputDirectory + File.separator + fileName + ".json";
-            FileWriter fileWriter = new FileWriter(filePath);
-            fileWriter.write(json);
-            fileWriter.close();
+            try (FileWriter fileWriter = new FileWriter(filePath)) {
+                fileWriter.write(json);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -9,16 +9,24 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Scanner;
 import java.util.Set;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.StartEvent;
 
 public class Main {
 
+    private static String bpmnFilePath = "";
+
+    public static String getBpmnFilePath() {
+        return bpmnFilePath;
+    }
+
     public static void main(String[] args) throws IOException {
-        String bpmnFilePath = loadBpmnModelInstance();
+        bpmnFilePath = selectBpmnFile();
 
         BpmnModelInstance modelInstance = null;
         String fileNameWithoutExtension = "";
@@ -28,46 +36,51 @@ public class Main {
             String fileNameWithExtension = file.getName();
             fileNameWithoutExtension = fileNameWithExtension.substring(0, fileNameWithExtension.lastIndexOf('.'));
         } catch (Exception e) {
-            System.err.println("Error al cargar el archivo BPMN: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error al cargar el archivo BPMN: " + e.getMessage(), "Error", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
         JsonObject bpmnDetails = new JsonObject();
         boolean successBpmn = processBpmnModel(modelInstance, bpmnDetails, fileNameWithoutExtension);
 
-        String outputFileName = "";
-        String[] projectPaths = new String[0];
+        String[] projectPaths = getProjectPathsFromUserInput();
 
-        Scanner scanner = new Scanner(System.in);
-        projectPaths = getProjectPathsFromUserInput(scanner);
-        outputFileName = "MSG-Foundation";
-        scanner.close();
-
-        boolean successProject = processProjectActions(outputFileName, projectPaths);
+        boolean successProject = processProjectActions("MSG-Foundation", projectPaths);
 
         if (successBpmn && successProject) {
-            System.out.println(
-                    "Tanto la información de BPMN como la de proyectos se procesaron y guardaron exitosamente.");
-            Data data = new Data("D:\\Laboral\\BPbSw-Traceability\\output\\MSG-Foundation.json", 
-                         "D:\\Laboral\\BPbSw-Traceability\\output\\MSGF-Test.json", 
-                         "MSG-Foundation");
-            
+            Data data = new Data("output/MSG-Foundation.json",
+                    "output/MSGF-Test.json",
+                    "MSG-Foundation");
+
             if (data.isDataInitialized()) {
-                System.out.println("La informacion se ha guardado con exito.");
-                
+                String successMessage = "La informacion se ha guardado con exito.";
+                JOptionPane.showMessageDialog(null, successMessage, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
             } else {
-                System.err.println("Error al guardar la informacion.");
+                String ErrorMessage = "Error al guardar la informacion.";
+                JOptionPane.showMessageDialog(null, ErrorMessage, "Error", JOptionPane.INFORMATION_MESSAGE);
             }
         } else {
-            System.out.println("Hubo un problema al procesar y guardar la información de BPMN y/o proyectos.");
+            String errorMessage = "Hubo un problema al procesar y guardar la información de BPMN y/o proyectos.";
+            JOptionPane.showMessageDialog(null, errorMessage, "Error", JOptionPane.INFORMATION_MESSAGE);
+
         }
     }
 
-    private static String loadBpmnModelInstance() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Ingrese la ruta del archivo BPMN (.bpmn): ");
-        String bpmnFilePath = scanner.nextLine();
-        return bpmnFilePath;
+    private static String selectBpmnFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Archivos BPMN", "bpmn"));
+
+        int result = fileChooser.showOpenDialog(null);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            return selectedFile.getAbsolutePath();
+        } else {
+            JOptionPane.showMessageDialog(null, "Operación cancelada por el usuario.", "Error", JOptionPane.INFORMATION_MESSAGE);
+            System.exit(0);
+            return null; // Esto nunca debería ocurrir debido a System.exit(0), solo para satisfacer el compilador
+        }
     }
 
     private static boolean processBpmnModel(BpmnModelInstance modelInstance, JsonObject bpmnDetails,
@@ -93,17 +106,27 @@ public class Main {
         }
     }
 
-    private static String[] getProjectPathsFromUserInput(Scanner scanner) {
-        System.out.print("Ingrese la cantidad de proyectos a procesar: ");
-        int numberOfProjects = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
+    private static String[] getProjectPathsFromUserInput() {
+        JFileChooser dirChooser = new JFileChooser();
+        dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        dirChooser.setMultiSelectionEnabled(true); // Permitir selección múltiple
 
-        String[] projectPaths = new String[numberOfProjects];
-        for (int i = 0; i < numberOfProjects; i++) {
-            System.out.print("Ingrese la ruta del proyecto #" + (i + 1) + ": ");
-            projectPaths[i] = scanner.nextLine();
+        int result = dirChooser.showOpenDialog(null);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File[] selectedDirectories = dirChooser.getSelectedFiles();
+            String[] projectPaths = new String[selectedDirectories.length];
+
+            for (int i = 0; i < selectedDirectories.length; i++) {
+                projectPaths[i] = selectedDirectories[i].getAbsolutePath();
+            }
+
+            return projectPaths;
+        } else {
+            JOptionPane.showMessageDialog(null, "Operación cancelada por el usuario.", "Error", JOptionPane.INFORMATION_MESSAGE);
+            System.exit(0);
+            return null; // Esto nunca debería ocurrir debido a System.exit(0), solo para satisfacer el compilador
         }
-        return projectPaths;
     }
 
     private static boolean processProjectActions(String outputFileName, String[] projectPaths) {
