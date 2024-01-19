@@ -19,7 +19,7 @@ import org.camunda.bpm.model.bpmn.instance.StartEvent;
 
 public class Main {
 
-    private static String bpmnFilePath = "";
+    private static String bpmnFilePath = "D:\\Documentos\\EPI\\BPbSw-Traceability\\Doc\\Model\\MSGF-Test.bpmn";
 
     public static String getBpmnFilePath() {
         return bpmnFilePath;

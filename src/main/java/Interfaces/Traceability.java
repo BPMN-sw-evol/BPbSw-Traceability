@@ -143,10 +143,10 @@ public class Traceability extends javax.swing.JFrame {
         String selectedProject = LPROJECTS.getSelectedValue();
         projectId = con.searchProject(selectedProject);
 
-        String containerName = con.searchContainerName(projectId);
+        String containerName = con.searchContainerName(projectId,selectedVariableId);
         CONTAINER.setText(containerName != null && !containerName.isEmpty() ? containerName : "variable not selected");
 
-        List<String> classNames = con.searchClassById(projectId);
+        List<String> classNames = con.searchClassById(projectId,selectedVariableId);
         updateList(LCLASSES, classNames, CountClasses, "Project not selected");
 
         // Restablecer a cero los campos de conteo en caso de que no haya Clases
@@ -168,7 +168,7 @@ public class Traceability extends javax.swing.JFrame {
         String selectedClass = LCLASSES.getSelectedValue();
         int classId = con.searchClass(selectedClass);
 
-        List<String> methodNames = con.searchMethodById(classId);
+        List<String> methodNames = con.searchMethodById(classId,selectedVariableId);
         updateList(LMETHODS, methodNames, CountMethods, "Class not selected");
 
         // Restablecer a cero los campos de conteo en caso de que no haya Metodos

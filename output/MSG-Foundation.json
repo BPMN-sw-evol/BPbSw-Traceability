@@ -1,18 +1,4 @@
 {
-  "MSGF-BPM-Engine" : {
-    "BPM Class: DatabaseServiceTaskDelegate" : {
-      "BPM Class: DatabaseServiceTaskDelegate" : {
-        "type" : "ServiceTask",
-        "name" : "Consultar información financiera"
-      },
-      "BPM Method: getterVariables (getter)" : {
-        "variables" : [ "quotaValue", "housePrices", "coupleSavings" ]
-      },
-      "BPM Method: setterVariables (setter)" : {
-        "variables" : [ "quotaValue", "housePrices", "coupleSavings" ]
-      }
-    }
-  },
   "MSGF-CentralSys" : {
     "BPM Class: CreditAnalystServices" : {
       "BPM Class: CreditAnalystServices" : {
@@ -86,6 +72,20 @@
       "BPM Method: getProcessVariablesById (getter)" : {
         "container" : "CreditRequestDTO",
         "variables" : [ "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "marriageYears", "bothEmployees", "housePrices", "quotaValue", "coupleSavings", "countReviewsBpm" ]
+      }
+    }
+  },
+  "MSGF-BPM-Engine" : {
+    "BPM Class: DatabaseServiceTaskDelegate" : {
+      "BPM Class: DatabaseServiceTaskDelegate" : {
+        "type" : "ServiceTask",
+        "name" : "Consultar información financiera"
+      },
+      "BPM Method: getterVariables (getter)" : {
+        "variables" : [ "quotaValue", "housePrices", "coupleSavings" ]
+      },
+      "BPM Method: setterVariables (setter)" : {
+        "variables" : [ "quotaValue", "housePrices", "coupleSavings" ]
       }
     }
   },

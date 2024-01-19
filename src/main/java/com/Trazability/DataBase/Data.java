@@ -67,7 +67,9 @@ public class Data {
         for (String i : this.projectInfo.keySet()) {
             int id_project = con.searchProject(i);
             for (String j : this.projectInfo.getJSONObject(i).keySet()) {
-                con.insertClass(id_project, j.split(": ")[1]);
+                if(con.searchClass(j.split(": ")[1], id_project)==-1){
+                    con.insertClass(id_project, j.split(": ")[1]);
+                }
             }
         }
     }
@@ -76,11 +78,14 @@ public class Data {
         ArrayList<String> container = new ArrayList<String>();
         for (String i : this.projectInfo.keySet()) {
             int id_project = con.searchProject(i);
+            if(con.searchContainer("NA", id_project)==-1){
+                con.insertContainer("NA",id_project);
+            }
             for (String j : this.projectInfo.getJSONObject(i).keySet()) {
                 for (String k: this.projectInfo.getJSONObject(i).getJSONObject(j).keySet()) {
                     if(this.projectInfo.getJSONObject(i).getJSONObject(j).get(k).toString().contains("container")){
                         String p = this.projectInfo.getJSONObject(i).getJSONObject(j).getJSONObject(k).getString("container");
-                        if(!container.contains(p)){
+                        if(!container.contains(p) && con.searchContainer(p, id_project)==-1){
                             container.add(p);
                             con.insertContainer(p,id_project);
                         }
@@ -120,7 +125,12 @@ public class Data {
                                     if(con.searchContainedIn(variable, container)==-1){
                                         con.insertContainedIn(variable, container);
                                     }
-                                    break;
+                                }else if(m.toString().equals(i)){
+                                    int container = con.searchContainer("NA",project);
+                                    
+                                    if(con.searchContainedIn(variable, container)==-1){
+                                        con.insertContainedIn(variable, container);
+                                    }
                                 }
                             }
                         }else if(this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).optString("variables").equals(i) && this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).keySet().contains("container")){
@@ -129,7 +139,7 @@ public class Data {
                                 con.insertContainedIn(variable, container);
                             }
                         }else if(this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).optString("variables").equals(i)){
-                            int container = con.searchContainer("NA",1);
+                            int container = con.searchContainer("NA",project);
                             if(con.searchContainedIn(variable, container)==-1){
                                 con.insertContainedIn(variable, container);
                             }
@@ -142,8 +152,9 @@ public class Data {
 
     private void setMethod(){
         for (String i : this.projectInfo.keySet()) {
+            int id_project = con.searchProject(i);
             for (String j : this.projectInfo.getJSONObject(i).keySet()) {
-                int id_class = con.searchClass(j.split(": ")[1]);
+                int id_class = con.searchClass(j.split(": ")[1],id_project);
                 for (String k: this.projectInfo.getJSONObject(i).getJSONObject(j).keySet()) {
                     if(k.contains("Method")){
                         con.insertMethod(id_class, k.split(": ")[1].split(" ")[0]);
@@ -158,6 +169,7 @@ public class Data {
         for (String i : this.variables) {
             int id_variable = con.searchVariable(i,this.history);
             for (String j : this.projectInfo.keySet()) {
+                int id_project = con.searchProject(j);
                 for (String k : this.projectInfo.getJSONObject(j).keySet()) {
                     for (String l: this.projectInfo.getJSONObject(j).getJSONObject(k).keySet()) {
                         if(this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).keySet().contains("variables")){
@@ -165,7 +177,7 @@ public class Data {
                             if(v!=null){
                                 for(Object m : v){
                                     if(m.toString().equals(i)){
-                                        int id_class = con.searchClass(k.split(": ")[1]);
+                                        int id_class = con.searchClass(k.split(": ")[1],id_project);
                                         int id_method = con.searchMethod(id_class,l.split(": ")[1].split(" ")[0]);
 
                                         if(l.toString().contains("set")){
@@ -178,7 +190,7 @@ public class Data {
                                    }
                                }
                             }else if(this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).getString("variables").equals(i)){
-                               int id_class = con.searchClass(k.split(": ")[1]);
+                               int id_class = con.searchClass(k.split(": ")[1],id_project);
                                int id_method = con.searchMethod(id_class,l.split(": ")[1].split(" ")[0]);
 
                                 if(l.toString().contains("set")){
@@ -203,9 +215,9 @@ public class Data {
         for(Object i : p){
             JSONObject j = (JSONObject) i;
 
-            if(!this.type.contains(j.getString("taskImplementationType"))){
-                this.type.add(j.getString("taskImplementationType"));
-                con.insertElementType(j.getString("taskImplementationType"));
+            if(!this.type.contains(j.getString("taskType")) && con.searchElementType(j.getString("taskType"))==-1){
+                this.type.add(j.getString("taskType"));
+                con.insertElementType(j.getString("taskType"));
             }    
         }
     }
@@ -214,7 +226,7 @@ public class Data {
         JSONArray p = this.bpmnInfo.getJSONArray("trace");
         for(Object i : p){
             JSONObject j = (JSONObject) i;
-            int id_type = con.searchElementType(j.getString("taskImplementationType"));
+            int id_type = con.searchElementType(j.getString("taskType"));
             String name = j.getString("taskName");
             String lane = "Lane"; //cuando BPMN-Tracer traiga el lane, modificar esta linea
             int id_process = con.searchProcess(this.bpmnInfo.getString("bpmName"));
