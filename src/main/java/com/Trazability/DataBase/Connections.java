@@ -42,7 +42,7 @@ public class Connections {
             ps.setTimestamp(2, date);
             int filasAfectadas = ps.executeUpdate();
             System.out.println("Se insertaron " + filasAfectadas + " filas.");
-            int i = searchHistory(name,date);
+            int i = searchHistory(name, date);
             return i;
         } catch (SQLException e) {
             System.err.println("Error al realizar la inserción: " + e);
@@ -50,7 +50,7 @@ public class Connections {
         }
     }
 
-    public int searchHistory(String name, java.sql.Timestamp date){
+    public int searchHistory(String name, java.sql.Timestamp date) {
         try {
             String sql = "SELECT id_history FROM history WHERE name = ? AND date = ?";
             ps = conexion.prepareStatement(sql);
@@ -67,7 +67,7 @@ public class Connections {
         }
     }
 
-    public void insertVariable(String name,int history){
+    public void insertVariable(String name, int history) {
         try {
             String sql = "INSERT INTO variable (variable_name,id_history) VALUES (?,?)";
             ps = conexion.prepareStatement(sql);
@@ -80,14 +80,14 @@ public class Connections {
         }
     }
 
-    public int searchVariable(String name,int history){
+    public int searchVariable(String name, int history) {
         try {
             String sql = "SELECT id_variable FROM variable WHERE variable_name = ? AND id_history = ?";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
             ps.setInt(2, history);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("id_variable");
             } else {
@@ -99,7 +99,7 @@ public class Connections {
         }
     }
 
-    public void insertContainer(String name,int id_project){
+    public void insertContainer(String name, int id_project) {
         try {
             String sql = "INSERT INTO data_container (name_container,id_project) VALUES (?,?)";
             ps = conexion.prepareStatement(sql);
@@ -112,14 +112,14 @@ public class Connections {
         }
     }
 
-    public int searchContainer(String name,int id_project){
+    public int searchContainer(String name, int id_project) {
         try {
             String sql = "SELECT id_data_container FROM data_container WHERE name_container = ? AND id_project = ?";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
             ps.setInt(2, id_project);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("id_data_container");
             } else {
@@ -131,7 +131,7 @@ public class Connections {
         }
     }
 
-    public void insertContainedIn(int id_variable,int id_container){
+    public void insertContainedIn(int id_variable, int id_container) {
         try {
             String sql = "INSERT INTO contained_in (id_variable,id_data_container) VALUES (?,?)";
             ps = conexion.prepareStatement(sql);
@@ -144,14 +144,14 @@ public class Connections {
         }
     }
 
-    public int searchContainedIn(int id_variable, int id_container){
+    public int searchContainedIn(int id_variable, int id_container) {
         try {
             String sql = "SELECT id_contained_in FROM contained_in WHERE id_variable = ? AND id_data_container = ?";
             ps = conexion.prepareStatement(sql);
             ps.setInt(1, id_variable);
             ps.setInt(2, id_container);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("id_contained_in");
             } else {
@@ -163,7 +163,7 @@ public class Connections {
         }
     }
 
-    public void insertProject(String name){
+    public void insertProject(String name) {
         try {
             String sql = "INSERT INTO project (name_project) VALUES (?)";
             ps = conexion.prepareStatement(sql);
@@ -175,13 +175,13 @@ public class Connections {
         }
     }
 
-    public int searchProject(String name){
+    public int searchProject(String name) {
         try {
             String sql = "SELECT id_project FROM project WHERE name_project = ?";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("id_project");
             } else {
@@ -193,7 +193,7 @@ public class Connections {
         }
     }
 
-    public void insertClass(int id_project,String name){
+    public void insertClass(int id_project, String name) {
         try {
             String sql = "INSERT INTO class (id_project,name_class) VALUES (?,?)";
             ps = conexion.prepareStatement(sql);
@@ -206,32 +206,14 @@ public class Connections {
         }
     }
 
-    public int searchClass(String name, int id_project){
+    public int searchClass(String name, int id_project) {
         try {
             String sql = "SELECT id_class FROM class WHERE name_class = ? AND id_project = ?";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
             ps.setInt(2, id_project);
             rs = ps.executeQuery();
-            
-            if (rs.next()) {
-                return rs.getInt("id_class");
-            } else {
-                return -1; // El curso no se encontró
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al realizar la busqueda: " + e);
-            return -1;
-        }
-    }
-    
-    public int searchClass(String name){
-        try {
-            String sql = "SELECT id_class FROM class WHERE name_class = ?";
-            ps = conexion.prepareStatement(sql);
-            ps.setString(1, name);
-            rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("id_class");
             } else {
@@ -243,7 +225,25 @@ public class Connections {
         }
     }
 
-    public void insertMethod(int id_class,String name){
+    public int searchClass(String name) {
+        try {
+            String sql = "SELECT id_class FROM class WHERE name_class = ?";
+            ps = conexion.prepareStatement(sql);
+            ps.setString(1, name);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("id_class");
+            } else {
+                return -1; // El curso no se encontró
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la busqueda: " + e);
+            return -1;
+        }
+    }
+
+    public void insertMethod(int id_class, String name) {
         try {
             String sql = "INSERT INTO method (id_class,name_method) VALUES (?,?)";
             ps = conexion.prepareStatement(sql);
@@ -256,14 +256,14 @@ public class Connections {
         }
     }
 
-    public int searchMethod(int id_class, String name){
+    public int searchMethod(int id_class, String name) {
         try {
             String sql = "SELECT id_method FROM method WHERE name_method = ? AND id_class = ?";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
             ps.setInt(2, id_class);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("id_method");
             } else {
@@ -275,7 +275,7 @@ public class Connections {
         }
     }
 
-    public void insertMethodUsed(int id_variable,int id_method,boolean modify){
+    public void insertMethodUsed(int id_variable, int id_method, boolean modify) {
         try {
             String sql = "INSERT INTO used_by_method (id_variable,id_method,modify) VALUES (?,?,?)";
             ps = conexion.prepareStatement(sql);
@@ -289,13 +289,13 @@ public class Connections {
         }
     }
 
-    public int searchMethodUsed(int id_variable){
+    public int searchMethodUsed(int id_variable) {
         try {
             String sql = "SELECT id_used_by_method FROM used_by_method WHERE id_variable = ?";
             ps = conexion.prepareStatement(sql);
             ps.setInt(1, id_variable);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("id_used_by_method");
             } else {
@@ -307,7 +307,7 @@ public class Connections {
         }
     }
 
-    public void insertProcess(String process){
+    public void insertProcess(String process) {
         try {
             String sql = "INSERT INTO process (process_name) VALUES (?)";
             ps = conexion.prepareStatement(sql);
@@ -319,13 +319,13 @@ public class Connections {
         }
     }
 
-    public int searchProcess(String name){
+    public int searchProcess(String name) {
         try {
             String sql = "SELECT id_process FROM process WHERE process_name = ?";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("id_process");
             } else {
@@ -337,7 +337,7 @@ public class Connections {
         }
     }
 
-    public void insertElementType(String name){
+    public void insertElementType(String name) {
         try {
             String sql = "INSERT INTO element_type (element_type_name) VALUES (?)";
             ps = conexion.prepareStatement(sql);
@@ -349,13 +349,13 @@ public class Connections {
         }
     }
 
-    public int searchElementType(String name){
+    public int searchElementType(String name) {
         try {
             String sql = "SELECT id_element_type FROM element_type WHERE element_type_name = ?";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("id_element_type");
             } else {
@@ -367,7 +367,7 @@ public class Connections {
         }
     }
 
-    public void insertElement(int id_element_type, String name, String lane, int id_process){
+    public void insertElement(int id_element_type, String name, String lane, int id_process) {
         try {
             String sql = "INSERT INTO element (id_element_type,element_name,lane,id_process) VALUES (?,?,?,?)";
             ps = conexion.prepareStatement(sql);
@@ -382,13 +382,13 @@ public class Connections {
         }
     }
 
-    public int searchElement(String name){
+    public int searchElement(String name) {
         try {
             String sql = "SELECT id_element FROM element WHERE element_name = ?";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("id_element");
             } else {
@@ -400,7 +400,7 @@ public class Connections {
         }
     }
 
-    public void insertElementUsed(int id_variable,int id_element,String first){
+    public void insertElementUsed(int id_variable, int id_element, String first) {
         try {
             String sql = "INSERT INTO used_by_element (id_variable,id_element,used_first) VALUES (?,?,?)";
             ps = conexion.prepareStatement(sql);
@@ -414,13 +414,13 @@ public class Connections {
         }
     }
 
-    public int searchElementUsed(int id_variable){
+    public int searchElementUsed(int id_variable) {
         try {
             String sql = "SELECT id_used_by_element FROM used_by_element WHERE id_variable = ?";
             ps = conexion.prepareStatement(sql);
             ps.setInt(1, id_variable);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("id_used_by_element");
             } else {
@@ -470,7 +470,7 @@ public class Connections {
         return variableNames;
     }
 
-    public String searchContainerName(int id_project,int id_variable) {
+    public String searchContainerName(int id_project, int id_variable) {
         String container = "";
         try {
             String sql = "SELECT id_data_container FROM contained_in WHERE id_variable = ?";
@@ -478,19 +478,19 @@ public class Connections {
             ps.setInt(1, id_variable);
             rs = ps.executeQuery();
 
-            while(rs.next()) {
+            while (rs.next()) {
                 int id_container = rs.getInt("id_data_container");
                 sql = "SELECT name_container FROM data_container WHERE id_data_container = ? AND id_project = ?";
                 PreparedStatement ps1 = conexion.prepareStatement(sql);
                 ps1.setInt(1, id_container);
                 ps1.setInt(2, id_project);
                 ResultSet rs1 = ps1.executeQuery();
-                
-                if(rs1.next()){
+
+                if (rs1.next()) {
                     container = rs1.getString("name_container");
                 }
             }
-            
+
             return container;
         } catch (SQLException e) {
             System.err.println("Error al realizar la búsqueda: " + e);
@@ -528,7 +528,9 @@ public class Connections {
 
                     if (projectRs.next()) {
                         String projectName = projectRs.getString("name_project");
-                        projectNames.add(projectName);
+                        if (!projectNames.contains(projectName)) {
+                            projectNames.add(projectName);
+                        }
                     }
                 }
             }
@@ -541,7 +543,7 @@ public class Connections {
 
     public List<String> searchClassById(int id_project, int id_variable) {
         List<String> classNames = new ArrayList<>();
-        
+
         try {
             String sql = "SELECT id_method FROM used_by_method WHERE id_variable = ?";
             ps = conexion.prepareStatement(sql);
@@ -554,21 +556,21 @@ public class Connections {
                 PreparedStatement ps1 = conexion.prepareStatement(sql);
                 ps1.setInt(1, id_method);
                 ResultSet rs1 = ps1.executeQuery();
-                
-                if(rs1.next()){
+
+                if (rs1.next()) {
                     int id_class = rs1.getInt("id_class");
                     sql = "SELECT name_class FROM class WHERE id_class = ? AND id_project = ?";
                     PreparedStatement ps2 = conexion.prepareStatement(sql);
                     ps2.setInt(1, id_class);
                     ps2.setInt(2, id_project);
                     ResultSet rs2 = ps2.executeQuery();
-                    
-                    if(rs2.next()){
+
+                    if (rs2.next()) {
                         String className = rs2.getString("name_class");
-                        if(!classNames.contains(className)){
+                        if (!classNames.contains(className)) {
                             classNames.add(className);
                         }
-                        
+
                     }
                 }
             }
@@ -579,7 +581,7 @@ public class Connections {
         return classNames;
     }
 
-    public List<String> searchMethodById(int id_class,int id_variable) {
+    public List<String> searchMethodById(int id_class, int id_variable) {
         List<String> methodNames = new ArrayList<>();
 
         try {
@@ -595,8 +597,8 @@ public class Connections {
                 ps1.setInt(1, id_method);
                 ps1.setInt(2, id_class);
                 ResultSet rs1 = ps1.executeQuery();
-                
-                if(rs1.next()){
+
+                if (rs1.next()) {
                     String methodName = rs1.getString("name_method");
                     methodNames.add(methodName);
                 }

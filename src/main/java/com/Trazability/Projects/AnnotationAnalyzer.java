@@ -3,14 +3,18 @@ package com.Trazability.Projects;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
-import com.github.javaparser.ast.expr.*;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.ArrayInitializerExpr;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MemberValuePair;
+import com.github.javaparser.ast.expr.NormalAnnotationExpr;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -21,7 +25,7 @@ import java.util.List;
 public class AnnotationAnalyzer {
     public static void analyzeAnnotationsInProject(String projectPath, String outputFileName) {
         File projectDirectory = new File(projectPath);
-        String NameProject = projectDirectory.getName();
+        String projectName = projectDirectory.getName();
 
         if (!projectDirectory.exists() || !projectDirectory.isDirectory()) {
             System.err.println("Invalid project path.");
@@ -31,42 +35,40 @@ public class AnnotationAnalyzer {
         List<String> customAnnotations = Arrays.asList("BPMNTask", "BPMNGetVariables", "BPMNSetVariables",
                 "BPMNGetterVariables", "BPMNSetterVariables");
 
-        processJavaFiles(projectDirectory, customAnnotations, outputFileName, NameProject);
+        processJavaFiles(projectDirectory, customAnnotations, outputFileName, projectName);
     }
 
     private static void processJavaFiles(File directory, List<String> customAnnotations, String outputFileName,
-            String NameProject) {
-        ObjectNode result = JsonNodeFactory.instance.objectNode(); // Objeto JSON para almacenar todas las anotaciones
+                                         String projectName) {
+        ObjectNode result = new ObjectMapper().createObjectNode();
 
         for (File file : directory.listFiles()) {
             if (file.isDirectory()) {
-                processJavaFiles(file, customAnnotations, outputFileName, NameProject);
+                processJavaFiles(file, customAnnotations, outputFileName, projectName);
             } else if (file.getName().endsWith(".java")) {
-                processJavaFile(file, customAnnotations, result, NameProject);
+                processJavaFile(file, customAnnotations, result, projectName);
             }
         }
 
-        // Verifica si el objeto result tiene al menos un campo antes de imprimir
         if (result.size() > 0) {
-            
             String outputFile = saveJsonToFile(result, outputFileName);
-            
-            if (outputFile.isEmpty()) System.out.println("Error: No se pudo guardar el archivo JSON.");
-            
-            
+            if (outputFile.isEmpty()) {
+                System.out.println("Error: No se pudo guardar el archivo JSON.");
+            }
         }
     }
 
     private static void processJavaFile(File file, List<String> customAnnotations, ObjectNode result,
-            String NameProject) {
+                                         String projectName) {
         try {
             CompilationUnit cu = StaticJavaParser.parse(file);
 
             List<TypeDeclaration<?>> types = cu.getTypes();
 
             for (TypeDeclaration<?> type : types) {
-                ObjectNode classNode = JsonNodeFactory.instance.objectNode();
+                ObjectNode classNode = new ObjectMapper().createObjectNode();
                 List<AnnotationExpr> classAnnotations = type.getAnnotations();
+
                 for (AnnotationExpr annotation : classAnnotations) {
                     if (customAnnotations.contains(annotation.getNameAsString())) {
                         processAnnotations(annotation, classNode, "Class: " + type.getNameAsString());
@@ -95,14 +97,11 @@ public class AnnotationAnalyzer {
                     }
                 }
 
-                // Verifica si el nodo de la clase tiene al menos un elemento antes de agregarlo
-                // al resultado
                 if (classNode.size() > 0) {
-                    ObjectNode projectNode = result.has(NameProject) ? (ObjectNode) result.get(NameProject)
-                            : result.putObject(NameProject);
+                    ObjectNode projectNode = result.has(projectName) ? (ObjectNode) result.get(projectName)
+                            : result.putObject(projectName);
                     projectNode.set("BPM Class: " + type.getNameAsString(), classNode);
                 }
-
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -140,16 +139,12 @@ public class AnnotationAnalyzer {
                 annotationNode.set(key, valueNode);
             }
 
-            // Verifica si el nodo de la anotación tiene al menos un elemento antes de
-            // agregarlo al nodo de la clase
             if (annotationNode.size() > 0) {
                 classNode.set("BPM " + elementName, annotationNode);
             } else {
                 classNode.put("BPM " + elementName, "No additional information");
             }
         } else {
-            // Si no es de tipo NormalAnnotationExpr, aún así, agrega la información básica
-            // al nodo de la clase
             classNode.put("BPM " + elementName, "No additional information");
         }
     }
@@ -177,7 +172,6 @@ public class AnnotationAnalyzer {
     private static String saveJsonToFile(ObjectNode result, String outputFileName) {
         File outputFile = null;
         try {
-            // Carpeta de salida constante
             String outputFolderPath = "output";
 
             File outputFolder = new File(outputFolderPath);
@@ -186,28 +180,23 @@ public class AnnotationAnalyzer {
             }
 
             String fileName = outputFileName + ".json";
-            outputFile = new File(outputFolderPath, fileName);
+            outputFile = new File(outputFolder, fileName);
 
             ObjectNode existingData = null;
             ObjectMapper objectMapper = new ObjectMapper();
 
-            // Comprobar si el archivo de salida ya existe
             if (outputFile.exists()) {
-                // Leer el contenido existente del archivo
                 try (FileReader reader = new FileReader(outputFile)) {
                     existingData = (ObjectNode) objectMapper.readTree(reader);
                 }
             } else {
-                // Si el archivo no existe, crea un nuevo objeto JSON vacío
                 existingData = objectMapper.createObjectNode();
             }
 
-            // Combinar el resultado existente con el nuevo resultado
             if (existingData != null) {
                 existingData.setAll(result);
             }
 
-            // Escribir el contenido combinado en el archivo de salida
             try (FileWriter writer = new FileWriter(outputFile)) {
                 writer.write(existingData.toPrettyString());
             }
@@ -217,5 +206,4 @@ public class AnnotationAnalyzer {
         }
         return (outputFile != null) ? outputFile.getAbsolutePath() : "";
     }
-
 }

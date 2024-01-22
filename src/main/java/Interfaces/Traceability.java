@@ -1,13 +1,14 @@
 package Interfaces;
 
-import com.Trazability.Color.BpmnColor;
+import com.Trazability.ImageGenerate.BpmnColor;
 import com.Trazability.DataBase.Connections;
+import com.Trazability.ImageGenerate.ImageCapture;
 import com.Trazability.Main;
 
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,31 +20,28 @@ import javax.swing.JList;
 
 public class Traceability extends javax.swing.JFrame {
 
-    private Connections con = new Connections();
+    private final Connections con = new Connections();
     private int projectId, selectedVariableId;
 
     public Traceability() {
         initComponents();
         initializeFrame();
-                
     }
 
     private void initializeFrame() {
         this.setResizable(false);
         this.setTitle("TRACEABILITY");
+        
         loadVariableNames(); // Cargar nombres de variables al iniciar
         addVariableSelectionListener(); // Agrega proyectos según la variable
         getProjectSelectionListener(); // Obtener el id según el proyecto
         getMethodSelectionListener(); // Obtener el id según la clase
-        loadData();
-        loadImage();
+        loadData(); //Hacer actualizacion en la base de datos
     }
 
     private void loadVariableNames() {
         try {
             List<String> variableNames = con.getAllVariableNames();
-
-            // Agregar la opción predeterminada
             variableNames.add(0, "Choose a variable");
 
             if (!variableNames.isEmpty()) {
@@ -65,10 +63,8 @@ public class Traceability extends javax.swing.JFrame {
         VARIABLES.addActionListener(e -> {
             try {
                 handleVariableSelection();
-            } catch (IOException ex) {
+            } catch (IOException | InterruptedException ex) {
                 handleException(ex);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Traceability.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }
@@ -85,7 +81,6 @@ public class Traceability extends javax.swing.JFrame {
         updateProcessName(processName);
         updateParticipant(participant);
 
-        // Restablecer a cero los campos de conteo en caso de que no haya proyectos
         if (projectNames == null || projectNames.isEmpty()) {
             CountProjects.setText("0");
             CountClasses.setText("0");
@@ -114,17 +109,11 @@ public class Traceability extends javax.swing.JFrame {
     }
 
     private void updateProcessName(String processName) {
-        if (processName != null && !processName.isEmpty()) {
-            PROCESS.setText(processName+".bpmn");
-        } else {
-            PROCESS.setText("Process name not found or error in the search.");
-        }
+        PROCESS.setText(processName != null && !processName.isEmpty() ? processName + ".bpmn" : "Process name not found or error in the search.");
     }
 
     private void updateParticipant(String participant) {
-        if (participant != null && !participant.isEmpty()) {
-            PARTICIPANT.setText(participant);
-        }
+        PARTICIPANT.setText(participant != null && !participant.isEmpty() ? participant : "");
     }
 
     private void handleException(Exception e) {
@@ -143,13 +132,12 @@ public class Traceability extends javax.swing.JFrame {
         String selectedProject = LPROJECTS.getSelectedValue();
         projectId = con.searchProject(selectedProject);
 
-        String containerName = con.searchContainerName(projectId,selectedVariableId);
+        String containerName = con.searchContainerName(projectId, selectedVariableId);
         CONTAINER.setText(containerName != null && !containerName.isEmpty() ? containerName : "variable not selected");
 
-        List<String> classNames = con.searchClassById(projectId,selectedVariableId);
+        List<String> classNames = con.searchClassById(projectId, selectedVariableId);
         updateList(LCLASSES, classNames, CountClasses, "Project not selected");
 
-        // Restablecer a cero los campos de conteo en caso de que no haya Clases
         if (classNames == null || classNames.isEmpty()) {
             CountClasses.setText("0");
             CountMethods.setText("0");
@@ -168,10 +156,9 @@ public class Traceability extends javax.swing.JFrame {
         String selectedClass = LCLASSES.getSelectedValue();
         int classId = con.searchClass(selectedClass);
 
-        List<String> methodNames = con.searchMethodById(classId,selectedVariableId);
+        List<String> methodNames = con.searchMethodById(classId, selectedVariableId);
         updateList(LMETHODS, methodNames, CountMethods, "Class not selected");
 
-        // Restablecer a cero los campos de conteo en caso de que no haya Metodos
         if (methodNames == null || methodNames.isEmpty()) {
             CountMethods.setText("0");
         }
@@ -191,55 +178,69 @@ public class Traceability extends javax.swing.JFrame {
     }
 
     private void getUsedElement(int selectedVariableId) throws IOException, InterruptedException {
-        BpmnColor modifier = new BpmnColor();
         if (selectedVariableId <= 0) {
-            System.err.println("Error: ID de variable no válido.");
+//            System.err.println("Error: ID de variable no válido.");
             return;
         }
 
         List<String> usedElementNames = con.searchElementsUsed(selectedVariableId);
 
         if (!usedElementNames.isEmpty() && !usedElementNames.get(0).equals("Elemento no encontrado")) {
+            BpmnColor modifier = new BpmnColor();
             modifier.modifyActivityColors(usedElementNames);
+
+            ImageCapture capture = new ImageCapture();
+            capture.imageCapture();
+
+            loadImage();
         } else {
             System.out.println("No se encontraron elementos usados para la variable con ID " + selectedVariableId);
         }
     }
 
     private void loadData() {
-        LOAD.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    // Llamar al método main de la clase Main
-                    Main.main(new String[]{});
-
-                    // Recargar datos en la instancia actual
-                    loadVariableNames();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+        LOAD.addActionListener(e -> {
+            try {
+                Main.main(new String[]{});
+                loadVariableNames();
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
         });
     }
 
     private void loadImage() {
-        // Ruta de la imagen
-        String rutaImagen = "C:\\Users\\SOPORTES JPVM\\Desktop\\MSGF-Test.bpmn.png";
-
-        // Crear un ImageIcon desde la imagen en la ruta
+        String rutaImagen = Paths.get(System.getProperty("user.dir"), "output", "MSGF-Test-Color.png").toString();
         ImageIcon icono = new ImageIcon(rutaImagen);
 
-        // Obtener la imagen del ImageIcon
+        // Obtiene las dimensiones del JLabel
+        int anchoJMODEL = JMODEL.getWidth();
+        int altoJMODEL = JMODEL.getHeight();
+
+        // Obtiene las dimensiones originales de la imagen
+        int anchoOriginal = icono.getIconWidth();
+        int altoOriginal = icono.getIconHeight();
+
+        // Calcula las nuevas dimensiones manteniendo la proporción
+        int nuevoAncho = anchoOriginal;
+        int nuevoAlto = altoOriginal;
+
+        double proporcionAncho = (double) anchoJMODEL / anchoOriginal;
+        double proporcionAlto = (double) altoJMODEL / altoOriginal;
+
+        double proporcion = Math.min(proporcionAncho, proporcionAlto);
+
+        nuevoAncho = (int) (anchoOriginal * proporcion);
+        nuevoAlto = (int) (altoOriginal * proporcion);
+
+        // Escala la imagen manteniendo su relación de aspecto
         Image imagen = icono.getImage();
+        Image imagenEscalada = imagen.getScaledInstance(nuevoAncho, nuevoAlto, Image.SCALE_SMOOTH);
 
-        // Escalar la imagen para que se ajuste al tamaño del JLabel
-        Image imagenEscalada = imagen.getScaledInstance(JMODEL.getWidth(), JMODEL.getHeight(), Image.SCALE_SMOOTH);
-
-        // Crear un nuevo ImageIcon con la imagen escalada
+        // Crea un nuevo ImageIcon con la imagen escalada
         ImageIcon iconoEscalado = new ImageIcon(imagenEscalada);
 
-        // Asignar el ImageIcon al icono del JLabel (asumiendo que JMODEL es un JLabel)
+        // Asigna el ImageIcon al JLabel
         JMODEL.setIcon(iconoEscalado);
     }
 
@@ -321,16 +322,17 @@ public class Traceability extends javax.swing.JFrame {
         PPROJECTS.setLayout(PPROJECTSLayout);
         PPROJECTSLayout.setHorizontalGroup(
             PPROJECTSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PPROJECTSLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel6)
-                .addGap(72, 72, 72)
-                .addComponent(CountProjects, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PPROJECTSLayout.createSequentialGroup()
+                .addGroup(PPROJECTSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(PPROJECTSLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane1))
+                    .addGroup(PPROJECTSLayout.createSequentialGroup()
+                        .addGap(93, 93, 93)
+                        .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+                        .addGap(82, 82, 82)
+                        .addComponent(CountProjects, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
-            .addGroup(PPROJECTSLayout.createSequentialGroup()
-                .addGap(19, 19, 19)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 241, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(21, Short.MAX_VALUE))
         );
         PPROJECTSLayout.setVerticalGroup(
             PPROJECTSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -340,7 +342,7 @@ public class Traceability extends javax.swing.JFrame {
                     .addComponent(CountProjects)
                     .addComponent(jLabel6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -370,16 +372,16 @@ public class Traceability extends javax.swing.JFrame {
         PCLASSES.setLayout(PCLASSESLayout);
         PCLASSESLayout.setHorizontalGroup(
             PCLASSESLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PCLASSESLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel7)
-                .addGap(70, 70, 70)
-                .addComponent(CountClasses, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PCLASSESLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PCLASSESLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane2)
+                    .addGroup(PCLASSESLayout.createSequentialGroup()
+                        .addGap(0, 118, Short.MAX_VALUE)
+                        .addComponent(jLabel7)
+                        .addGap(117, 117, 117)
+                        .addComponent(CountClasses, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
-            .addGroup(PCLASSESLayout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(19, Short.MAX_VALUE))
         );
         PCLASSESLayout.setVerticalGroup(
             PCLASSESLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -389,8 +391,8 @@ public class Traceability extends javax.swing.JFrame {
                     .addComponent(jLabel7)
                     .addComponent(CountClasses))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         PMETHODS.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -420,26 +422,26 @@ public class Traceability extends javax.swing.JFrame {
         PMETHODS.setLayout(PMETHODSLayout);
         PMETHODSLayout.setHorizontalGroup(
             PMETHODSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PMETHODSLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel8)
-                .addGap(73, 73, 73)
-                .addComponent(CountMethods, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
             .addGroup(PMETHODSLayout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 241, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(PMETHODSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PMETHODSLayout.createSequentialGroup()
+                        .addGap(100, 100, 100)
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 120, Short.MAX_VALUE)
+                        .addComponent(CountMethods, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane3))
+                .addContainerGap())
         );
         PMETHODSLayout.setVerticalGroup(
             PMETHODSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PMETHODSLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(PMETHODSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
+                    .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(CountMethods))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -457,11 +459,9 @@ public class Traceability extends javax.swing.JFrame {
 
         LOAD.setText("Generate New Trace");
         LOAD.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        LOAD.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                LOADActionPerformed(evt);
-            }
-        });
+
+        JMODEL.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        JMODEL.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -477,25 +477,25 @@ public class Traceability extends javax.swing.JFrame {
                             .addComponent(JMODEL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(PPROJECTS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel4)
+                                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(18, 18, 18)
-                                        .addComponent(CONTAINER, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(CONTAINER, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addComponent(PCLASSES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(32, 32, 32)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
                                 .addComponent(PMETHODS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(8, 8, 8))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGap(25, 25, 25)
-                        .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(PARTICIPANT, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(VARIABLES, 0, 278, Short.MAX_VALUE)
+                        .addGap(49, 49, 49)
+                        .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(PROCESS, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(LOAD)
+                        .addComponent(LOAD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(7, 7, 7)))
                 .addContainerGap())
         );
@@ -503,26 +503,28 @@ public class Traceability extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(PARTICIPANT)
-                    .addComponent(PROCESS)
-                    .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(LOAD, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(LOAD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(CONTAINER)
-                            .addComponent(jLabel4))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(PCLASSES, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(PPROJECTS, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(PMETHODS, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(CONTAINER, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(PCLASSES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(PPROJECTS, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(PMETHODS, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(JMODEL, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(JMODEL, javax.swing.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -531,22 +533,18 @@ public class Traceability extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void LOADActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LOADActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_LOADActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -572,11 +570,10 @@ public class Traceability extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-//        com.Trazability.Main.main(args);
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run(){
+            public void run() {
                 new Traceability().setVisible(true);
             }
         });

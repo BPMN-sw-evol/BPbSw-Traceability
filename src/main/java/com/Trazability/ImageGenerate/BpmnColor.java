@@ -1,65 +1,44 @@
-package com.Trazability.Color;
+package com.Trazability.ImageGenerate;
 
 import com.Trazability.Main;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.bpm.model.bpmn.instance.Participant;
 import org.camunda.bpm.model.bpmn.instance.UserTask;
+
 import java.io.*;
 import java.util.*;
-import org.camunda.bpm.model.bpmn.instance.Participant;
-import java.io.File;
-import java.io.IOException;
 
 public class BpmnColor {
 
     private final String bpmnFilePath = Main.getBpmnFilePath();
-    private File archivoTemp = null;
+    private final File archivoTemp = new File(System.getProperty("user.dir") + File.separator + "output", "ColorModel.bpmn");
     private final String stroke = "#0d4372";
     private final String fill = "#ffe0b2";
     private final String background = "#ffe0b2";
     private final String border = "#6b3c00";
 
     public void modifyActivityColors(List<String> activityNames) {
-
-        // Obtener la ruta del directorio "output" en la raíz del proyecto
-        String outputDirPath = System.getProperty("user.dir") + File.separator + "output";
-
-        // Crear el directorio si no existe
-        File outputDir = new File(outputDirPath);
-        if (!outputDir.exists()) {
-            outputDir.mkdirs();
-        }
-
-        // Crear el archivo temporal en el directorio "output"
-        archivoTemp = new File(outputDir, "ColorModel.bpmn");
-
-        List<String> activityIds = findActivityIds(activityNames);
+        BpmnModelInstance modelInstance = Bpmn.readModelFromFile(new File(bpmnFilePath));
+        List<String> activityIds = findActivityIds(modelInstance, activityNames);
         modifyColor(activityIds);
-
-        // Generar imagen del modelo resultante
-        generateImage();
     }
 
-    private List<String> findActivityIds(List<String> activityNames) {
-        BpmnModelInstance modelInstance = Bpmn.readModelFromFile(new File(bpmnFilePath));
+    private List<String> findActivityIds(BpmnModelInstance modelInstance, List<String> activityNames) {
         List<String> activityIds = new ArrayList<>();
-
         for (String activityName : activityNames) {
-            // Obtener los IDs de la actividad desde el método modificado
-            String id = findActivityId(modelInstance, activityName);
-
-            if (id != null) {
-                activityIds.add(id);
+            UserTask userTask = findUserTaskByName(modelInstance, activityName);
+            if (userTask != null) {
+                activityIds.add(userTask.getId());
             }
         }
         return activityIds;
     }
 
-    private String findActivityId(BpmnModelInstance modelInstance, String nombreActividad) {
+    private UserTask findUserTaskByName(BpmnModelInstance modelInstance, String activityName) {
         for (UserTask userTask : modelInstance.getModelElementsByType(UserTask.class)) {
-            String name = userTask.getName();
-            if (nombreActividad.equals(name)) {
-                return userTask.getId();
+            if (activityName.equals(userTask.getName())) {
+                return userTask;
             }
         }
         return null;
@@ -74,21 +53,18 @@ public class BpmnColor {
 
             while ((linea = br.readLine()) != null) {
                 if (linea.contains("<bpmn:definitions") && !linea.contains("xmlns:bioc=\"http://bpmn.io/schema/bpmn/biocolor/1.0\"") && !linea.contains("xmlns:color=\"http://www.omg.org/spec/BPMN/non-normative/color/1.0\"")) {
-                    lineasModificadas.add(modifyLine2(linea));
-                    continue;
-
-                }
-
-                if (linea.contains("bpmndi:BPMNShape") && linea.contains("bpmnElement")) {
+                    lineasModificadas.add(modifyLineDefinitions(linea));
+                } else if (linea.contains("bpmndi:BPMNShape") && linea.contains("bpmnElement")) {
                     String bpmnElement = getAttributeValue(linea, "bpmnElement");
                     if (bpmnElement != null && idsModificados.contains(bpmnElement)) {
-                        lineasModificadas.add(modifyLine(linea));
+                        lineasModificadas.add(modifyLineColor(linea));
                         idsModificados.remove(bpmnElement);
-                        continue;
+                    } else {
+                        lineasModificadas.add(linea);
                     }
+                } else {
+                    lineasModificadas.add(linea);
                 }
-                lineasModificadas.add(linea);
-
             }
 
         } catch (IOException ex) {
@@ -118,13 +94,13 @@ public class BpmnColor {
         return null;
     }
 
-    private String modifyLine(String linea) {
+    private String modifyLineColor(String linea) {
         return linea.replace(">", "")
                 + " bioc:stroke=\"" + stroke + "\" bioc:fill=\"" + fill + "\" "
                 + "color:background-color=\"" + background + "\" color:border-color=\"" + border + "\">";
     }
 
-    private String modifyLine2(String linea) {
+    private String modifyLineDefinitions(String linea) {
         return linea.replace(">", "")
                 + " xmlns:bioc=\"http://bpmn.io/schema/bpmn/biocolor/1.0\" xmlns:color=\"http://www.omg.org/spec/BPMN/non-normative/color/1.0\" >";
     }
@@ -134,12 +110,6 @@ public class BpmnColor {
         for (Participant participant : modelInstance.getModelElementsByType(Participant.class)) {
             return participant.getName();
         }
-
         return null;
     }
-
-    public void generateImage() {
-
-    }
-
 }
