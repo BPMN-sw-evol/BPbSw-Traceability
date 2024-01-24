@@ -4,9 +4,11 @@ import com.Trazability.ImageGenerate.BpmnColor;
 import com.Trazability.DataBase.Connections;
 import com.Trazability.ImageGenerate.ImageCapture;
 import com.Trazability.Main;
+import java.awt.Desktop;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
@@ -31,12 +33,17 @@ public class Traceability extends javax.swing.JFrame {
     private void initializeFrame() {
         this.setResizable(false);
         this.setTitle("TRACEABILITY");
-        
+
+        BIMAGE.setVisible(false);
+        BDIAGRAM.setVisible(false);
+
         loadVariableNames(); // Cargar nombres de variables al iniciar
         addVariableSelectionListener(); // Agrega proyectos según la variable
         getProjectSelectionListener(); // Obtener el id según el proyecto
         getMethodSelectionListener(); // Obtener el id según la clase
         loadData(); //Hacer actualizacion en la base de datos
+        openImage();
+        openDiagram();
     }
 
     private void loadVariableNames() {
@@ -62,6 +69,7 @@ public class Traceability extends javax.swing.JFrame {
     private void addVariableSelectionListener() {
         VARIABLES.addActionListener(e -> {
             try {
+                
                 handleVariableSelection();
             } catch (IOException | InterruptedException ex) {
                 handleException(ex);
@@ -71,23 +79,36 @@ public class Traceability extends javax.swing.JFrame {
 
     private void handleVariableSelection() throws IOException, InterruptedException {
         String selectedVariable = getSelectedVariable();
-        selectedVariableId = con.searchVariableByName(selectedVariable);
 
-        List<String> projectNames = con.searchProjectByVariableId(selectedVariableId);
-        String processName = con.searchProcessByVariableId(selectedVariableId);
-        String participant = new BpmnColor().findParticipantName();
+        if (!"Choose a variable".equals(selectedVariable)) {
+            selectedVariableId = con.searchVariableByName(selectedVariable);
 
-        updateProjectsList(projectNames);
-        updateProcessName(processName);
-        updateParticipant(participant);
+            List<String> projectNames = con.searchProjectByVariableId(selectedVariableId);
+            String processName = con.searchProcessByVariableId(selectedVariableId);
+            String participant = new BpmnColor().findParticipantName();
 
-        if (projectNames == null || projectNames.isEmpty()) {
-            CountProjects.setText("0");
-            CountClasses.setText("0");
-            CountMethods.setText("0");
+            updateProjectsList(projectNames);
+            updateProcessName(processName + ".bpmn");
+            updateParticipant(participant);
+
+            if (projectNames == null || projectNames.isEmpty()) {
+                CountProjects.setText("0");
+                CountClasses.setText("0");
+                CountMethods.setText("0");
+            }
+
+            getUsedElement(selectedVariableId);
+            BIMAGE.setVisible(true);
+            BDIAGRAM.setVisible(true);
+        } else {
+            updateProjectsList(null);
+            updateProcessName("Select a variable");
+            updateParticipant("Select a variable");
+            JMODEL.setIcon(null);
+            BIMAGE.setVisible(false);
+            BDIAGRAM.setVisible(false);
         }
 
-        getUsedElement(selectedVariableId);
     }
 
     private String getSelectedVariable() {
@@ -102,18 +123,18 @@ public class Traceability extends javax.swing.JFrame {
             CountProjects.setText(Integer.toString(projectNames.size()));
         } else {
             DefaultListModel<String> defaultModel = new DefaultListModel<>();
-            defaultModel.addElement("No projects found for this variable.");
+            defaultModel.addElement("Select a variable.");
             LPROJECTS.setModel(defaultModel);
             CountProjects.setText("0");
         }
     }
 
     private void updateProcessName(String processName) {
-        PROCESS.setText(processName != null && !processName.isEmpty() ? processName + ".bpmn" : "Process name not found or error in the search.");
+        PROCESS.setText(processName != null && !processName.isEmpty() ? processName : "Process name not found or error in the search.");
     }
 
     private void updateParticipant(String participant) {
-        PARTICIPANT.setText(participant != null && !participant.isEmpty() ? participant : "");
+        PARTICIPANT.setText(participant != null && !participant.isEmpty() ? participant : "Participant name not found or error in the search.");
     }
 
     private void handleException(Exception e) {
@@ -244,6 +265,60 @@ public class Traceability extends javax.swing.JFrame {
         JMODEL.setIcon(iconoEscalado);
     }
 
+    private void openImage() {
+        BIMAGE.addActionListener(e -> {
+            String rutaImagen = Paths.get(System.getProperty("user.dir"), "output", "MSGF-Test-Color.png").toString();
+
+            if (Desktop.isDesktopSupported()) {
+                Desktop desktop = Desktop.getDesktop();
+
+                // Obtener el objeto File para la ruta del archivo
+                File archivo = new File(rutaImagen);
+
+                // Verificar si el archivo existe
+                if (archivo.exists()) {
+                    try {
+                        // Abrir el archivo
+                        desktop.open(archivo);
+                    } catch (IOException ex) {
+                        Logger.getLogger(Traceability.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    System.out.println("El archivo no existe.");
+                }
+
+            }
+        });
+
+    }
+
+    private void openDiagram() {
+        BDIAGRAM.addActionListener(e -> {
+            String rutaDiagram = Paths.get(System.getProperty("user.dir"), "output", "ColorModel.bpmn").toString();
+
+            if (Desktop.isDesktopSupported()) {
+                Desktop desktop = Desktop.getDesktop();
+
+                // Obtener el objeto File para la ruta del archivo
+                File archivo = new File(rutaDiagram);
+
+                // Verificar si el archivo existe
+                if (archivo.exists()) {
+                    try {
+                        // Abrir el archivo
+                        desktop.open(archivo);
+                    } catch (IOException ex) {
+                        Logger.getLogger(Traceability.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    System.out.println("El archivo no existe.");
+                }
+
+            }
+        });
+
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -273,6 +348,8 @@ public class Traceability extends javax.swing.JFrame {
         VARIABLES = new javax.swing.JComboBox<>();
         LOAD = new javax.swing.JButton();
         JMODEL = new javax.swing.JLabel();
+        BIMAGE = new javax.swing.JButton();
+        BDIAGRAM = new javax.swing.JButton();
 
         javax.swing.GroupLayout jFrame1Layout = new javax.swing.GroupLayout(jFrame1.getContentPane());
         jFrame1.getContentPane().setLayout(jFrame1Layout);
@@ -329,7 +406,7 @@ public class Traceability extends javax.swing.JFrame {
                         .addComponent(jScrollPane1))
                     .addGroup(PPROJECTSLayout.createSequentialGroup()
                         .addGap(93, 93, 93)
-                        .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+                        .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
                         .addGap(82, 82, 82)
                         .addComponent(CountProjects, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
@@ -342,7 +419,7 @@ public class Traceability extends javax.swing.JFrame {
                     .addComponent(CountProjects)
                     .addComponent(jLabel6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -377,7 +454,7 @@ public class Traceability extends javax.swing.JFrame {
                 .addGroup(PCLASSESLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane2)
                     .addGroup(PCLASSESLayout.createSequentialGroup()
-                        .addGap(0, 118, Short.MAX_VALUE)
+                        .addGap(0, 151, Short.MAX_VALUE)
                         .addComponent(jLabel7)
                         .addGap(117, 117, 117)
                         .addComponent(CountClasses, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -391,7 +468,7 @@ public class Traceability extends javax.swing.JFrame {
                     .addComponent(jLabel7)
                     .addComponent(CountClasses))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -428,7 +505,7 @@ public class Traceability extends javax.swing.JFrame {
                     .addGroup(PMETHODSLayout.createSequentialGroup()
                         .addGap(100, 100, 100)
                         .addComponent(jLabel8)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 120, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 78, Short.MAX_VALUE)
                         .addComponent(CountMethods, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane3))
                 .addContainerGap())
@@ -457,11 +534,26 @@ public class Traceability extends javax.swing.JFrame {
         VARIABLES.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select a variable" }));
         VARIABLES.setName("Select a variable"); // NOI18N
 
+        LOAD.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         LOAD.setText("Generate New Trace");
+        LOAD.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         LOAD.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        LOAD.setPreferredSize(new java.awt.Dimension(80, 26));
 
         JMODEL.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         JMODEL.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+
+        BIMAGE.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        BIMAGE.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image.png"))); // NOI18N
+        BIMAGE.setText("Open Image");
+        BIMAGE.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        BIMAGE.setPreferredSize(new java.awt.Dimension(150, 35));
+
+        BDIAGRAM.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        BDIAGRAM.setIcon(new javax.swing.ImageIcon(getClass().getResource("/diagram.png"))); // NOI18N
+        BDIAGRAM.setText("Open Diagram");
+        BDIAGRAM.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        BDIAGRAM.setPreferredSize(new java.awt.Dimension(150, 35));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -472,32 +564,36 @@ public class Traceability extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSeparator1)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(JMODEL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(PPROJECTS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(CONTAINER, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(PCLASSES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
-                                .addComponent(PMETHODS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(8, 8, 8))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGap(25, 25, 25)
-                        .addComponent(VARIABLES, 0, 278, Short.MAX_VALUE)
-                        .addGap(49, 49, 49)
-                        .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(VARIABLES, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(131, 131, 131)
+                        .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
+                        .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(35, 35, 35)
                         .addComponent(LOAD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(7, 7, 7)))
+                        .addGap(24, 24, 24))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(PPROJECTS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(35, 35, 35)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(CONTAINER, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(PCLASSES, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(36, 36, 36)
+                        .addComponent(PMETHODS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(155, 155, 155)
+                .addComponent(JMODEL, javax.swing.GroupLayout.PREFERRED_SIZE, 759, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(BIMAGE, javax.swing.GroupLayout.DEFAULT_SIZE, 136, Short.MAX_VALUE)
+                    .addComponent(BDIAGRAM, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -505,27 +601,35 @@ public class Traceability extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(3, 3, 3)
+                        .addGap(5, 5, 5)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(LOAD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(LOAD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(VARIABLES))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(CONTAINER, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(CONTAINER, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(PCLASSES, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(PPROJECTS, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(PMETHODS, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(136, 136, 136)
+                        .addComponent(BIMAGE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(48, 48, 48)
+                        .addComponent(BDIAGRAM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(PCLASSES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(PPROJECTS, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(PMETHODS, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(JMODEL, javax.swing.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
-                .addContainerGap())
+                        .addComponent(JMODEL, javax.swing.GroupLayout.PREFERRED_SIZE, 389, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -533,13 +637,13 @@ public class Traceability extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -580,6 +684,8 @@ public class Traceability extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    public javax.swing.JButton BDIAGRAM;
+    public javax.swing.JButton BIMAGE;
     public javax.swing.JLabel CONTAINER;
     public javax.swing.JLabel CountClasses;
     public javax.swing.JLabel CountMethods;

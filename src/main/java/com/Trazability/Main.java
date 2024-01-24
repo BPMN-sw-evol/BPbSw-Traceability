@@ -78,7 +78,6 @@ public class Main {
             return selectedFile.getAbsolutePath();
         } else {
             JOptionPane.showMessageDialog(null, "Operación cancelada por el usuario.", "Error", JOptionPane.INFORMATION_MESSAGE);
-            System.exit(0);
             return null; // Esto nunca debería ocurrir debido a System.exit(0), solo para satisfacer el compilador
         }
     }
@@ -124,7 +123,6 @@ public class Main {
             return projectPaths;
         } else {
             JOptionPane.showMessageDialog(null, "Operación cancelada por el usuario.", "Error", JOptionPane.INFORMATION_MESSAGE);
-            System.exit(0);
             return null; // Esto nunca debería ocurrir debido a System.exit(0), solo para satisfacer el compilador
         }
     }
