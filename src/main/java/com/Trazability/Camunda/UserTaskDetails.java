@@ -22,7 +22,7 @@ public class UserTaskDetails {
             addFormFields(userTaskDetails, userTask);
         }
         
-        userTaskDetails.addProperty("Assignee", userTask.getCamundaAssignee());
+//        userTaskDetails.addProperty("Assignee", userTask.getCamundaAssignee());
 
         return userTaskDetails;
     }

@@ -19,10 +19,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class AnnotationAnalyzer {
+
+    // Crear una lista para almacenar los directorios
+    public static List<String> directories = new ArrayList<>();
+
     public static void analyzeAnnotationsInProject(String projectPath, String outputFileName) {
         File projectDirectory = new File(projectPath);
         String projectName = projectDirectory.getName();
@@ -35,13 +40,27 @@ public class AnnotationAnalyzer {
         List<String> customAnnotations = Arrays.asList("BPMNTask", "BPMNGetVariables", "BPMNSetVariables",
                 "BPMNGetterVariables", "BPMNSetterVariables");
 
+        if (!directories.contains(projectPath)) {
+            directories.add(projectPath);
+        }
         processJavaFiles(projectDirectory, customAnnotations, outputFileName, projectName);
     }
 
     private static void processJavaFiles(File directory, List<String> customAnnotations, String outputFileName,
-                                         String projectName) {
+            String projectName) {
         ObjectNode result = new ObjectMapper().createObjectNode();
+        // Crear un nodo de array para almacenar múltiples directorios
+        ArrayNode directoriesArray = new ObjectMapper().createArrayNode();
 
+         // Agregar cada directorio a la lista del array
+         for (String directoryPath : directories) {
+            directoriesArray.add(directoryPath);
+        }
+        
+        // Agregar el array de directorios al nodo de objeto bajo la propiedad
+        // "ProjectPath"
+        result.set("ProjectPath", directoriesArray);
+        
         for (File file : directory.listFiles()) {
             if (file.isDirectory()) {
                 processJavaFiles(file, customAnnotations, outputFileName, projectName);
@@ -59,7 +78,7 @@ public class AnnotationAnalyzer {
     }
 
     private static void processJavaFile(File file, List<String> customAnnotations, ObjectNode result,
-                                         String projectName) {
+            String projectName) {
         try {
             CompilationUnit cu = StaticJavaParser.parse(file);
 

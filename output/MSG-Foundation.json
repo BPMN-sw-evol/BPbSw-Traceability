@@ -1,80 +1,5 @@
 {
-  "MSGF-CentralSys" : {
-    "BPM Class: CreditAnalystServices" : {
-      "BPM Class: CreditAnalystServices" : {
-        "type" : "UserTask",
-        "name" : "Revisar detalles de solicitud"
-      },
-      "BPM Method: getProcessVariablesById (getter)" : {
-        "container" : "CreditRequestDTO",
-        "variables" : [ "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "marriageYears", "bothEmployees", "housePrices", "quotaValue", "coupleSavings", "countReviewsBpm" ]
-      },
-      "BPM Method: approveTask (setter)" : {
-        "variables" : "allFine"
-      },
-      "BPM Method: rejectTask (setter)" : {
-        "variables" : "allFine"
-      }
-    },
-    "BPM Class: CreditCommitteeServices" : {
-      "BPM Class: CreditCommitteeServices" : {
-        "type" : "UserTask",
-        "name" : "Evaluar crédito"
-      },
-      "BPM Method: getProcessVariablesById (getter)" : {
-        "container" : "CreditRequestDTO",
-        "variables" : [ "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "marriageYears", "bothEmployees", "housePrices", "quotaValue", "coupleSavings", "countReviewsBpm" ]
-      },
-      "BPM Method: approveTask (setter)" : {
-        "variables" : "isValid"
-      },
-      "BPM Method: rejectTask (setter)" : {
-        "variables" : "isValid"
-      }
-    },
-    "BPM Class: LegalOfficeSupportsServices" : {
-      "BPM Class: LegalOfficeSupportsServices" : {
-        "type" : "UserTask",
-        "name" : "Revisar soportes de solicitud"
-      },
-      "BPM Method: getProcessVariablesById (getter)" : {
-        "container" : "CreditRequestDTO",
-        "variables" : [ "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "marriageYears", "bothEmployees", "housePrices", "quotaValue", "coupleSavings", "countReviewsBpm" ]
-      },
-      "BPM Method: approveTask (setter)" : {
-        "variables" : "validSupports"
-      },
-      "BPM Method: rejectTask (setter)" : {
-        "variables" : "validSupports"
-      }
-    },
-    "BPM Class: LegalOfficeViabilityServices" : {
-      "BPM Class: LegalOfficeViabilityServices" : {
-        "type" : "UserTask",
-        "name" : "Determinar viabilidad financiera"
-      },
-      "BPM Method: getProcessVariablesById (getter)" : {
-        "container" : "CreditRequestDTO",
-        "variables" : [ "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "marriageYears", "bothEmployees", "housePrices", "quotaValue", "coupleSavings", "countReviewsBpm" ]
-      },
-      "BPM Method: approveTask (setter)" : {
-        "variables" : "legalConcept"
-      },
-      "BPM Method: rejectTask (setter)" : {
-        "variables" : "legalConcept"
-      }
-    },
-    "BPM Class: TreasuryServices" : {
-      "BPM Class: TreasuryServices" : {
-        "type" : "UserTask",
-        "name" : "Aprobar proceso de pago"
-      },
-      "BPM Method: getProcessVariablesById (getter)" : {
-        "container" : "CreditRequestDTO",
-        "variables" : [ "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "marriageYears", "bothEmployees", "housePrices", "quotaValue", "coupleSavings", "countReviewsBpm" ]
-      }
-    }
-  },
+  "ProjectPath" : [ "D:\\Laboral\\MSG-Foundation\\MSGF-BPM-Engine", "D:\\Laboral\\MSG-Foundation\\MSGF-CentralSys", "D:\\Laboral\\MSG-Foundation\\MSGF-CreditRequest" ],
   "MSGF-BPM-Engine" : {
     "BPM Class: DatabaseServiceTaskDelegate" : {
       "BPM Class: DatabaseServiceTaskDelegate" : {
@@ -89,13 +14,104 @@
       }
     }
   },
+  "MSGF-CentralSys" : {
+    "BPM Class: CreditAnalystServices" : {
+      "BPM Class: CreditAnalystServices" : {
+        "type" : "UserTask",
+        "name" : "Revisar detalles de solicitud"
+      },
+      "BPM Method: getProcessVariablesById (getter)" : {
+        "container" : "CreditRequestDTO",
+        "variables" : [ "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "marriageYears", "bothEmployees", "creationDate", "countReviewsBpm" ]
+      },
+      "BPM Method: approveTask (setter)" : {
+        "variables" : "allFine"
+      },
+      "BPM Method: rejectTask (setter)" : {
+        "variables" : "allFine"
+      },
+      "BPM Method: updateReviewAndStatus (setter)" : {
+        "variables" : "countReviewsBpm"
+      }
+    },
+    "BPM Class: CreditCommitteeServices" : {
+      "BPM Class: CreditCommitteeServices" : {
+        "type" : "UserTask",
+        "name" : "Evaluar crédito"
+      },
+      "BPM Method: getProcessVariablesById (getter)" : {
+        "container" : "CreditRequestDTO",
+        "variables" : [ "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "marriageYears", "bothEmployees", "housePrices", "quotaValue", "coupleSavings", "creationDate", "countReviewsBpm" ]
+      },
+      "BPM Method: approveTask (setter)" : {
+        "variables" : "isValid"
+      },
+      "BPM Method: rejectTask (setter)" : {
+        "variables" : "isValid"
+      },
+      "BPM Method: updateReviewAndStatus (setter)" : {
+        "variables" : "countReviewsBpm"
+      }
+    },
+    "BPM Class: LegalOfficeSupportsServices" : {
+      "BPM Class: LegalOfficeSupportsServices" : {
+        "type" : "UserTask",
+        "name" : "Revisar soportes de solicitud"
+      },
+      "BPM Method: getProcessVariablesById (getter)" : {
+        "container" : "CreditRequestDTO",
+        "variables" : [ "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "marriageYears", "bothEmployees", "housePrices", "quotaValue", "coupleSavings", "creationDate", "countReviewsBpm" ]
+      },
+      "BPM Method: approveTask (setter)" : {
+        "variables" : "validSupports"
+      },
+      "BPM Method: rejectTask (setter)" : {
+        "variables" : "validSupports"
+      },
+      "BPM Method: updateReviewAndStatus (setter)" : {
+        "variables" : "countReviewsBpm"
+      }
+    },
+    "BPM Class: LegalOfficeViabilityServices" : {
+      "BPM Class: LegalOfficeViabilityServices" : {
+        "type" : "UserTask",
+        "name" : "Determinar viabilidad financiera"
+      },
+      "BPM Method: getProcessVariablesById (getter)" : {
+        "container" : "CreditRequestDTO",
+        "variables" : [ "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "marriageYears", "bothEmployees", "housePrices", "quotaValue", "coupleSavings", "creationDate", "countReviewsBpm" ]
+      },
+      "BPM Method: approveTask (setter)" : {
+        "variables" : "legalConcept"
+      },
+      "BPM Method: rejectTask (setter)" : {
+        "variables" : "legalConcept"
+      },
+      "BPM Method: updateReviewAndStatus (setter)" : {
+        "variables" : "countReviewsBpm"
+      }
+    },
+    "BPM Class: TreasuryServices" : {
+      "BPM Class: TreasuryServices" : {
+        "type" : "UserTask",
+        "name" : "Aprobar proceso de pago"
+      },
+      "BPM Method: getProcessVariablesById (getter)" : {
+        "container" : "CreditRequestDTO",
+        "variables" : [ "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "marriageYears", "bothEmployees", "housePrices", "quotaValue", "coupleSavings", "creationDate", "countReviewsBpm" ]
+      },
+      "BPM Method: updateReviewAndStatus (setter)" : {
+        "variables" : "countReviewsBpm"
+      }
+    }
+  },
   "MSGF-CreditRequest" : {
     "BPM Class: MarriedCoupleService" : {
       "BPM Class: MarriedCoupleService" : {
         "type" : "usertask",
         "name" : "Diligenciar formulario de solicitud"
       },
-      "BPM Method: startProcessInstance (getter)" : {
+      "BPM Method: startProcessInstance (setter)" : {
         "container" : "creditInfoDTO",
         "variables" : [ "codRequest", "marriageYears", "bothEmployees", "applicantCouple", "coupleName1", "coupleName2", "coupleEmail1", "coupleEmail2", "creationDate", "countReviewsBpm" ]
       },
