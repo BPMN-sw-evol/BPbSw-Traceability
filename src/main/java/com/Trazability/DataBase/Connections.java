@@ -41,7 +41,6 @@ public class Connections {
             ps.setString(1, name);
             ps.setTimestamp(2, date);
             int filasAfectadas = ps.executeUpdate();
-            System.out.println("Se insertaron " + filasAfectadas + " filas.");
             int i = searchHistory(name, date);
             return i;
         } catch (SQLException e) {
@@ -74,7 +73,6 @@ public class Connections {
             ps.setString(1, name);
             ps.setInt(2, history);
             int filasAfectadas = ps.executeUpdate();
-            System.out.println("Se insertaron " + filasAfectadas + " filas.");
         } catch (SQLException e) {
             System.err.println("Error al realizar la inserción: " + e);
         }
@@ -106,7 +104,6 @@ public class Connections {
             ps.setString(1, name);
             ps.setInt(2, id_project);
             int filasAfectadas = ps.executeUpdate();
-            System.out.println("Se insertaron " + filasAfectadas + " filas.");
         } catch (SQLException e) {
             System.err.println("Error al realizar la inserción: " + e);
         }
@@ -138,7 +135,6 @@ public class Connections {
             ps.setInt(1, id_variable);
             ps.setInt(2, id_container);
             int filasAfectadas = ps.executeUpdate();
-            System.out.println("Se insertaron " + filasAfectadas + " filas.");
         } catch (SQLException e) {
             System.err.println("Error al realizar la inserción: " + e);
         }
@@ -163,25 +159,26 @@ public class Connections {
         }
     }
 
-    public void insertProject(String name) {
+    public void insertProject(String name, String path){
         try {
-            String sql = "INSERT INTO project (name_project) VALUES (?)";
+            String sql = "INSERT INTO project (name_project,path) VALUES (?,?)";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
+            ps.setString(2, path);
             int filasAfectadas = ps.executeUpdate();
-            System.out.println("Se insertaron " + filasAfectadas + " filas.");
         } catch (SQLException e) {
             System.err.println("Error al realizar la inserción: " + e);
         }
     }
 
-    public int searchProject(String name) {
+    public int searchProject(String name, String path){
         try {
-            String sql = "SELECT id_project FROM project WHERE name_project = ?";
+            String sql = "SELECT id_project FROM project WHERE name_project = ? AND path = ?";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
+            ps.setString(2, path);
             rs = ps.executeQuery();
-
+            
             if (rs.next()) {
                 return rs.getInt("id_project");
             } else {
@@ -200,7 +197,6 @@ public class Connections {
             ps.setInt(1, id_project);
             ps.setString(2, name);
             int filasAfectadas = ps.executeUpdate();
-            System.out.println("Se insertaron " + filasAfectadas + " filas.");
         } catch (SQLException e) {
             System.err.println("Error al realizar la inserción: " + e);
         }
@@ -250,7 +246,6 @@ public class Connections {
             ps.setInt(1, id_class);
             ps.setString(2, name);
             int filasAfectadas = ps.executeUpdate();
-            System.out.println("Se insertaron " + filasAfectadas + " filas.");
         } catch (SQLException e) {
             System.err.println("Error al realizar la inserción: " + e);
         }
@@ -283,7 +278,6 @@ public class Connections {
             ps.setInt(2, id_method);
             ps.setBoolean(3, modify);
             int filasAfectadas = ps.executeUpdate();
-            System.out.println("Se insertaron " + filasAfectadas + " filas.");
         } catch (SQLException e) {
             System.err.println("Error al realizar la inserción: " + e);
         }
@@ -307,25 +301,29 @@ public class Connections {
         }
     }
 
-    public void insertProcess(String process) {
+    public void insertProcess(String process,String model,String path){
         try {
-            String sql = "INSERT INTO process (process_name) VALUES (?)";
+            String sql = "INSERT INTO process (process_name,model_name,path) VALUES (?,?,?)";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, process);
+            ps.setString(2, model);
+            ps.setString(3, path);
             int filasAfectadas = ps.executeUpdate();
-            System.out.println("Se insertaron " + filasAfectadas + " filas.");
         } catch (SQLException e) {
             System.err.println("Error al realizar la inserción: " + e);
         }
     }
 
-    public int searchProcess(String name) {
+    public int searchProcess(String name,String model,String path){
         try {
-            String sql = "SELECT id_process FROM process WHERE process_name = ?";
+            String sql = "SELECT id_process FROM process WHERE process_name = ? AND model_name = ? AND path = ?";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
+            ps.setString(2, model);
+            ps.setString(3, path);
+            
             rs = ps.executeQuery();
-
+            
             if (rs.next()) {
                 return rs.getInt("id_process");
             } else {
@@ -343,7 +341,6 @@ public class Connections {
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
             int filasAfectadas = ps.executeUpdate();
-            System.out.println("Se insertaron " + filasAfectadas + " filas.");
         } catch (SQLException e) {
             System.err.println("Error al realizar la inserción: " + e);
         }
@@ -376,7 +373,6 @@ public class Connections {
             ps.setString(3, lane);
             ps.setInt(4, id_process);
             int filasAfectadas = ps.executeUpdate();
-            System.out.println("Se insertaron " + filasAfectadas + " filas.");
         } catch (SQLException e) {
             System.err.println("Error al realizar la inserción: " + e);
         }
@@ -408,7 +404,6 @@ public class Connections {
             ps.setInt(2, id_element);
             ps.setString(3, first);
             int filasAfectadas = ps.executeUpdate();
-            System.out.println("Se insertaron " + filasAfectadas + " filas.");
         } catch (SQLException e) {
             System.err.println("Error al realizar la inserción: " + e);
         }
@@ -698,6 +693,24 @@ public class Connections {
         } catch (SQLException e) {
             System.err.println("Error al obtener el nombre del elemento: " + e);
             return null;
+        }
+    }
+    
+    public int searchProject(String name){
+        try {
+            String sql = "SELECT id_project FROM project WHERE name_project = ?";
+            ps = conexion.prepareStatement(sql);
+            ps.setString(1, name);
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt("id_project");
+            } else {
+                return -1; // El curso no se encontró
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la busqueda: " + e);
+            return -1;
         }
     }
 

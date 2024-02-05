@@ -14,6 +14,8 @@ public class Data {
     private JSONObject bpmnInfo;
     private ArrayList<String> variables = new ArrayList<String>();
     private ArrayList<String> type = new ArrayList<String>();
+    private ArrayList<String> projects = new ArrayList<String>();
+    private ArrayList<String> paths = new ArrayList<String>();
     private Connections con = new Connections();
     
     public Data(String ruta,String ruta2,String name) throws IOException{
@@ -47,26 +49,38 @@ public class Data {
            setElement();
            setElementUsed();
         } catch (FileNotFoundException e) {
-    System.out.println("Error al leer el archivo: " + e.getMessage());
-}
+            System.out.println("Error al leer el archivo: " + e.getMessage());
+        }
 
-    }
+}
     
     public boolean isDataInitialized() {
-    return projectInfo != null && bpmnInfo != null && history != -1;
-}
+        return projectInfo != null && bpmnInfo != null && history != -1;
+    }
 
 
     private void setProjects(){
         for (String i : this.projectInfo.keySet()) {
-            con.insertProject(i);
+            for (Object j : this.projectInfo.getJSONArray("ProjectPath")) {
+                String[] p = j.toString().split("\\\\");
+                if(p[p.length-1].equals(i)){
+                    this.projects.add(i);
+                    this.paths.add(j.toString());
+                }
+            }
+        }
+
+        for (int i=0;i<this.projects.size();i++){
+            if(con.searchProject(this.projects.get(i),this.paths.get(i))==-1){
+                con.insertProject(this.projects.get(i),this.paths.get(i));
+            }
         }
     }
 
     private void setClasses(){
-        for (String i : this.projectInfo.keySet()) {
-            int id_project = con.searchProject(i);
-            for (String j : this.projectInfo.getJSONObject(i).keySet()) {
+        for (int i=0;i<this.projects.size();i++){
+            int id_project = con.searchProject(this.projects.get(i),this.paths.get(i));
+            for (String j : this.projectInfo.getJSONObject(this.projects.get(i)).keySet()) {
                 if(con.searchClass(j.split(": ")[1], id_project)==-1){
                     con.insertClass(id_project, j.split(": ")[1]);
                 }
@@ -76,15 +90,15 @@ public class Data {
 
     private void setContainer(){
         ArrayList<String> container = new ArrayList<String>();
-        for (String i : this.projectInfo.keySet()) {
-            int id_project = con.searchProject(i);
+        for (int i=0;i<this.projects.size();i++){
+            int id_project = con.searchProject(this.projects.get(i),this.paths.get(i));
             if(con.searchContainer("NA", id_project)==-1){
                 con.insertContainer("NA",id_project);
             }
-            for (String j : this.projectInfo.getJSONObject(i).keySet()) {
-                for (String k: this.projectInfo.getJSONObject(i).getJSONObject(j).keySet()) {
-                    if(this.projectInfo.getJSONObject(i).getJSONObject(j).get(k).toString().contains("container")){
-                        String p = this.projectInfo.getJSONObject(i).getJSONObject(j).getJSONObject(k).getString("container");
+            for (String j : this.projectInfo.getJSONObject(this.projects.get(i)).keySet()) {
+                for (String k: this.projectInfo.getJSONObject(this.projects.get(i)).getJSONObject(j).keySet()) {
+                    if(this.projectInfo.getJSONObject(this.projects.get(i)).getJSONObject(j).get(k).toString().contains("container")){
+                        String p = this.projectInfo.getJSONObject(this.projects.get(i)).getJSONObject(j).getJSONObject(k).getString("container");
                         if(!container.contains(p) && con.searchContainer(p, id_project)==-1){
                             container.add(p);
                             con.insertContainer(p,id_project);
@@ -112,33 +126,28 @@ public class Data {
 
         for (String i : this.variables) {
             int variable = con.searchVariable(i,this.history);
-            for (String j : this.projectInfo.keySet()) {
-                int project = con.searchProject(j);
-                for (String k : this.projectInfo.getJSONObject(j).keySet()) {
-                    for (String l: this.projectInfo.getJSONObject(j).getJSONObject(k).keySet()) {
-                        JSONArray v = this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).optJSONArray("variables");
+            for (int j=0;j<this.projects.size();j++){
+                int project = con.searchProject(this.projects.get(j),this.paths.get(j));
+                for (String k : this.projectInfo.getJSONObject(this.projects.get(j)).keySet()) {
+                    for (String l: this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).keySet()) {
+                        JSONArray v = this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).optJSONArray("variables");
                         if(v!=null){
                             for(Object m : v){
-                                if(m.toString().equals(i) && this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).keySet().contains("container")){
-                                    int container = con.searchContainer(this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).getString("container"),project);
+                                if(m.toString().equals(i) && this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).keySet().contains("container")){
+                                    int container = con.searchContainer(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).getString("container"),project);
 
                                     if(con.searchContainedIn(variable, container)==-1){
                                         con.insertContainedIn(variable, container);
                                     }
-                                }else if(m.toString().equals(i)){
-                                    int container = con.searchContainer("NA",project);
-                                    
-                                    if(con.searchContainedIn(variable, container)==-1){
-                                        con.insertContainedIn(variable, container);
-                                    }
+                                    break;
                                 }
                             }
-                        }else if(this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).optString("variables").equals(i) && this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).keySet().contains("container")){
-                            int container = con.searchContainer(this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).getString("container"),project);
+                        }else if(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).optString("variables").equals(i) && this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).keySet().contains("container")){
+                            int container = con.searchContainer(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).getString("container"),project);
                             if(con.searchContainedIn(variable, container)==-1){
                                 con.insertContainedIn(variable, container);
                             }
-                        }else if(this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).optString("variables").equals(i)){
+                        }else if(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).optString("variables").equals(i)){
                             int container = con.searchContainer("NA",project);
                             if(con.searchContainedIn(variable, container)==-1){
                                 con.insertContainedIn(variable, container);
@@ -151,11 +160,11 @@ public class Data {
     }
 
     private void setMethod(){
-        for (String i : this.projectInfo.keySet()) {
-            int id_project = con.searchProject(i);
-            for (String j : this.projectInfo.getJSONObject(i).keySet()) {
+        for (int i=0;i<this.projects.size();i++){
+            int id_project = con.searchProject(this.projects.get(i),this.paths.get(i));
+            for (String j : this.projectInfo.getJSONObject(this.projects.get(i)).keySet()) {
                 int id_class = con.searchClass(j.split(": ")[1],id_project);
-                for (String k: this.projectInfo.getJSONObject(i).getJSONObject(j).keySet()) {
+                for (String k: this.projectInfo.getJSONObject(this.projects.get(i)).getJSONObject(j).keySet()) {
                     if(k.contains("Method")){
                         con.insertMethod(id_class, k.split(": ")[1].split(" ")[0]);
                     }
@@ -168,12 +177,12 @@ public class Data {
         //setVariables();
         for (String i : this.variables) {
             int id_variable = con.searchVariable(i,this.history);
-            for (String j : this.projectInfo.keySet()) {
-                int id_project = con.searchProject(j);
-                for (String k : this.projectInfo.getJSONObject(j).keySet()) {
-                    for (String l: this.projectInfo.getJSONObject(j).getJSONObject(k).keySet()) {
-                        if(this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).keySet().contains("variables")){
-                            JSONArray v = this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).optJSONArray("variables");
+            for (int j=0;j<this.projects.size();j++){
+                int id_project = con.searchProject(this.projects.get(j),this.paths.get(j));
+                for (String k : this.projectInfo.getJSONObject(this.projects.get(j)).keySet()) {
+                    for (String l: this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).keySet()) {
+                        if(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).keySet().contains("variables")){
+                            JSONArray v = this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).optJSONArray("variables");
                             if(v!=null){
                                 for(Object m : v){
                                     if(m.toString().equals(i)){
@@ -189,7 +198,7 @@ public class Data {
                                         break;
                                    }
                                }
-                            }else if(this.projectInfo.getJSONObject(j).getJSONObject(k).getJSONObject(l).getString("variables").equals(i)){
+                            }else if(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).getString("variables").equals(i)){
                                int id_class = con.searchClass(k.split(": ")[1],id_project);
                                int id_method = con.searchMethod(id_class,l.split(": ")[1].split(" ")[0]);
 
@@ -207,7 +216,7 @@ public class Data {
     }
 
     private void setProcess(){
-        con.insertProcess(this.bpmnInfo.getString("bpmName"));
+        con.insertProcess(this.bpmnInfo.getString("bpmNameProcess"),this.bpmnInfo.getString("bpmNameFile"),this.bpmnInfo.getString("bpmPath"));
     }
 
     private void setElementType(){
@@ -229,7 +238,7 @@ public class Data {
             int id_type = con.searchElementType(j.getString("taskType"));
             String name = j.getString("taskName");
             String lane = "Lane"; //cuando BPMN-Tracer traiga el lane, modificar esta linea
-            int id_process = con.searchProcess(this.bpmnInfo.getString("bpmName"));
+            int id_process = con.searchProcess(this.bpmnInfo.getString("bpmNameProcess"),this.bpmnInfo.getString("bpmNameFile"),this.bpmnInfo.getString("bpmPath"));
 
             con.insertElement(id_type, name, lane, id_process);
         }
