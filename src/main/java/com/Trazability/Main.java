@@ -20,20 +20,19 @@ import static com.Trazability.Camunda.GetTaskCamunda.*;
 
 public class Main {
 
-    private static String bpmnFilePath = "Docs/Model/MSGF-Test.json";
     public static BpmnModelInstance modelInstance = null;
 
-    public static void  main(String[] args) throws IOException {
-        bpmnFilePath = selectBpmnFile();
+    public static boolean  main(String[] args) throws IOException {
+        String bpmnFilePath = selectBpmnFile();
         if (bpmnFilePath == null) {
             // El usuario canceló la selección del archivo BPMN
-            return /*false*/;
+            return false;
         }
 
         String[] projectPaths = getProjectPathsFromUserInput();
         if (projectPaths == null) {
             // El usuario canceló la selección de directorios de proyecto
-            return /*false*/;
+            return false;
         }
 
         JsonObject bpmnDetails = new JsonObject();
@@ -57,11 +56,7 @@ public class Main {
             String errorMessage = "Hubo un problema al procesar y guardar la información de BPMN y/o proyectos.";
             JOptionPane.showMessageDialog(null, errorMessage, "Error", JOptionPane.INFORMATION_MESSAGE);
         }
-        // return successBpmn && successProject;
-    }
-
-    public static String getBpmnFilePath() {
-        return bpmnFilePath;
+        return successBpmn && successProject;
     }
 
     private static String selectBpmnFile() {

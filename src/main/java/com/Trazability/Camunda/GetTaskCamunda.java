@@ -32,13 +32,16 @@ public class GetTaskCamunda {
     public static void listActivitiesFromStartEvent(BpmnModelInstance modelInstance, FlowNode currentNode,
             Set<String> visitedNodes, JsonObject bpmnDetails) {
 
+// Obtener el array JSON existente o crear uno nuevo si no existe
+        JsonArray traceArray = bpmnDetails.has("trace") ? bpmnDetails.getAsJsonArray("trace") : new JsonArray();
+
         if (visitedNodes.contains(currentNode.getId())) {
             return;
         }
 
         visitedNodes.add(currentNode.getId());
         if (currentNode.getName() != null && !currentNode.getName().isEmpty()) {
-            printElementDetails(currentNode, bpmnDetails);
+            printElementDetails(currentNode, bpmnDetails, traceArray);
         }
 
         Collection<SequenceFlow> outgoingFlows = currentNode.getOutgoing();
@@ -75,14 +78,16 @@ public class GetTaskCamunda {
                             sequenceFlow.getConditionExpression().getTextContent().split("\\{")[1].split("\\=")[0].trim());
                 }
                 // Agrega el JsonObject a la colección de detalles de SequenceFlows
-                sequenceDetailsArray.add(sequenceFlowDetails);
+                if (!traceArray.contains(sequenceFlowDetails)) {
+                    traceArray.remove(sequenceFlowDetails);
+                    traceArray.add(sequenceFlowDetails);
+                }
             }
 
             // Imprimir la información de la compuerta
             // if (currentNode instanceof Gateway) {
             // System.out.println("Flujo desde la compuerta: " + currentNode.getName());
             // }
-
             // Si la actividad actual no ha sido visitada, seguir recursivamente
             if (!visitedNodes.contains(targetNode.getId())) {
                 listActivitiesFromStartEvent(modelInstance, targetNode, visitedNodes, bpmnDetails);
@@ -90,17 +95,9 @@ public class GetTaskCamunda {
         }
     }
 
-    public static void printElementDetails(FlowNode flowNode, JsonObject bpmnDetails) {
+    public static void printElementDetails(FlowNode flowNode, JsonObject bpmnDetails, JsonArray traceArray) {
         JsonObject taskDetails = new JsonObject();
-        // Obtener el array JSON existente o crear uno nuevo si no existe
-        JsonArray traceArray = bpmnDetails.has("trace") ? bpmnDetails.getAsJsonArray("trace") : new JsonArray();
 
-        // Comparar el objeto JSON existente con el nuevo objeto que deseas agregar
-        if (!traceArray.contains(sequenceDetailsArray)) {
-            traceArray.remove(sequenceDetailsArray);
-            traceArray.add(sequenceDetailsArray);
-        }
-        
         if (flowNode instanceof StartEvent) {
             StartEvent startEvent = (StartEvent) flowNode;
             taskDetails = EventTaskDetails.getStartEventDetails(startEvent);

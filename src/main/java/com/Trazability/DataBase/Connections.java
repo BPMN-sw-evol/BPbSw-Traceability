@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Connections {
 
@@ -159,7 +161,7 @@ public class Connections {
         }
     }
 
-    public void insertProject(String name, String path){
+    public void insertProject(String name, String path) {
         try {
             String sql = "INSERT INTO project (name_project,path) VALUES (?,?)";
             ps = conexion.prepareStatement(sql);
@@ -171,14 +173,14 @@ public class Connections {
         }
     }
 
-    public int searchProject(String name, String path){
+    public int searchProject(String name, String path) {
         try {
             String sql = "SELECT id_project FROM project WHERE name_project = ? AND path = ?";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
             ps.setString(2, path);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("id_project");
             } else {
@@ -301,7 +303,7 @@ public class Connections {
         }
     }
 
-    public void insertProcess(String process,String model,String path){
+    public void insertProcess(String process, String model, String path) {
         try {
             String sql = "INSERT INTO process (process_name,model_name,path) VALUES (?,?,?)";
             ps = conexion.prepareStatement(sql);
@@ -314,16 +316,16 @@ public class Connections {
         }
     }
 
-    public int searchProcess(String name,String model,String path){
+    public int searchProcess(String name, String model, String path) {
         try {
             String sql = "SELECT id_process FROM process WHERE process_name = ? AND model_name = ? AND path = ?";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
             ps.setString(2, model);
             ps.setString(3, path);
-            
+
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("id_process");
             } else {
@@ -428,6 +430,49 @@ public class Connections {
     }
 
     // -------------------------------------------------
+    public String getModelBPMNPath(int id_variable) {
+        try {
+            // Consultar la tabla 'used_by_element' para obtener el 'id_element' a partir del 'id_variable'
+            String elementQuery = "SELECT id_element FROM used_by_element WHERE id_variable = ?";
+            PreparedStatement elementPs = conexion.prepareStatement(elementQuery);
+            elementPs.setInt(1, id_variable);
+            ResultSet elementRs = elementPs.executeQuery();
+
+            if (elementRs.next()) {
+                int elementId = elementRs.getInt("id_element");
+
+                // Consultar la tabla 'element' para obtener el 'id_process' a partir del 'id_element'
+                String processQuery = "SELECT id_process FROM element WHERE id_element = ?";
+                PreparedStatement processPs = conexion.prepareStatement(processQuery);
+                processPs.setInt(1, elementId);
+                ResultSet processRs = processPs.executeQuery();
+
+                if (processRs.next()) {
+                    int processId = processRs.getInt("id_process");
+
+                    // Consultar la tabla 'process' para obtener el 'process_name' a partir del 'id_process'
+                    String pathQuery = "SELECT path FROM process WHERE id_process = ?";
+                    PreparedStatement pathPs = conexion.prepareStatement(pathQuery);
+                    pathPs.setInt(1, processId);
+                    ResultSet pathRs = pathPs.executeQuery();
+
+                    if (pathRs.next()) {
+                        return pathRs.getString("path");
+                    } else {
+                        return "Nombre de proceso no encontrado";
+                    }
+                } else {
+                    return "ID de proceso no encontrado en la tabla 'element'";
+                }
+            } else {
+                return "ID de elemento no encontrado en la tabla 'used_by_element'";
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la búsqueda: " + e);
+            return "Error al realizar la búsqueda";
+        }
+    }
+
     public int searchVariableByName(String name) {
         try {
             String sql = "SELECT id_variable FROM variable WHERE variable_name = ?";
@@ -445,12 +490,33 @@ public class Connections {
             return -1;
         }
     }
+    
+     public List<Integer> getAllHistorys() {
+        List<Integer> historyIDs = new ArrayList<>();
+        try {
+            String sql = "SELECT id_history FROM history";
+            ps = conexion.prepareStatement(sql);
+            rs = ps.executeQuery();
 
-    public List<String> getAllVariableNames() {
+            while (rs.next()) {
+                String historyID = rs.getString("id_history");
+                historyIDs.add(Integer.parseInt(historyID));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la búsqueda: " + e);
+        } finally {
+            // Cerrar recursos (ps, rs) aquí si es necesario
+        }
+        return historyIDs;
+    }
+     
+
+    public List<String> getAllVariableNames(int history) {
         List<String> variableNames = new ArrayList<>();
         try {
-            String sql = "SELECT variable_name FROM variable";
+            String sql = "SELECT variable_name FROM variable where id_history = ?";
             ps = conexion.prepareStatement(sql);
+            ps.setInt(1, history);
             rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -605,7 +671,9 @@ public class Connections {
         return methodNames;
     }
 
-    public String searchProcessByVariableId(int id_variable) {
+    public Map<String, String> searchProcessByVariableId(int id_variable) {
+
+        Map<String, String> result = new HashMap<>();
         try {
             // Consultar la tabla 'used_by_element' para obtener el 'id_element' a partir del 'id_variable'
             String elementQuery = "SELECT id_element FROM used_by_element WHERE id_variable = ?";
@@ -626,26 +694,28 @@ public class Connections {
                     int processId = processRs.getInt("id_process");
 
                     // Consultar la tabla 'process' para obtener el 'process_name' a partir del 'id_process'
-                    String processNameQuery = "SELECT process_name FROM process WHERE id_process = ?";
-                    PreparedStatement processNamePs = conexion.prepareStatement(processNameQuery);
-                    processNamePs.setInt(1, processId);
-                    ResultSet processNameRs = processNamePs.executeQuery();
+                    String processInfoQuery = "SELECT process_name, model_name FROM process WHERE id_process = ?";
+                    PreparedStatement processInfoPs = conexion.prepareStatement(processInfoQuery);
+                    processInfoPs.setInt(1, processId);
+                    ResultSet processInfoRs = processInfoPs.executeQuery();
 
-                    if (processNameRs.next()) {
-                        return processNameRs.getString("process_name");
+                    if (processInfoRs.next()) {
+                        result.put("process_name", processInfoRs.getString("process_name"));
+                        result.put("model_name", processInfoRs.getString("model_name"));
                     } else {
-                        return "Nombre de proceso no encontrado";
+                        // Puedes manejar la falta de resultados según tus necesidades
+                        result.put("error", "Datos no encontrados para el ID de variable proporcionado");
                     }
                 } else {
-                    return "ID de proceso no encontrado en la tabla 'element'";
+                    result.put("error", "ID de proceso no encontrado en la tabla 'element'");
                 }
             } else {
-                return "ID de elemento no encontrado en la tabla 'used_by_element'";
+                result.put("error", "ID de elemento no encontrado en la tabla 'used_by_element'");
             }
         } catch (SQLException e) {
-            System.err.println("Error al realizar la búsqueda: " + e);
-            return "Error al realizar la búsqueda";
+                result.put("error", "Error al realizar la búsqueda");
         }
+        return result;
     }
 
     public List<String> searchElementsUsed(int id_variable) {
@@ -695,14 +765,14 @@ public class Connections {
             return null;
         }
     }
-    
-    public int searchProject(String name){
+
+    public int searchProject(String name) {
         try {
             String sql = "SELECT id_project FROM project WHERE name_project = ?";
             ps = conexion.prepareStatement(sql);
             ps.setString(1, name);
             rs = ps.executeQuery();
-            
+
             if (rs.next()) {
                 return rs.getInt("id_project");
             } else {

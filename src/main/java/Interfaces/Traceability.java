@@ -7,11 +7,11 @@ import com.Trazability.Main;
 import java.awt.Desktop;
 
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
@@ -37,19 +37,64 @@ public class Traceability extends javax.swing.JFrame {
 
         BIMAGE.setVisible(false);
         BDIAGRAM.setVisible(false);
-
-        loadVariableNames(); // Cargar nombres de variables al iniciar
+        loadHistory(); // Cargar nombres de variables al iniciar
+        addHistorySelectionListener(); // Agrega variables según la version
         addVariableSelectionListener(); // Agrega proyectos según la variable
         getProjectSelectionListener(); // Obtener el id según el proyecto
         getMethodSelectionListener(); // Obtener el id según la clase
         loadData(); //Hacer actualizacion en la base de datos
-        openImage();
-        openDiagram();
+        openImage(); //Abrir la imagen del modelo pintado
+        openDiagram(); //Abrir el modelo en Camunda Modeler
     }
 
-    private void loadVariableNames() {
+    private void loadHistory() {
         try {
-            List<String> variableNames = con.getAllVariableNames();
+            List<Integer> historyIDs = con.getAllHistorys();
+            historyIDs.add(0, 0);
+
+            if (!historyIDs.isEmpty()) {
+                updateComboBoxHistory(HISTORY, historyIDs);
+            } else {
+                throw new RuntimeException("No se encontraron nombres de variables.");
+            }
+        } catch (RuntimeException e) {
+            handleException(e);
+        }
+    }
+
+    private void updateComboBoxHistory(JComboBox<Integer> comboBox, List<Integer> items) {
+        comboBox.removeAllItems();
+        items.forEach(comboBox::addItem);
+    }
+
+    private void addHistorySelectionListener() {
+        HISTORY.addActionListener(e -> {
+            try {
+                handleHistorySelection();
+            } catch (IOException | InterruptedException ex) {
+                handleException(ex);
+            }
+        });
+    }
+
+    private void handleHistorySelection() throws IOException, InterruptedException {
+        int selectedHistory = getSelectedHistory();
+
+        if (selectedHistory != 0) {
+            loadVariableNames(selectedHistory);
+        } else {
+            VARIABLES.removeAllItems();
+            VARIABLES.addItem("Choose a version");
+        }
+    }
+
+    private int getSelectedHistory() {
+        return (int) HISTORY.getSelectedItem();
+    }
+
+    private void loadVariableNames(int history) {
+        try {
+            List<String> variableNames = con.getAllVariableNames(history);
             variableNames.add(0, "Choose a variable");
 
             if (!variableNames.isEmpty()) {
@@ -70,7 +115,7 @@ public class Traceability extends javax.swing.JFrame {
     private void addVariableSelectionListener() {
         VARIABLES.addActionListener(e -> {
             try {
-                
+
                 handleVariableSelection();
             } catch (IOException | InterruptedException ex) {
                 handleException(ex);
@@ -81,16 +126,20 @@ public class Traceability extends javax.swing.JFrame {
     private void handleVariableSelection() throws IOException, InterruptedException {
         String selectedVariable = getSelectedVariable();
 
-        if (!"Choose a variable".equals(selectedVariable)) {
+        if (!"Choose a variable".equals(selectedVariable) && !"Choose a version".equals(selectedVariable)) {
             selectedVariableId = con.searchVariableByName(selectedVariable);
 
             List<String> projectNames = con.searchProjectByVariableId(selectedVariableId);
-            String processName = con.searchProcessByVariableId(selectedVariableId);
-            String participant = new BpmnColor().findParticipantName();
+            Map<String, String> processInfo = con.searchProcessByVariableId(selectedVariableId);
+
+            if (processInfo.containsKey("error")) {
+                System.out.println("Error: " + processInfo.get("error"));
+            } else {
+                updateProcessName(processInfo.get("model_name"));
+                updateParticipant(processInfo.get("process_name"));
+            }
 
             updateProjectsList(projectNames);
-            updateProcessName(processName + ".bpmn");
-            updateParticipant(participant);
 
             if (projectNames == null || projectNames.isEmpty()) {
                 CountProjects.setText("0");
@@ -105,7 +154,7 @@ public class Traceability extends javax.swing.JFrame {
             updateProjectsList(null);
             updateProcessName("Select a variable");
             updateParticipant("Select a variable");
-            JMODEL.setIcon(null);
+            JMODEL.setIcon(new ImageIcon(getClass().getResource("/images.png")));
             BIMAGE.setVisible(false);
             BDIAGRAM.setVisible(false);
         }
@@ -206,10 +255,13 @@ public class Traceability extends javax.swing.JFrame {
         }
 
         List<String> usedElementNames = con.searchElementsUsed(selectedVariableId);
-
+        for (String usedElementName : usedElementNames) {
+            System.out.println(usedElementName);
+        }
+        String path = con.getModelBPMNPath(selectedVariableId);
         if (!usedElementNames.isEmpty() && !usedElementNames.get(0).equals("Elemento no encontrado")) {
             BpmnColor modifier = new BpmnColor();
-            modifier.modifyActivityColors(usedElementNames);
+            modifier.modifyActivityColors(usedElementNames, path);
 
             ImageCapture capture = new ImageCapture();
             capture.imageCapture();
@@ -221,16 +273,16 @@ public class Traceability extends javax.swing.JFrame {
     }
 
     private void loadData() {
-        // LOAD.addActionListener(e -> {
-        //     try {
-        //         boolean mainSuccess = Main.main(new String[]{});
-        //         if (mainSuccess) {
-        //             loadVariableNames();
-        //         }
-        //     } catch (IOException ex) {
-        //         ex.printStackTrace();
-        //     }
-        // });
+        LOAD.addActionListener(e -> {
+            try {
+                boolean mainSuccess = Main.main(new String[]{});
+                if (mainSuccess) {
+                    loadHistory();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
     private void loadImage() {
@@ -353,6 +405,7 @@ public class Traceability extends javax.swing.JFrame {
         JMODEL = new javax.swing.JLabel();
         BIMAGE = new javax.swing.JButton();
         BDIAGRAM = new javax.swing.JButton();
+        HISTORY = new javax.swing.JComboBox<>();
 
         javax.swing.GroupLayout jFrame1Layout = new javax.swing.GroupLayout(jFrame1.getContentPane());
         jFrame1.getContentPane().setLayout(jFrame1Layout);
@@ -534,7 +587,7 @@ public class Traceability extends javax.swing.JFrame {
 
         VARIABLES.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         VARIABLES.setMaximumRowCount(100);
-        VARIABLES.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select a variable" }));
+        VARIABLES.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select a version" }));
         VARIABLES.setName("Select a variable"); // NOI18N
 
         LOAD.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -559,6 +612,9 @@ public class Traceability extends javax.swing.JFrame {
         BDIAGRAM.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         BDIAGRAM.setPreferredSize(new java.awt.Dimension(150, 35));
 
+        HISTORY.setMinimumSize(new java.awt.Dimension(40, 31));
+        HISTORY.setPreferredSize(new java.awt.Dimension(40, 31));
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -576,9 +632,10 @@ public class Traceability extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSeparator1)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addComponent(VARIABLES, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(131, 131, 131)
+                        .addComponent(HISTORY, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(44, 44, 44)
                         .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
                         .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -601,16 +658,19 @@ public class Traceability extends javax.swing.JFrame {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(5, 5, 5)
+                        .addGap(7, 7, 7)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(LOAD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addComponent(VARIABLES))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(LOAD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(HISTORY, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -694,6 +754,7 @@ public class Traceability extends javax.swing.JFrame {
     public javax.swing.JLabel CountClasses;
     public javax.swing.JLabel CountMethods;
     public javax.swing.JLabel CountProjects;
+    public javax.swing.JComboBox<Integer> HISTORY;
     public javax.swing.JLabel JMODEL;
     public javax.swing.JList<String> LCLASSES;
     public javax.swing.JList<String> LMETHODS;
