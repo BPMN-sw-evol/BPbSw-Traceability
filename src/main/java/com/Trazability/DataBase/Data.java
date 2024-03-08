@@ -249,38 +249,41 @@ public class Data {
         ArrayList<String> serviceVariables = new ArrayList<String>();
         for(Object i : p){
             JSONObject j = (JSONObject) i;
-            if(j.getString("taskType").equals("serviceTask")){
+            if(j.getString("taskType").equals("Service Task")){
                 for (String k : this.projectInfo.keySet()) {
-                    for (String l : this.projectInfo.getJSONObject(k).keySet()) {
-                        boolean flag = false;
-                        String element = null;
-                        for (String m: this.projectInfo.getJSONObject(k).getJSONObject(l).keySet()) {
-                            if(m.contains("Class") && this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("name").equals(j.getString("taskName"))){
-                                flag = true;
-                                element = this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("name");
-                                continue;
-                            }
-                            if(flag){
-                                JSONArray v = this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).optJSONArray("variables");
-                                if(v!=null){
-                                    for(Object n : v){
-                                        if(!serviceVariables.contains(n.toString())){
-                                            serviceVariables.add(n.toString());
+                    if(!k.equals("ProjectPath")){
+                        for (String l : this.projectInfo.getJSONObject(k).keySet()) {
+                            boolean flag = false;
+                            String element = null;
+                            for (String m: this.projectInfo.getJSONObject(k).getJSONObject(l).keySet()) {
+                                if(m.contains("Class") && this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("name").equals(j.getString("taskName"))){
+                                    flag = true;
+                                    element = this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("name");
+                                    continue;
+                                }
+                                if(flag){
+                                    JSONArray v = this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).optJSONArray("variables");
+                                    if(v!=null){
+                                        for(Object n : v){
+                                            System.out.println(n.toString());
+                                            if(!serviceVariables.contains(n.toString())){
+                                                serviceVariables.add(n.toString());
+                                            }
                                         }
+                                    }else{
+                                        if(!serviceVariables.contains(this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("variables"))){
+                                                serviceVariables.add(this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("variables"));
+                                            }
                                     }
-                                }else{
-                                    if(!serviceVariables.contains(this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("variables"))){
-                                            serviceVariables.add(this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("variables"));
-                                        }
                                 }
                             }
-                        }
 
-                        if(!serviceVariables.isEmpty()){
-                            for (String n : serviceVariables) {
-                                int id_variable = con.searchVariable(n,this.history);
-                                int id_element = con.searchElement(element);
-                                con.insertElementUsed(id_variable, id_element,"NA");
+                            if(!serviceVariables.isEmpty()){
+                                for (String n : serviceVariables) {
+                                    int id_variable = con.searchVariable(n,this.history);
+                                    int id_element = con.searchElement(element);
+                                    con.insertElementUsed(id_variable, id_element,"NA");
+                                }
                             }
                         }
                     }
@@ -293,6 +296,11 @@ public class Data {
                         int id_element = con.searchElement(j.getString("taskName"));
                         con.insertElementUsed(id_variable, id_element,"NA");
                     }
+                }else if(j.optString("variables")!=""){
+                    String v = j.optString("variables");
+                    int id_variable = con.searchVariable(v,this.history);
+                    int id_element = con.searchElement(j.getString("taskName"));
+                    con.insertElementUsed(id_variable, id_element,"NA");
                 }
             }
         }

@@ -20,7 +20,7 @@ import static com.Trazability.Camunda.GetTaskCamunda.*;
 
 public class Main {
 
-    public static BpmnModelInstance modelInstance = null;
+    private static BpmnModelInstance modelInstance = null;
 
     public static boolean  main(String[] args) throws IOException {
         String bpmnFilePath = selectBpmnFile();

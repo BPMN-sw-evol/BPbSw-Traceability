@@ -37,6 +37,7 @@ public class Traceability extends javax.swing.JFrame {
 
         BIMAGE.setVisible(false);
         BDIAGRAM.setVisible(false);
+        
         loadHistory(); // Cargar nombres de variables al iniciar
         addHistorySelectionListener(); // Agrega variables según la version
         addVariableSelectionListener(); // Agrega proyectos según la variable
@@ -89,7 +90,7 @@ public class Traceability extends javax.swing.JFrame {
     }
 
     private int getSelectedHistory() {
-        return (int) HISTORY.getSelectedItem();
+        return (HISTORY.getSelectedItem() != null) ? ((Integer) HISTORY.getSelectedItem()) : 0;
     }
 
     private void loadVariableNames(int history) {
@@ -406,6 +407,7 @@ public class Traceability extends javax.swing.JFrame {
         BIMAGE = new javax.swing.JButton();
         BDIAGRAM = new javax.swing.JButton();
         HISTORY = new javax.swing.JComboBox<>();
+        jLabel1 = new javax.swing.JLabel();
 
         javax.swing.GroupLayout jFrame1Layout = new javax.swing.GroupLayout(jFrame1.getContentPane());
         jFrame1.getContentPane().setLayout(jFrame1Layout);
@@ -420,6 +422,8 @@ public class Traceability extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+
         PARTICIPANT.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
         PARTICIPANT.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         PARTICIPANT.setText("Select a variable");
@@ -428,12 +432,12 @@ public class Traceability extends javax.swing.JFrame {
         PROCESS.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         PROCESS.setText("Select a variable");
 
-        PPROJECTS.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        PPROJECTS.setBackground(new java.awt.Color(255, 255, 255));
+        PPROJECTS.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel6.setText("PROJECTS");
 
-        LPROJECTS.setBackground(new java.awt.Color(242, 242, 242));
         LPROJECTS.setBorder(javax.swing.BorderFactory.createCompoundBorder());
         LPROJECTS.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
         LPROJECTS.setModel(new javax.swing.AbstractListModel<String>() {
@@ -479,12 +483,12 @@ public class Traceability extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        PCLASSES.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        PCLASSES.setBackground(new java.awt.Color(255, 255, 255));
+        PCLASSES.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel7.setText("CLASSES");
 
-        LCLASSES.setBackground(new java.awt.Color(242, 242, 242));
         LCLASSES.setBorder(null);
         LCLASSES.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
         LCLASSES.setModel(new javax.swing.AbstractListModel<String>() {
@@ -510,7 +514,7 @@ public class Traceability extends javax.swing.JFrame {
                 .addGroup(PCLASSESLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane2)
                     .addGroup(PCLASSESLayout.createSequentialGroup()
-                        .addGap(0, 169, Short.MAX_VALUE)
+                        .addGap(0, 175, Short.MAX_VALUE)
                         .addComponent(jLabel7)
                         .addGap(117, 117, 117)
                         .addComponent(CountClasses, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -528,12 +532,12 @@ public class Traceability extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        PMETHODS.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        PMETHODS.setBackground(new java.awt.Color(255, 255, 255));
+        PMETHODS.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel8.setText("METHODS");
 
-        LMETHODS.setBackground(new java.awt.Color(242, 242, 242));
         LMETHODS.setBorder(null);
         LMETHODS.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
         LMETHODS.setModel(new javax.swing.AbstractListModel<String>() {
@@ -592,28 +596,35 @@ public class Traceability extends javax.swing.JFrame {
 
         LOAD.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         LOAD.setText("Generate New Trace");
-        LOAD.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        LOAD.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         LOAD.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         LOAD.setPreferredSize(new java.awt.Dimension(80, 26));
 
         JMODEL.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         JMODEL.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images.png"))); // NOI18N
+        JMODEL.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         JMODEL.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         BIMAGE.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         BIMAGE.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image.png"))); // NOI18N
         BIMAGE.setText("Open Image");
-        BIMAGE.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        BIMAGE.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         BIMAGE.setPreferredSize(new java.awt.Dimension(150, 35));
 
         BDIAGRAM.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         BDIAGRAM.setIcon(new javax.swing.ImageIcon(getClass().getResource("/diagram.png"))); // NOI18N
         BDIAGRAM.setText("Open Diagram");
-        BDIAGRAM.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        BDIAGRAM.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         BDIAGRAM.setPreferredSize(new java.awt.Dimension(150, 35));
 
+        HISTORY.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        HISTORY.setSelectedIndex(-1);
         HISTORY.setMinimumSize(new java.awt.Dimension(40, 31));
+        HISTORY.setName(""); // NOI18N
         HISTORY.setPreferredSize(new java.awt.Dimension(40, 31));
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel1.setText("Version #");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -632,15 +643,18 @@ public class Traceability extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSeparator1)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(HISTORY, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(16, 16, 16)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(HISTORY, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(38, 38, 38)
                         .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(44, 44, 44)
-                        .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(68, 68, 68)
+                        .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
-                        .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(35, 35, 35)
-                        .addComponent(LOAD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
+                        .addComponent(LOAD, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(24, 24, 24))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(PPROJECTS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -665,12 +679,13 @@ public class Traceability extends javax.swing.JFrame {
                             .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(LOAD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(HISTORY, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(HISTORY, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(8, 8, 8)))
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -694,6 +709,8 @@ public class Traceability extends javax.swing.JFrame {
                     .addComponent(PMETHODS, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
+
+        HISTORY.getAccessibleContext().setAccessibleName("");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -767,6 +784,7 @@ public class Traceability extends javax.swing.JFrame {
     private javax.swing.JLabel PROCESS;
     public javax.swing.JComboBox<String> VARIABLES;
     private javax.swing.JFrame jFrame1;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     public javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;

@@ -1,8 +1,16 @@
 package com.Trazability.Camunda;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import java.util.Collection;
+
+import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
 import org.camunda.bpm.model.bpmn.instance.SendTask;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaConnector;
+import org.camunda.bpm.model.bpmn.instance.camunda.CamundaInputOutput;
+import org.camunda.bpm.model.bpmn.instance.camunda.CamundaInputParameter;
+import org.camunda.bpm.model.bpmn.instance.camunda.CamundaOutputParameter;
 
 class SendTaskDetails {
     public static JsonObject getSendTaskDetails(SendTask sendTask) {
@@ -14,6 +22,9 @@ class SendTaskDetails {
 
         String implementation = determineSendTaskImplementation(sendTask);
         addTaskImplementationDetails(sendTaskDetails, implementation, sendTask);
+
+        // Agregar los inputs como variables si existen
+        addTaskInputsAndOutputsAsVariables(sendTaskDetails, sendTask);
 
         return sendTaskDetails;
     }
@@ -29,11 +40,13 @@ class SendTaskDetails {
     private static String determineSendTaskImplementation(SendTask sendTask) {
         return sendTask.getCamundaTopic() != null ? "External"
                 : sendTask.getCamundaClass() != null ? "Java Class"
-                : (sendTask.getCamundaExpression() != null || sendTask.getCamundaResultVariable() != null) ? "Expression"
-                : sendTask.getCamundaDelegateExpression() != null ? "Delegate Expression"
-                : (sendTask.getExtensionElements() != null
-                && sendTask.getExtensionElements().getElementsQuery()
-                        .filterByType(CamundaConnector.class).count() > 0) ? "Connector" : "None";
+                        : (sendTask.getCamundaExpression() != null || sendTask.getCamundaResultVariable() != null)
+                                ? "Expression"
+                                : sendTask.getCamundaDelegateExpression() != null ? "Delegate Expression"
+                                        : (sendTask.getExtensionElements() != null
+                                                && sendTask.getExtensionElements().getElementsQuery()
+                                                        .filterByType(CamundaConnector.class).count() > 0) ? "Connector"
+                                                                : "None";
     }
 
     private static String getSendTaskDetails(SendTask sendTask, String implementation) {
@@ -52,5 +65,27 @@ class SendTaskDetails {
             return "None";
         }
         return "";
+    }
+
+    private static void addTaskInputsAndOutputsAsVariables(JsonObject jsonObject, SendTask sendTask) {
+        ExtensionElements extensionElements = sendTask.getExtensionElements();
+        if (extensionElements != null) {
+            Collection<CamundaInputOutput> inputOutputs = extensionElements
+                    .getChildElementsByType(CamundaInputOutput.class);
+
+            if (!inputOutputs.isEmpty()) {
+                JsonArray variablesArray = new JsonArray();
+                for (CamundaInputOutput inputOutput : inputOutputs) {
+                    for (CamundaInputParameter inputParameter : inputOutput.getCamundaInputParameters()) {
+                        variablesArray.add(inputParameter.getCamundaName());
+                    }
+                    for (CamundaOutputParameter outputParameter : inputOutput.getCamundaOutputParameters()) {
+                        variablesArray.add(outputParameter.getCamundaName());
+                    }
+                }
+                jsonObject.add("variables", variablesArray);
+
+            }
+        }
     }
 }

@@ -1,16 +1,40 @@
 {
-  "ProjectPath" : [ "D:\\Laboral\\MSG-Foundation\\MSGF-BPM-Engine", "D:\\Laboral\\MSG-Foundation\\MSGF-CentralSys", "D:\\Laboral\\MSG-Foundation\\MSGF-CreditRequest" ],
+  "ProjectPath" : [ "D:\\Laboral\\MSG-Foundation\\MSGF-BPM-Engine", "D:\\Laboral\\MSG-Foundation\\MSGF-CentralSys", "D:\\Laboral\\MSG-Foundation\\MSGF-CreditRequest", "D:\\Laboral\\MSG-Foundation\\MSGF-Treasury" ],
   "MSGF-BPM-Engine" : {
-    "BPM Class: DatabaseServiceTaskDelegate" : {
-      "BPM Class: DatabaseServiceTaskDelegate" : {
-        "type" : "ServiceTask",
-        "name" : "Consultar información financiera"
+    "BPM Class: InconsistenciesDelegate" : {
+      "BPM Class: InconsistenciesDelegate" : {
+        "type" : "Send Task",
+        "name" : "Informar inconsistencias"
       },
-      "BPM Method: getterVariables (getter)" : {
-        "variables" : [ "quotaValue", "housePrices", "coupleSavings" ]
+      "BPM Method: execute (getter)" : {
+        "variables" : [ "coupleName1", "coupleName2", "creationDate" ]
+      }
+    },
+    "BPM Class: RequestInviableDelegate" : {
+      "BPM Class: RequestInviableDelegate" : {
+        "type" : "Send Task",
+        "name" : "Informar concepto jurídico no viable"
       },
-      "BPM Method: setterVariables (setter)" : {
-        "variables" : [ "quotaValue", "housePrices", "coupleSavings" ]
+      "BPM Method: execute (getter)" : {
+        "variables" : [ "coupleName1", "coupleName2", "quotaValue" ]
+      }
+    },
+    "BPM Class: RequestRejectByCommitteeDelegate" : {
+      "BPM Class: RequestRejectByCommitteeDelegate" : {
+        "type" : "Send Task",
+        "name" : "Informar rechazo de solicitud"
+      },
+      "BPM Method: execute (getter)" : {
+        "variables" : [ "coupleName1", "coupleName2", "housePrice", "coupleSaving" ]
+      }
+    },
+    "BPM Class: RequestRejectDelegateExpression" : {
+      "BPM Class: RequestRejectDelegateExpression" : {
+        "type" : "Send Task",
+        "name" : "Informar solicitud anulada por incumplimiento"
+      },
+      "BPM Method: execute (getter)" : {
+        "variables" : [ "coupleName1", "coupleName2", "quotaValue" ]
       }
     }
   },
