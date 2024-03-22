@@ -1,7 +1,9 @@
-package com.Trazability.DataBase;
+package com.Trazability.Extraction;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+import com.Trazability.DataBase.Connections;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -17,7 +19,7 @@ public class Data {
     private ArrayList<String> projects = new ArrayList<String>();
     private ArrayList<String> paths = new ArrayList<String>();
     private Connections con = new Connections();
-    
+
     public Data(String ruta,String ruta2,String name) throws IOException{
         try {
             BufferedReader file = new BufferedReader(new java.io.FileReader(ruta));
@@ -35,25 +37,25 @@ public class Data {
                 s+=line;
             }
             this.bpmnInfo = new JSONObject(s);
-            
+
             this.history = con.createHistory(name);
 
-           setProjects();
-           setClasses();
-           setContainer();
-           setVariables();
-           setMethod();
-           setMethodUsed();
-           setProcess();
-           setElementType();
-           setElement();
-           setElementUsed();
+            setProjects();
+            setClasses();
+            setContainer();
+            setVariables();
+            setMethod();
+            setMethodUsed();
+            setProcess();
+            setElementType();
+            setElement();
+            setElementUsed();
         } catch (FileNotFoundException e) {
             System.out.println("Error al leer el archivo: " + e.getMessage());
         }
 
-}
-    
+    }
+
     public boolean isDataInitialized() {
         return projectInfo != null && bpmnInfo != null && history != -1;
     }
@@ -192,15 +194,15 @@ public class Data {
                                         if(l.toString().contains("set")){
                                             con.insertMethodUsed(id_variable,id_method, true);
                                         }else{
-                                           con.insertMethodUsed(id_variable,id_method, false);
+                                            con.insertMethodUsed(id_variable,id_method, false);
                                         }
-                                        
+
                                         break;
-                                   }
-                               }
+                                    }
+                                }
                             }else if(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).getString("variables").equals(i)){
-                               int id_class = con.searchClass(k.split(": ")[1],id_project);
-                               int id_method = con.searchMethod(id_class,l.split(": ")[1].split(" ")[0]);
+                                int id_class = con.searchClass(k.split(": ")[1],id_project);
+                                int id_method = con.searchMethod(id_class,l.split(": ")[1].split(" ")[0]);
 
                                 if(l.toString().contains("set")){
                                     con.insertMethodUsed(id_variable,id_method, true);
@@ -227,7 +229,7 @@ public class Data {
             if(!this.type.contains(j.getString("taskType")) && con.searchElementType(j.getString("taskType"))==-1){
                 this.type.add(j.getString("taskType"));
                 con.insertElementType(j.getString("taskType"));
-            }    
+            }
         }
     }
 
@@ -272,8 +274,8 @@ public class Data {
                                         }
                                     }else{
                                         if(!serviceVariables.contains(this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("variables"))){
-                                                serviceVariables.add(this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("variables"));
-                                            }
+                                            serviceVariables.add(this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("variables"));
+                                        }
                                     }
                                 }
                             }

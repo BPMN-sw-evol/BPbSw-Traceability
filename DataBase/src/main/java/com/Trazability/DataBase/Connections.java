@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package com.Trazability.DataBase;
 
 import java.sql.Connection;
@@ -490,8 +494,8 @@ public class Connections {
             return -1;
         }
     }
-    
-     public List<Integer> getAllHistorys() {
+
+    public List<Integer> getAllHistorys() {
         List<Integer> historyIDs = new ArrayList<>();
         try {
             String sql = "SELECT id_history FROM history";
@@ -509,7 +513,7 @@ public class Connections {
         }
         return historyIDs;
     }
-     
+
 
     public List<String> getAllVariableNames(int history) {
         List<String> variableNames = new ArrayList<>();
@@ -713,7 +717,7 @@ public class Connections {
                 result.put("error", "ID de elemento no encontrado en la tabla 'used_by_element'");
             }
         } catch (SQLException e) {
-                result.put("error", "Error al realizar la búsqueda");
+            result.put("error", "Error al realizar la búsqueda");
         }
         return result;
     }
@@ -747,7 +751,7 @@ public class Connections {
         }
     }
 
-// Método adicional para obtener el nombre del elemento por su ID
+    // Método adicional para obtener el nombre del elemento por su ID
     private String getElementNameById(int elementId) {
         try {
             String sql = "SELECT element_name FROM element WHERE id_element = ?";
