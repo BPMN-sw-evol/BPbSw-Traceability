@@ -1,0 +1,356 @@
+{
+  "bpmPath": "C:\\Users\\SOPORTES JPVM\\Desktop\\MSGF credit request.bpmn",
+  "bpmNameFile": "MSGF credit request.bpmn",
+  "bpmNameProcess": "MsgFoundation - Credit Request",
+  "trace": [
+    {
+      "taskID": "StartEvent_1",
+      "taskName": "Deseo obtener un crédito con MsgFoundation",
+      "taskType": "Start Event",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Activity_1emma31",
+      "taskName": "Diligenciar formulario de solicitud",
+      "taskType": "User Task",
+      "taskImplementationType": "Generated Task Form",
+      "taskReferenceOrImplementation": "Have a Fields Form",
+      "variables": [
+        "coupleName1",
+        "coupleName2",
+        "coupleEmail1",
+        "coupleEmail2",
+        "creationDate",
+        "codRequest",
+        "applicantCouple",
+        "bothEmployees",
+        "marriageYears",
+        "countReviewsBpm",
+        "pdfSupport",
+        "workSupport"
+      ]
+    },
+    {
+      "taskID": "Activity_0h13zv2",
+      "taskName": "Revisar detalles de solicitud",
+      "taskType": "User Task",
+      "taskImplementationType": "Camunda Form",
+      "taskReferenceOrImplementation": "requestReview",
+      "variables": [
+        "coupleName1",
+        "coupleEmail1",
+        "coupleName2",
+        "coupleEmail2",
+        "creationDate",
+        "bothEmployees",
+        "marriageYears",
+        "countReviewsBpm",
+        "workSupport"
+      ]
+    },
+    {
+      "taskID": "Gateway_04lc2tj",
+      "taskName": "¿Requisitos en orden?",
+      "taskType": "Gateway",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Flow_1xek70h",
+      "taskName": "Flow_1xek70h",
+      "taskType": "Sequence Flow",
+      "taskImplementationType": "Expression",
+      "variables": "allFine"
+    },
+    {
+      "taskID": "Activity_0pz6k7s",
+      "taskName": "Consultar información financiera",
+      "taskType": "Service Task",
+      "taskImplementationType": "Java Class",
+      "taskReferenceOrImplementation": "com.msgfoundation.delegation.DatabaseServiceTaskDelegate",
+      "variables": [
+        "coupleSavings",
+        "quotaValue",
+        "housePrices"
+      ]
+    },
+    {
+      "taskID": "Activity_0rzlyv4",
+      "taskName": "Evaluar crédito",
+      "taskType": "User Task",
+      "taskImplementationType": "Generated Task Form",
+      "taskReferenceOrImplementation": "Have a Fields Form",
+      "variables": [
+        "coupleSavings",
+        "housePrices",
+        "quotaValue",
+        "isValid",
+        "bothEmployees",
+        "marriageYears",
+        "workSupport"
+      ]
+    },
+    {
+      "taskID": "Gateway_1ve5rm5",
+      "taskName": "¿Solicitud de crédito aprobada?",
+      "taskType": "Gateway",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Flow_0v5njo3",
+      "taskName": "Flow_0v5njo3",
+      "taskType": "Sequence Flow",
+      "taskImplementationType": "Expression",
+      "variables": "isValid"
+    },
+    {
+      "taskID": "Activity_15y8fg5",
+      "taskName": "Revisar soportes de solicitud",
+      "taskType": "User Task",
+      "taskImplementationType": "Generated Task Form",
+      "taskReferenceOrImplementation": "Have a Fields Form",
+      "variables": [
+        "pdfSupport",
+        "workSupport",
+        "validSupports"
+      ]
+    },
+    {
+      "taskID": "Gateway_1bx3232",
+      "taskName": "¿Soportes válidos?",
+      "taskType": "Gateway",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Flow_0o73rnw",
+      "taskName": "Flow_0o73rnw",
+      "taskType": "Sequence Flow",
+      "taskImplementationType": "Expression",
+      "variables": "validSupports"
+    },
+    {
+      "taskID": "Activity_14drlg2",
+      "taskName": "Informar solicitud anulada por incumplimiento",
+      "taskType": "Send Task",
+      "taskImplementationType": "Delegate Expression",
+      "taskReferenceOrImplementation": "#{requestReject}",
+      "variables": [
+        "coupleName1",
+        "coupleEmail1",
+        "coupleName2",
+        "coupleEmail2",
+        "pdfSupport",
+        "workSupport"
+      ]
+    },
+    {
+      "taskID": "Event_0koz45z",
+      "taskName": "solicitud anulada por incumplimiento",
+      "taskType": "End Event",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Flow_189pwxx",
+      "taskName": "Flow_189pwxx",
+      "taskType": "Sequence Flow",
+      "taskImplementationType": "Expression",
+      "variables": "validSupports"
+    },
+    {
+      "taskID": "Activity_012ypn5",
+      "taskName": "Determinar viabilidad financiera",
+      "taskType": "User Task",
+      "taskImplementationType": "Generated Task Form",
+      "taskReferenceOrImplementation": "Have a Fields Form",
+      "variables": [
+        "legalConcept"
+      ]
+    },
+    {
+      "taskID": "Gateway_1wi5a6r",
+      "taskName": "¿Es viable?",
+      "taskType": "Gateway",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Flow_0pimuf9",
+      "taskName": "Flow_0pimuf9",
+      "taskType": "Sequence Flow",
+      "taskImplementationType": "Expression",
+      "variables": "legalConcept"
+    },
+    {
+      "taskID": "Activity_1es89wk",
+      "taskName": "Informar concepto jurídico no viable",
+      "taskType": "Send Task",
+      "taskImplementationType": "Java Class",
+      "taskReferenceOrImplementation": "com.msgfoundation.messages.RequestInviableDelegate",
+      "variables": [
+        "coupleName1",
+        "coupleEmail1",
+        "coupleName2",
+        "coupleEmail2",
+        "quotaValue",
+        "coupleSavings",
+        "housePrices"
+      ]
+    },
+    {
+      "taskID": "Event_1j6gctc",
+      "taskName": "Solicitud con concepto jurídico no viable",
+      "taskType": "End Event",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Flow_0fwfn8e",
+      "taskName": "Flow_0fwfn8e",
+      "taskType": "Sequence Flow",
+      "taskImplementationType": "Expression",
+      "variables": "legalConcept"
+    },
+    {
+      "taskID": "Activity_0hyf97s",
+      "taskName": "Aprobar proceso de pago",
+      "taskType": "User Task",
+      "taskImplementationType": "Camunda Form",
+      "taskReferenceOrImplementation": "paymentApproval"
+    },
+    {
+      "taskID": "Activity_0fra7nj",
+      "taskName": "Informar desembolso a pareja y a vendedor",
+      "taskType": "Send Task",
+      "taskImplementationType": "Connector",
+      "taskReferenceOrImplementation": "http-connector",
+      "variables": [
+        "coupleName1",
+        "coupleEmail1",
+        "coupleName2",
+        "coupleEmail2",
+        "housePrices",
+        "quotaValue"
+      ]
+    },
+    {
+      "taskID": "Event_06o7665",
+      "taskName": "Solicitud finalizada",
+      "taskType": "End Event",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Activity_0ix3pe0",
+      "taskName": "Calcular cuota de manejo",
+      "taskType": "Service Task",
+      "taskImplementationType": "Expression",
+      "taskReferenceOrImplementation": "value1"
+    },
+    {
+      "taskID": "Activity_0cgomcg",
+      "taskName": "Realizar desembolso",
+      "taskType": "Service Task",
+      "taskImplementationType": "Connector",
+      "taskReferenceOrImplementation": "http-connector"
+    },
+    {
+      "taskID": "Flow_1tl7nvw",
+      "taskName": "Flow_1tl7nvw",
+      "taskType": "Sequence Flow",
+      "taskImplementationType": "Expression",
+      "variables": "isValid"
+    },
+    {
+      "taskID": "Activity_0wssoib",
+      "taskName": "Informar rechazo de solicitud",
+      "taskType": "Send Task",
+      "taskImplementationType": "Java Class",
+      "taskReferenceOrImplementation": "com.msgfoundation.messages.RequestRejectByCommitteeDelegate",
+      "variables": [
+        "coupleName1",
+        "coupleEmail1",
+        "coupleName2",
+        "coupleEmail2",
+        "pdfSupport",
+        "bothEmployees"
+      ]
+    },
+    {
+      "taskID": "Event_064w5sm",
+      "taskName": "Solicitud rechazada",
+      "taskType": "End Event",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Flow_1ypsfyu",
+      "taskName": "Flow_1ypsfyu",
+      "taskType": "Sequence Flow",
+      "taskImplementationType": "Expression",
+      "variables": "allFine"
+    },
+    {
+      "taskID": "Activity_0r194vo",
+      "taskName": "Habilitar edición formulario",
+      "taskType": "Service Task",
+      "taskImplementationType": "Delegate Expression",
+      "taskReferenceOrImplementation": "#{activateForm}",
+      "variables": [
+        "countReviewsBpm"
+      ]
+    },
+    {
+      "taskID": "Activity_0n39p7y",
+      "taskName": "Informar inconsistencias",
+      "taskType": "Send Task",
+      "taskImplementationType": "Java Class",
+      "taskReferenceOrImplementation": "com.msgfoundation.messages.InconsistenciesDelegate",
+      "variables": [
+        "coupleName1",
+        "coupleEmail1",
+        "coupleName2",
+        "coupleEmail2",
+        "creationDate",
+        "workSupport"
+      ]
+    },
+    {
+      "taskID": "Gateway_1uqjwva",
+      "taskName": "inconsistencia en la solicitud",
+      "taskType": "Gateway",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Event_19e8a1c",
+      "taskName": "Mensaje de inconsistencias ajustadas",
+      "taskType": "Message Intermediate Event",
+      "taskImplementationType": "hayIncosistencias",
+      "taskReferenceOrImplementation": "hayIncosistencias",
+      "variables": [
+        "coupleSavings"
+      ]
+    },
+    {
+      "taskID": "Event_081wxiz",
+      "taskName": "15 días",
+      "taskType": "Timer Intermediate Event",
+      "taskImplementationType": "Duration",
+      "taskReferenceOrImplementation": "P15D",
+      "variables": [
+        "coupleSavings"
+      ]
+    },
+    {
+      "taskID": "Event_0sf663o",
+      "taskName": "Solicitud cancelada por inconsistencias",
+      "taskType": "End Event",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    }
+  ]
+}
