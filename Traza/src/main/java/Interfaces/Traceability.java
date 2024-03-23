@@ -1,8 +1,9 @@
 package Interfaces;
 
-import com.Trazability.DataBase.Connections;
 import com.Traza.ImageGenerate.*;
 import com.Traza.Main;
+import com.Trazability.DAO.*;
+
 import java.awt.Desktop;
 
 import java.awt.Image;
@@ -21,8 +22,16 @@ import javax.swing.JList;
 
 public class Traceability extends javax.swing.JFrame {
 
-    private final Connections con = new Connections();
     private int projectId, selectedVariableId;
+    private HistoryDAO historyDAO;
+    private VariableDAO variableDAO;
+    private ContainerDAO containerDAO;
+    private ProjectDAO projectDAO;
+    private ProcessDAO processDAO;
+    private ClassDAO classDAO;
+    private MethodDAO methodDAO;
+    private ElementDAO elementDAO;
+    private PathDAO pathDAO;
 
     public Traceability() {
         initComponents();
@@ -35,7 +44,21 @@ public class Traceability extends javax.swing.JFrame {
 
         BIMAGE.setVisible(false);
         BDIAGRAM.setVisible(false);
-        
+
+        // Obtener la instancia del DAOManager
+        DAOManager daoManager = DAOManager.getInstance();
+
+        // Obtener intancias de los DAO's
+        this.historyDAO = daoManager.getHistoryDAO();
+        this.variableDAO = daoManager.getVariableDAO();
+        this.containerDAO = daoManager.getContainerDAO();
+        this.projectDAO = daoManager.getProjectDAO();
+        this.processDAO = daoManager.getProcessDAO();
+        this.classDAO = daoManager.getClassDAO();
+        this.methodDAO = daoManager.getMethodDAO();
+        this.elementDAO = daoManager.getElementDAO();
+        this.pathDAO = daoManager.getPathDAO();
+
         loadHistory(); // Cargar nombres de variables al iniciar
         addHistorySelectionListener(); // Agrega variables según la version
         addVariableSelectionListener(); // Agrega proyectos según la variable
@@ -48,7 +71,7 @@ public class Traceability extends javax.swing.JFrame {
 
     private void loadHistory() {
         try {
-            List<Integer> historyIDs = con.getAllHistorys();
+            List<Integer> historyIDs = historyDAO.getAllHistorys();
             historyIDs.add(0, 0);
 
             if (!historyIDs.isEmpty()) {
@@ -93,7 +116,7 @@ public class Traceability extends javax.swing.JFrame {
 
     private void loadVariableNames(int history) {
         try {
-            List<String> variableNames = con.getAllVariableNames(history);
+            List<String> variableNames = variableDAO.getAllVariableNames(history);
             variableNames.add(0, "Choose a variable");
 
             if (!variableNames.isEmpty()) {
@@ -126,10 +149,10 @@ public class Traceability extends javax.swing.JFrame {
         String selectedVariable = getSelectedVariable();
 
         if (!"Choose a variable".equals(selectedVariable) && !"Choose a version".equals(selectedVariable)) {
-            selectedVariableId = con.searchVariableByName(selectedVariable);
+            selectedVariableId = variableDAO.searchVariableByName(selectedVariable);
 
-            List<String> projectNames = con.searchProjectByVariableId(selectedVariableId);
-            Map<String, String> processInfo = con.searchProcessByVariableId(selectedVariableId);
+            List<String> projectNames = projectDAO.searchProjectByVariableId(selectedVariableId);
+            Map<String, String> processInfo = processDAO.searchProcessByVariableId(selectedVariableId);
 
             if (processInfo.containsKey("error")) {
                 System.out.println("Error: " + processInfo.get("error"));
@@ -200,12 +223,12 @@ public class Traceability extends javax.swing.JFrame {
 
     private void handleProjectSelection() {
         String selectedProject = LPROJECTS.getSelectedValue();
-        projectId = con.searchProject(selectedProject);
+        projectId = projectDAO.searchProject(selectedProject);
 
-        String containerName = con.searchContainerName(projectId, selectedVariableId);
+        String containerName = containerDAO.searchContainerName(projectId, selectedVariableId);
         CONTAINER.setText(containerName != null && !containerName.isEmpty() ? containerName : "variable not selected");
 
-        List<String> classNames = con.searchClassById(projectId, selectedVariableId);
+        List<String> classNames = classDAO.searchClassById(projectId, selectedVariableId);
         updateList(LCLASSES, classNames, CountClasses, "Project not selected");
 
         if (classNames == null || classNames.isEmpty()) {
@@ -224,9 +247,9 @@ public class Traceability extends javax.swing.JFrame {
 
     private void handleClassSelection() {
         String selectedClass = LCLASSES.getSelectedValue();
-        int classId = con.searchClass(selectedClass);
+        int classId = classDAO.searchClass(selectedClass);
 
-        List<String> methodNames = con.searchMethodById(classId, selectedVariableId);
+        List<String> methodNames = methodDAO.searchMethodById(classId, selectedVariableId);
         updateList(LMETHODS, methodNames, CountMethods, "Class not selected");
 
         if (methodNames == null || methodNames.isEmpty()) {
@@ -253,11 +276,11 @@ public class Traceability extends javax.swing.JFrame {
             return;
         }
 
-        List<String> usedElementNames = con.searchElementsUsed(selectedVariableId);
+        List<String> usedElementNames = elementDAO.searchElementsUsed(selectedVariableId);
         for (String usedElementName : usedElementNames) {
             System.out.println(usedElementName);
         }
-        String path = con.getModelBPMNPath(selectedVariableId);
+        String path = pathDAO.getModelBPMNPath(selectedVariableId);
         if (!usedElementNames.isEmpty() && !usedElementNames.get(0).equals("Elemento no encontrado")) {
             BpmnColor modifier = new BpmnColor();
             modifier.modifyActivityColors(usedElementNames, path);
