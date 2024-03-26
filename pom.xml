@@ -15,6 +15,7 @@
         <module>biptrac</module>
         <module>DataBase</module>
         <module>api-traceability</module>
+        <module>Plugin</module>
     </modules>
 
     <properties>
