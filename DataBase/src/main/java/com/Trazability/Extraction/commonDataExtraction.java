@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.Trazability.DAO.*;
-import com.Trazability.Interface.DataExtractor;
+import com.Trazability.Interface.IDataExtractor;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 
-public class commonDataExtraction implements DataExtractor {
+public class commonDataExtraction implements IDataExtractor {
     private final String projectFilePath;
     private final String bpmnFilePath;
     private JSONObject projectInfo;
@@ -57,6 +57,16 @@ public class commonDataExtraction implements DataExtractor {
                 sProject.append(lineProject);
             }
             this.projectInfo = new JSONObject(sProject.toString());
+
+            for (String i : this.projectInfo.keySet()) {
+                for (Object j : this.projectInfo.getJSONArray("ProjectPath")) {
+                    String[] p = j.toString().split("\\\\");
+                    if(p[p.length-1].equals(i)){
+                        this.projects.add(i);
+                        this.paths.add(j.toString());
+                    }
+                }
+            }
 
             BufferedReader bpmn = new BufferedReader(new java.io.FileReader(bpmnFilePath));
             StringBuilder sBpmn = new StringBuilder();
@@ -107,11 +117,12 @@ public class commonDataExtraction implements DataExtractor {
                 for (String k : this.projectInfo.getJSONObject(this.projects.get(j)).keySet()) {
                     for (String l: this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).keySet()) {
                         JSONArray v = this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).optJSONArray("variables");
+
                         if(v!=null){
+
                             for(Object m : v){
                                 if(m.toString().equals(i) && this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).keySet().contains("container")){
                                     int container = containerDAO.searchContainer(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).getString("container"),project);
-
                                     if(containerDAO.searchContainedIn(variable, container)==-1){
                                         containerDAO.insertContainedIn(variable, container);
                                     }

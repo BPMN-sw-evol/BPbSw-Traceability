@@ -35,39 +35,6 @@ public class HistoryDAO {
         return -1;
     }
 
-    public int searchHistory(String name, java.sql.Timestamp date) {
-        try {
-            String sql = "SELECT id_history FROM history WHERE name = ? AND date = ?";
-            ps = connection.prepareStatement(sql);
-            ps.setString(1, name);
-            ps.setTimestamp(2, date);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("id_history");
-            }
-            return -1;
-        } catch (SQLException e) {
-            System.err.println("Error al realizar la busqueda: " + e);
-            return -1;
-        }
-    }
-
-    public List<Integer> getAllHistoryIds() {
-        List<Integer> historyIds = new ArrayList<>();
-        try {
-            String sql = "SELECT id_history FROM history";
-            ps = connection.prepareStatement(sql);
-            rs = ps.executeQuery();
-
-            while (rs.next()) {
-                historyIds.add(rs.getInt("id_history"));
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al obtener IDs de historias: " + e.getMessage());
-        }
-        return historyIds;
-    }
-
     public List<Integer> getAllHistorys() {
         List<Integer> historyIDs = new ArrayList<>();
         try {
@@ -76,8 +43,7 @@ public class HistoryDAO {
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                String historyID = rs.getString("id_history");
-                historyIDs.add(Integer.parseInt(historyID));
+                historyIDs.add(rs.getInt("id_history"));
             }
         } catch (SQLException e) {
             System.err.println("Error al realizar la búsqueda: " + e);

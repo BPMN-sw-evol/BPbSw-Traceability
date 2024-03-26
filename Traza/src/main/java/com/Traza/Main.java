@@ -1,6 +1,6 @@
 package com.Traza;
 
-import com.Trazability.Factory.DataExtractorFactory;
+import com.Trazability.Processor.DataProcessor;
 import com.biptrace.AnnotationAnalyzer;
 import com.google.gson.JsonObject;
 import org.camunda.bpm.model.bpmn.Bpmn;
@@ -16,42 +16,38 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.msgfoundation.xmltracer.CamundaElement.*;
+import static com.xmltracer.CamundaElement.*;
 
 public class Main {
 
     private static BpmnModelInstance modelInstance = null;
 
     public static boolean  main(String[] args) throws IOException {
-//        String bpmnFilePath = selectBpmnFile();
-//        String[] projectPaths = getProjectPathsFromUserInput();
-//
-//        if (bpmnFilePath == null || projectPaths == null) {
-//            // El usuario canceló la selección del archivo BPMN o de proyectos
-//            return false;
-//        }
-//
-//        JsonObject bpmnDetails = new JsonObject();
-//        boolean successBpmn = processBpmnModel(bpmnFilePath, bpmnDetails);
-//        boolean successProject = processProjectActions("MSG-Foundation", projectPaths);
+        String bpmnFilePath = selectBpmnFile();
+        String[] projectPaths = getProjectPathsFromUserInput();
 
-        boolean successBpmn = true;
-        boolean successProject = true;
+        if (bpmnFilePath == null || projectPaths == null) {
+            // El usuario canceló la selección del archivo BPMN o de proyectos
+            return false;
+        }
+
+        JsonObject bpmnDetails = new JsonObject();
+        boolean successBpmn = processBpmnModel(bpmnFilePath, bpmnDetails);
+        boolean successProject = processProjectActions("MSG-Foundation", projectPaths);
+
         if (successBpmn && successProject) {
             try {
-                boolean flag = DataExtractorFactory.createAndExtractAllData("Traza/output/MSG-Foundation.json","Traza/output/MSGF credit request.json",  "MSG-Foundation");
+                DataProcessor.getInstance("Traza/output/MSG-Foundation.json", "output/MSGF-CreditRequest.json", "MSG-Foundation");
 
-                    if (flag) {
-                        String successMessage = "La informacion se ha guardado con exito.";
-                        JOptionPane.showMessageDialog(null, successMessage, "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        String errorMessage = "Error al guardar la informacion.";
-                        JOptionPane.showMessageDialog(null, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-
+                // Si llegamos aquí, significa que no hubo excepciones durante el proceso
+                String successMessage = "La información se ha guardado con éxito.";
+                JOptionPane.showMessageDialog(null, successMessage, "Éxito", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
-                e.printStackTrace();
+                // Si hay una excepción, se captura aquí y se muestra un mensaje de error
+                String errorMessage = "Error al guardar la información: " + e.getMessage();
+                JOptionPane.showMessageDialog(null, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
             }
+
             return true;
         } else {
             String errorMessage = "Hubo un problema al procesar y guardar la información de BPMN y/o proyectos.";
@@ -84,7 +80,7 @@ public class Main {
             Collection<StartEvent> startEvents = modelInstance.getModelElementsByType(StartEvent.class);
             for (StartEvent startEvent : startEvents) {
                 Set<String> visitedNodes = new HashSet<>();
-                listActivitiesFromStartEvent(modelInstance, startEvent, visitedNodes, bpmnDetails);
+                listActivitiesFromStartEvent(startEvent, visitedNodes, bpmnDetails);
             }
 
             JsonObject bpmnWithBpmName = new JsonObject();

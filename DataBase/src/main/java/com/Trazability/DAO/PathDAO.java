@@ -7,8 +7,6 @@ import java.sql.SQLException;
 
 public class PathDAO {
     private Connection connection;
-    private PreparedStatement ps;
-    private ResultSet rs;
 
     public PathDAO(Connection connection) {
         this.connection = connection;
