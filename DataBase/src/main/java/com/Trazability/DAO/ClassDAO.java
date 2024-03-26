@@ -83,8 +83,8 @@ public class ClassDAO {
 
                 if (rs1.next()) {
                     int id_class = rs1.getInt("id_class");
-                    sql = "SELECT name_class FROM class WHERE id_class = ? AND id_project = ?";
-                    PreparedStatement ps2 = connection.prepareStatement(sql);
+                    String sql1 = "SELECT name_class FROM class WHERE id_class = ? AND id_project = ?";
+                    PreparedStatement ps2 = connection.prepareStatement(sql1);
                     ps2.setInt(1, id_class);
                     ps2.setInt(2, id_project);
                     ResultSet rs2 = ps2.executeQuery();

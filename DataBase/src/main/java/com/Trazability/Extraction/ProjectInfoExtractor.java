@@ -7,10 +7,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.Trazability.Interface.DataExtractor;
+import com.Trazability.Interface.IDataExtractor;
 import org.json.JSONObject;
 
-public class ProjectInfoExtractor implements DataExtractor {
+public class ProjectInfoExtractor implements IDataExtractor {
     private JSONObject projectInfo;
     private final String projectFilePath;
     private final ArrayList<String> projects = new ArrayList<>();

@@ -60,24 +60,6 @@ public class MethodDAO {
         }
     }
 
-    public int searchMethodUsed(int id_variable) {
-        try {
-            String sql = "SELECT id_used_by_method FROM used_by_method WHERE id_variable = ?";
-            ps = connection.prepareStatement(sql);
-            ps.setInt(1, id_variable);
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt("id_used_by_method");
-            } else {
-                return -1; // El curso no se encontró
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al realizar la busqueda: " + e);
-            return -1;
-        }
-    }
-
     public List<String> searchMethodById(int id_class, int id_variable) {
         List<String> methodNames = new ArrayList<>();
 

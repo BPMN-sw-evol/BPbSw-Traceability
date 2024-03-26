@@ -277,9 +277,9 @@ public class Traceability extends javax.swing.JFrame {
         }
 
         List<String> usedElementNames = elementDAO.searchElementsUsed(selectedVariableId);
-        for (String usedElementName : usedElementNames) {
-            System.out.println(usedElementName);
-        }
+//        for (String usedElementName : usedElementNames) {
+//            System.out.println(usedElementName);
+//        }
         String path = pathDAO.getModelBPMNPath(selectedVariableId);
         if (!usedElementNames.isEmpty() && !usedElementNames.get(0).equals("Elemento no encontrado")) {
             BpmnColor modifier = new BpmnColor();

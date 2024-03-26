@@ -45,16 +45,17 @@ public class ContainerDAO {
         }
     }
 
-    public void insertContainedIn(int id_variable, int id_container) {
+    public int insertContainedIn(int id_variable, int id_container) {
         try {
             String sql = "INSERT INTO contained_in (id_variable,id_data_container) VALUES (?,?)";
             ps = connection.prepareStatement(sql);
             ps.setInt(1, id_variable);
             ps.setInt(2, id_container);
-            int filasAfectadas = ps.executeUpdate();
+            ps.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Error al realizar la inserción: " + e);
         }
+        return -1;
     }
 
     public int searchContainedIn(int id_variable, int id_container) {
@@ -86,8 +87,8 @@ public class ContainerDAO {
 
             while (rs.next()) {
                 int id_container = rs.getInt("id_data_container");
-                sql = "SELECT name_container FROM data_container WHERE id_data_container = ? AND id_project = ?";
-                PreparedStatement ps1 = connection.prepareStatement(sql);
+                String sql1 = "SELECT name_container FROM data_container WHERE id_data_container = ? AND id_project = ?";
+                PreparedStatement ps1 = connection.prepareStatement(sql1);
                 ps1.setInt(1, id_container);
                 ps1.setInt(2, id_project);
                 ResultSet rs1 = ps1.executeQuery();

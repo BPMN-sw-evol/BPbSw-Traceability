@@ -1,7 +1,7 @@
 package com.Trazability.Extraction;
 
 import com.Trazability.DAO.*;
-import com.Trazability.Interface.DataExtractor;
+import com.Trazability.Interface.IDataExtractor;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class BPMNInfoExtractor implements DataExtractor {
+public class BPMNInfoExtractor implements IDataExtractor {
 
     private String bpmnFilePath;
     private JSONObject bpmnInfo;
@@ -50,8 +50,8 @@ public class BPMNInfoExtractor implements DataExtractor {
 
         extractInfo();
         setProcess();
-        setElement();
         setElementType();
+        setElement();
 
     }
 
@@ -79,7 +79,6 @@ public class BPMNInfoExtractor implements DataExtractor {
             String name = j.getString("taskName");
             String lane = "Lane"; //cuando BPMN-Tracer traiga el lane, modificar esta linea
             int id_process = processDAO.searchProcess(this.bpmnInfo.getString("bpmNameProcess"),this.bpmnInfo.getString("bpmNameFile"),this.bpmnInfo.getString("bpmPath"));
-
             elementDAO.insertElement(id_type, name, lane, id_process);
         }
     }

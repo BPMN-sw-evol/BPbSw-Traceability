@@ -91,24 +91,6 @@ public class ElementDAO {
         }
     }
 
-    public int searchElementUsed(int id_variable) {
-        try {
-            String sql = "SELECT id_used_by_element FROM used_by_element WHERE id_variable = ?";
-            ps = connection.prepareStatement(sql);
-            ps.setInt(1, id_variable);
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt("id_used_by_element");
-            } else {
-                return -1; // El curso no se encontró
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al realizar la busqueda: " + e);
-            return -1;
-        }
-    }
-
     public List<String> searchElementsUsed(int id_variable) {
         List<String> usedElementNames = new ArrayList<>();
 
