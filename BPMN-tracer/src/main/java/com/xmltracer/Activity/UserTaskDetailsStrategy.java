@@ -1,7 +1,12 @@
-package com.msgfoundation.xmltracer;
+package com.xmltracer.Activity;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.xmltracer.Interface.ITaskDetailsStrategy;
+
+import com.google.gson.JsonObject;
+import org.camunda.bpm.model.bpmn.instance.Activity;
+import org.camunda.bpm.model.bpmn.instance.Event;
 import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
 import org.camunda.bpm.model.bpmn.instance.UserTask;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaFormData;
@@ -11,9 +16,16 @@ import org.camunda.bpm.model.bpmn.instance.camunda.CamundaOutputParameter;
 
 import java.util.Collection;
 
-public class UserTaskDetails {
+public class UserTaskDetailsStrategy implements ITaskDetailsStrategy {
 
-    public static JsonObject getUserTaskDetails(UserTask userTask) {
+    @Override
+    public JsonObject getTaskDetails(Activity activity) {
+        if (!(activity instanceof UserTask)) {
+            throw new IllegalArgumentException("Event must be an instance of UserTask");
+        }
+
+        UserTask userTask = (UserTask) activity;
+
         JsonObject userTaskDetails = new JsonObject();
 
         userTaskDetails.addProperty("taskID", userTask.getId());
@@ -29,15 +41,13 @@ public class UserTaskDetails {
             addTaskInputsAndOutputsAsVariables(userTaskDetails, userTask);
         }
 
-        // userTaskDetails.addProperty("Assignee", userTask.getCamundaAssignee());
-
         return userTaskDetails;
     }
 
     private static String determineUserTaskImplementation(UserTask userTask) {
         return userTask.getCamundaFormKey() != null ? "Embedded or External Task Form"
                 : userTask.getCamundaFormRef() != null ? "Camunda Form"
-                        : hasGeneratedTaskForm(userTask) ? "Generated Task Form" : "None";
+                : hasGeneratedTaskForm(userTask) ? "Generated Task Form" : "None";
     }
 
     private static void addTaskImplementationDetails(JsonObject jsonObject, String taskType, UserTask userTask) {
@@ -100,4 +110,5 @@ public class UserTaskDetails {
             }
         }
     }
+
 }

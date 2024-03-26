@@ -1,11 +1,19 @@
-package com.msgfoundation.xmltracer;
+package com.xmltracer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.xmltracer.Factory.EventDetailsFactory;
+import com.xmltracer.Factory.TaskDetailsFactory;
+import com.xmltracer.Flow.FlowSequence;
+import com.xmltracer.Interface.IEventDetailsStrategy;
+import com.xmltracer.Interface.ITaskDetailsStrategy;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.*;
+
+import java.util.Collection;
+import java.util.Set;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,14 +21,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 public class CamundaElement {
 
-    public static void listActivitiesFromStartEvent(BpmnModelInstance modelInstance, FlowNode currentNode,
-            Set<String> visitedNodes, JsonObject bpmnDetails) {
+    public static void listActivitiesFromStartEvent(FlowNode currentNode,
+                                                    Set<String> visitedNodes, JsonObject bpmnDetails) {
 
         // Obtener el array JSON existente o crear uno nuevo si no existe
         JsonArray traceArray = bpmnDetails.has("trace") ? bpmnDetails.getAsJsonArray("trace") : new JsonArray();
@@ -37,56 +42,41 @@ public class CamundaElement {
         Collection<SequenceFlow> outgoingFlows = currentNode.getOutgoing();
         // Antes de comenzar a procesar los SequenceFlows, crea un conjunto para
         // realizar un seguimiento de los IDs ya procesados
-        Set<String> sequenceFlowIdsProcesados = new HashSet<>();
 
         for (SequenceFlow sequenceFlow : outgoingFlows) {
             FlowNode targetNode = sequenceFlow.getTarget();
 
-            if (sequenceFlow.getConditionExpression() != null
-                    && !sequenceFlowIdsProcesados.contains(sequenceFlow.getId())) {
-                sequenceFlowIdsProcesados.add(sequenceFlow.getId());
-                JsonObject sequenceFlowDetails = FlowSequenceDetails.processSequenceFlow(sequenceFlow);
-                if (!traceArray.contains(sequenceFlowDetails)) {
-                    traceArray.add(sequenceFlowDetails);
-                }
-            }
-
             // Si la actividad actual no ha sido visitada, seguir recursivamente
             if (!visitedNodes.contains(targetNode.getId())) {
-                listActivitiesFromStartEvent(modelInstance, targetNode, visitedNodes, bpmnDetails);
+                listActivitiesFromStartEvent(targetNode, visitedNodes, bpmnDetails);
             }
         }
     }
 
     public static void printElementDetails(FlowNode flowNode, JsonObject bpmnDetails, JsonArray traceArray) {
-        JsonObject taskDetails = new JsonObject();
+        JsonObject elementDetails = new JsonObject();
 
-         if (flowNode instanceof StartEvent) {
-            taskDetails = EventTaskDetails.getStartEventDetails((StartEvent) flowNode);
-        } else if (flowNode instanceof UserTask) {
-            taskDetails = UserTaskDetails.getUserTaskDetails((UserTask) flowNode);
-        } else if (flowNode instanceof Gateway && flowNode.getName() != null && !flowNode.getName().isEmpty()) {
-            taskDetails.addProperty("taskID", flowNode.getId());
-            taskDetails.addProperty("taskName", flowNode.getName());
-            taskDetails.addProperty("taskType", "Gateway");
-            taskDetails.addProperty("taskImplementationType", "None");
-            taskDetails.addProperty("taskReferenceOrImplementation", "None");
-        } else if (flowNode instanceof ServiceTask) {
-            taskDetails = ServiceTaskDetails.getServiceTaskDetails((ServiceTask) flowNode);
-        } else if (flowNode instanceof SendTask) {
-            taskDetails = SendTaskDetails.getSendTaskDetails((SendTask) flowNode);
-        } else if (flowNode instanceof IntermediateCatchEvent) {
-            IntermediateCatchEvent intermediateEvent = (IntermediateCatchEvent) flowNode;
-            if (intermediateEvent.getEventDefinitions() != null
-                    && !intermediateEvent.getEventDefinitions().isEmpty()) {
-                taskDetails = EventTaskDetails.determineTypeIntermediateEvent(intermediateEvent);
+        if (flowNode instanceof Activity activity) {
+            ITaskDetailsStrategy taskDetailsStrategy = TaskDetailsFactory.getInstance().createStrategy(activity);
+            elementDetails = taskDetailsStrategy.getTaskDetails(activity);
+        } else
+        if (flowNode instanceof Event event) {
+            IEventDetailsStrategy eventDetailsStrategy = EventDetailsFactory.getInstance().createStrategy(event);
+            elementDetails = eventDetailsStrategy.getEventDetails((Event) flowNode);
+        } else if (flowNode instanceof SequenceFlow) {
+            if(((SequenceFlow) flowNode).getConditionExpression() != null){
+                JsonObject sequenceFlowDetails = FlowSequence.processSequenceFlow((SequenceFlow) flowNode);
+                if (!traceArray.contains(sequenceFlowDetails)) {
+                    traceArray.add(sequenceFlowDetails);
+                }
             }
-        } else if (flowNode instanceof EndEvent) {
-            taskDetails = EventTaskDetails.getEndEventDetails((EndEvent) flowNode);
+            return; // No es necesario continuar procesando las secuencias de flujo
         }
 
-        // Agregar los detalles de la tarea al array
-        traceArray.add(taskDetails);
+        // Agregar los detalles del elemento al array
+        if (elementDetails != null && !elementDetails.isJsonNull() && !elementDetails.entrySet().isEmpty()) {
+            traceArray.add(elementDetails);
+        }
 
         // Colocar el array de traza actualizado en bpmnDetails
         bpmnDetails.add("trace", traceArray);

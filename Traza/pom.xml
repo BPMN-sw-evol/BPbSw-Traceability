@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>Traza</artifactId>
+
     <dependencies>
         <dependency>
             <groupId>org.camunda.bpm.model</groupId>
@@ -57,13 +58,13 @@
         </dependency>
         <dependency>
             <groupId>com.Trazability</groupId>
-            <artifactId>biptrace</artifactId>
+            <artifactId>biptrac</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.Trazability</groupId>
-            <artifactId>XMLTracer</artifactId>
+            <artifactId>BPMN-tracer</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

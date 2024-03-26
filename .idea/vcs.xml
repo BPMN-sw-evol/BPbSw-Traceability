@@ -2,7 +2,5 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/BPMN-tracer" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/biptrac" vcs="Git" />
   </component>
 </project>

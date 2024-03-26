@@ -1,7 +1,9 @@
-package com.msgfoundation.xmltracer;
+package com.xmltracer.Activity;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.xmltracer.Interface.ITaskDetailsStrategy;
+import org.camunda.bpm.model.bpmn.instance.Activity;
 import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
 import org.camunda.bpm.model.bpmn.instance.SendTask;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaConnector;
@@ -11,8 +13,15 @@ import org.camunda.bpm.model.bpmn.instance.camunda.CamundaOutputParameter;
 
 import java.util.Collection;
 
-class SendTaskDetails {
-    public static JsonObject getSendTaskDetails(SendTask sendTask) {
+public class SendTaskDetailsStrategy implements ITaskDetailsStrategy {
+    @Override
+    public JsonObject getTaskDetails(Activity activity) {
+        if (!(activity instanceof SendTask)) {
+            throw new IllegalArgumentException("Event must be an instance of SendTask");
+        }
+
+        SendTask sendTask = (SendTask) activity;
+
         JsonObject sendTaskDetails = new JsonObject();
 
         sendTaskDetails.addProperty("taskID", sendTask.getId());
@@ -39,13 +48,13 @@ class SendTaskDetails {
     private static String determineSendTaskImplementation(SendTask sendTask) {
         return sendTask.getCamundaTopic() != null ? "External"
                 : sendTask.getCamundaClass() != null ? "Java Class"
-                        : (sendTask.getCamundaExpression() != null || sendTask.getCamundaResultVariable() != null)
-                                ? "Expression"
-                                : sendTask.getCamundaDelegateExpression() != null ? "Delegate Expression"
-                                        : (sendTask.getExtensionElements() != null
-                                                && sendTask.getExtensionElements().getElementsQuery()
-                                                        .filterByType(CamundaConnector.class).count() > 0) ? "Connector"
-                                                                : "None";
+                : (sendTask.getCamundaExpression() != null || sendTask.getCamundaResultVariable() != null)
+                ? "Expression"
+                : sendTask.getCamundaDelegateExpression() != null ? "Delegate Expression"
+                : (sendTask.getExtensionElements() != null
+                && sendTask.getExtensionElements().getElementsQuery()
+                .filterByType(CamundaConnector.class).count() > 0) ? "Connector"
+                : "None";
     }
 
     private static String getSendTaskDetails(SendTask sendTask, String implementation) {

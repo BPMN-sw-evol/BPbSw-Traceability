@@ -1,7 +1,9 @@
-package com.msgfoundation.xmltracer;
+package com.xmltracer.Activity;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.xmltracer.Interface.ITaskDetailsStrategy;
+import org.camunda.bpm.model.bpmn.instance.Activity;
 import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
 import org.camunda.bpm.model.bpmn.instance.ServiceTask;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaConnector;
@@ -11,9 +13,15 @@ import org.camunda.bpm.model.bpmn.instance.camunda.CamundaOutputParameter;
 
 import java.util.Collection;
 
-public class ServiceTaskDetails {
+public class ServiceTaskDetailsStrategy implements ITaskDetailsStrategy {
+    @Override
+    public JsonObject getTaskDetails(Activity activity) {
+        if (!(activity instanceof ServiceTask)) {
+            throw new IllegalArgumentException("Event must be an instance of ServiceTask");
+        }
 
-    public static JsonObject getServiceTaskDetails(ServiceTask serviceTask) {
+        ServiceTask serviceTask = (ServiceTask) activity;
+
         JsonObject serviceTaskDetails = new JsonObject();
 
         serviceTaskDetails.addProperty("taskID", serviceTask.getId());
@@ -40,13 +48,13 @@ public class ServiceTaskDetails {
     private static String determineServiceTaskImplementation(ServiceTask serviceTask) {
         return serviceTask.getCamundaTopic() != null ? "External"
                 : serviceTask.getCamundaClass() != null ? "Java Class"
-                        : (serviceTask.getCamundaExpression() != null || serviceTask.getCamundaResultVariable() != null)
-                                ? "Expression"
-                                : serviceTask.getCamundaDelegateExpression() != null ? "Delegate Expression"
-                                        : (serviceTask.getExtensionElements() != null
-                                                && serviceTask.getExtensionElements().getElementsQuery()
-                                                        .filterByType(CamundaConnector.class).count() > 0) ? "Connector"
-                                                                : "None";
+                : (serviceTask.getCamundaExpression() != null || serviceTask.getCamundaResultVariable() != null)
+                ? "Expression"
+                : serviceTask.getCamundaDelegateExpression() != null ? "Delegate Expression"
+                : (serviceTask.getExtensionElements() != null
+                && serviceTask.getExtensionElements().getElementsQuery()
+                .filterByType(CamundaConnector.class).count() > 0) ? "Connector"
+                : "None";
     }
 
     private static String getServiceTaskDetails(ServiceTask serviceTask, String implementation) {
@@ -88,5 +96,4 @@ public class ServiceTaskDetails {
             }
         }
     }
-
 }
