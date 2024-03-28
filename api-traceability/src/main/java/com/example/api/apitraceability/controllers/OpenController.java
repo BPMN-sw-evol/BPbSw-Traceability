@@ -14,7 +14,8 @@ public class OpenController {
     @GetMapping("/traceability")
     public void openTraceability(@RequestParam String variable){
         //atraves de un metodo de Traceability mandar la variable para luego abrir la ventana
-        System.out.println("Variable: " + variable);
         Traceability.instance.setVisible(true);
+        Traceability.instance.setVariable(variable);
+
     }
 }

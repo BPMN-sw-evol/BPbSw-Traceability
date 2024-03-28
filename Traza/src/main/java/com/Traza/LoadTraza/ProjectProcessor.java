@@ -7,8 +7,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import javax.swing.*;
 import java.io.File;
 
-import static com.XMLtracer.CamundaElement.formatJson;
-import static com.XMLtracer.CamundaElement.saveJsonToFile;
 
 public class ProjectProcessor {
     public String[] getProjectPathsFromUserInput() {
@@ -42,7 +40,7 @@ public class ProjectProcessor {
             }
 
             if (!result.isEmpty()) {
-                saveJsonToFile(outputFileName, formatJson(result.toString()));
+                AnnotationAnalyzer.saveJsonToFile(outputFileName, AnnotationAnalyzer.formatJson(result.toString()));
             }
             return result; // Se completó exitosamente
         } catch (Exception e) {

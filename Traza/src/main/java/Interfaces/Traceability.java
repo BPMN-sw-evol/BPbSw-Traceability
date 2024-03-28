@@ -72,6 +72,29 @@ public class Traceability extends javax.swing.JFrame {
 
  // -----------------------------
 
+    public void setVariable(String variable) {
+        // Seleccionar el último elemento en HISTORY
+        int lastIndexHistory = HISTORY.getItemCount() - 1;
+        if (lastIndexHistory >= 0) {
+            Object lastItemHistory = HISTORY.getItemAt(lastIndexHistory);
+            HISTORY.setSelectedItem(lastItemHistory);
+        }
+
+        // Buscar la variable en VARIABLES
+        int itemCount = VARIABLES.getItemCount();
+        for (int i = 0; i < itemCount; i++) {
+            String item = VARIABLES.getItemAt(i);
+            if (item.equals(variable)) {
+                // Seleccionar la variable si se encuentra
+                VARIABLES.setSelectedIndex(i);
+                return; // Salir del método una vez que se encuentra la variable
+            }
+        }
+        // Si la variable no se encuentra, mostrar un mensaje de error
+        JOptionPane.showMessageDialog(null, "Error: La variable seleccionada no se encuentra en la lista.", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+
     public void resetVariablesComboBox() {
         VARIABLES.removeAllItems();
         VARIABLES.addItem("Choose a version");
@@ -184,8 +207,8 @@ public class Traceability extends javax.swing.JFrame {
 
     public void displayImage(String imagePath) {
         ImageIcon icon = new ImageIcon(imagePath);
-        int width = JMODEL.getWidth();
-        int height = JMODEL.getHeight();
+        int width = 765;
+        int height = 379;
 
         Image image = icon.getImage();
         Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
@@ -210,35 +233,35 @@ public class Traceability extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        JFrame jFrame1 = new JFrame();
-        JPanel jPanel1 = new JPanel();
+        jFrame1 = new javax.swing.JFrame();
+        jPanel1 = new javax.swing.JPanel();
         PARTICIPANT = new javax.swing.JLabel();
         PROCESS = new javax.swing.JLabel();
-        JPanel PPROJECTS = new JPanel();
+        PPROJECTS = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
-        JScrollPane jScrollPane1 = new JScrollPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
         LPROJECTS = new javax.swing.JList<>();
         CountProjects = new javax.swing.JLabel();
         PCLASSES = new javax.swing.JPanel();
-        JLabel jLabel7 = new JLabel();
-        JScrollPane jScrollPane2 = new JScrollPane();
+        jLabel7 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
         LCLASSES = new javax.swing.JList<>();
         CountClasses = new javax.swing.JLabel();
-        PMETHODS = new javax.swing.JPanel();
-        JLabel jLabel8 = new JLabel();
-        JScrollPane jScrollPane3 = new JScrollPane();
-        LMETHODS = new javax.swing.JList<>();
-        CountMethods = new javax.swing.JLabel();
-        JLabel jLabel4 = new JLabel();
+        jLabel4 = new javax.swing.JLabel();
         CONTAINER = new javax.swing.JLabel();
-        JSeparator jSeparator1 = new JSeparator();
+        jSeparator1 = new javax.swing.JSeparator();
         VARIABLES = new javax.swing.JComboBox<>();
         LOAD = new javax.swing.JButton();
-        JMODEL = new javax.swing.JLabel();
         BIMAGE = new javax.swing.JButton();
         BDIAGRAM = new javax.swing.JButton();
         HISTORY = new javax.swing.JComboBox<>();
-        JLabel jLabel1 = new JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        JMODEL = new javax.swing.JLabel();
+        PMETHODS = new javax.swing.JPanel();
+        jLabel8 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        LMETHODS = new javax.swing.JList<>();
+        CountMethods = new javax.swing.JLabel();
 
         javax.swing.GroupLayout jFrame1Layout = new javax.swing.GroupLayout(jFrame1.getContentPane());
         jFrame1.getContentPane().setLayout(jFrame1Layout);
@@ -251,35 +274,42 @@ public class Traceability extends javax.swing.JFrame {
             .addGap(0, 300, Short.MAX_VALUE)
         );
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setEnabled(false);
+        jPanel1.setFocusable(false);
+        jPanel1.setMaximumSize(new java.awt.Dimension(1133, 706));
+        jPanel1.setMinimumSize(new java.awt.Dimension(1133, 706));
+        jPanel1.setRequestFocusEnabled(false);
+        jPanel1.setVerifyInputWhenFocusTarget(false);
 
-        PARTICIPANT.setFont(new java.awt.Font("Segoe UI", Font.BOLD | Font.ITALIC, 14)); // NOI18N
+        PARTICIPANT.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
         PARTICIPANT.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         PARTICIPANT.setText("Select a variable");
 
-        PROCESS.setFont(new java.awt.Font("Segoe UI", Font.BOLD | Font.ITALIC, 14)); // NOI18N
+        PROCESS.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
         PROCESS.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         PROCESS.setText("Select a variable");
 
         PPROJECTS.setBackground(new java.awt.Color(255, 255, 255));
         PPROJECTS.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        PPROJECTS.setMinimumSize(new java.awt.Dimension(300, 40));
 
-        jLabel6.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 18)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel6.setText("PROJECTS");
 
         LPROJECTS.setBorder(javax.swing.BorderFactory.createCompoundBorder());
-        LPROJECTS.setFont(new java.awt.Font("Segoe UI", Font.ITALIC, 14)); // NOI18N
+        LPROJECTS.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
         LPROJECTS.setModel(new javax.swing.AbstractListModel<String>() {
-            final String[] strings = { "Select a variable" };
+            String[] strings = { "Select a variable" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
         LPROJECTS.setVisibleRowCount(100);
         jScrollPane1.setViewportView(LPROJECTS);
 
-        CountProjects.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 12)); // NOI18N
+        CountProjects.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         CountProjects.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         CountProjects.setText("0");
         CountProjects.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -290,16 +320,16 @@ public class Traceability extends javax.swing.JFrame {
         PPROJECTS.setLayout(PPROJECTSLayout);
         PPROJECTSLayout.setHorizontalGroup(
             PPROJECTSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PPROJECTSLayout.createSequentialGroup()
-                .addGroup(PPROJECTSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(PPROJECTSLayout.createSequentialGroup()
+                .addGroup(PPROJECTSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PPROJECTSLayout.createSequentialGroup()
+                        .addGap(93, 93, 93)
+                        .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(76, 76, 76)
+                        .addComponent(CountProjects, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(PPROJECTSLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jScrollPane1))
-                    .addGroup(PPROJECTSLayout.createSequentialGroup()
-                        .addGap(93, 93, 93)
-                        .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                        .addGap(82, 82, 82)
-                        .addComponent(CountProjects, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jScrollPane1)))
                 .addContainerGap())
         );
         PPROJECTSLayout.setVerticalGroup(
@@ -307,29 +337,30 @@ public class Traceability extends javax.swing.JFrame {
             .addGroup(PPROJECTSLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(PPROJECTSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(CountProjects)
-                    .addComponent(jLabel6))
+                    .addComponent(jLabel6)
+                    .addComponent(CountProjects))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         PCLASSES.setBackground(new java.awt.Color(255, 255, 255));
         PCLASSES.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        PCLASSES.setMinimumSize(new java.awt.Dimension(300, 40));
 
-        jLabel7.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 18)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel7.setText("CLASSES");
 
         LCLASSES.setBorder(null);
-        LCLASSES.setFont(new java.awt.Font("Segoe UI", Font.ITALIC, 14)); // NOI18N
+        LCLASSES.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
         LCLASSES.setModel(new javax.swing.AbstractListModel<String>() {
-            final String[] strings = { "Select a project" };
+            String[] strings = { "Select a project" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
         jScrollPane2.setViewportView(LCLASSES);
 
-        CountClasses.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 12)); // NOI18N
+        CountClasses.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         CountClasses.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         CountClasses.setText("0");
         CountClasses.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -345,7 +376,7 @@ public class Traceability extends javax.swing.JFrame {
                 .addGroup(PCLASSESLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane2)
                     .addGroup(PCLASSESLayout.createSequentialGroup()
-                        .addGap(0, 175, Short.MAX_VALUE)
+                        .addGap(0, 66, Short.MAX_VALUE)
                         .addComponent(jLabel7)
                         .addGap(117, 117, 117)
                         .addComponent(CountClasses, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -355,31 +386,79 @@ public class Traceability extends javax.swing.JFrame {
             PCLASSESLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PCLASSESLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(PCLASSESLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(PCLASSESLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel7)
                     .addComponent(CountClasses))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel4.setText("CONTAINER");
+        jLabel4.setFocusable(false);
+
+        CONTAINER.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
+        CONTAINER.setText("Select a project");
+
+        VARIABLES.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        VARIABLES.setMaximumRowCount(100);
+        VARIABLES.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select a version" }));
+        VARIABLES.setName("Select a variable"); // NOI18N
+
+        LOAD.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        LOAD.setText("Generate New Trace");
+        LOAD.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        LOAD.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        LOAD.setPreferredSize(new java.awt.Dimension(80, 26));
+
+        BIMAGE.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        BIMAGE.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image.png"))); // NOI18N
+        BIMAGE.setText("Open Image");
+        BIMAGE.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        BIMAGE.setPreferredSize(new java.awt.Dimension(150, 35));
+
+        BDIAGRAM.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        BDIAGRAM.setIcon(new javax.swing.ImageIcon(getClass().getResource("/diagram.png"))); // NOI18N
+        BDIAGRAM.setText("Open Diagram");
+        BDIAGRAM.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        BDIAGRAM.setPreferredSize(new java.awt.Dimension(150, 35));
+
+        HISTORY.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        HISTORY.setMinimumSize(new java.awt.Dimension(40, 31));
+        HISTORY.setName(""); // NOI18N
+        HISTORY.setPreferredSize(new java.awt.Dimension(40, 31));
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel1.setText("Version #");
+
+        JMODEL.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        JMODEL.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images.png"))); // NOI18N
+        JMODEL.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        JMODEL.setFocusable(false);
+        JMODEL.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        JMODEL.setInheritsPopupMenu(false);
+        JMODEL.setRequestFocusEnabled(false);
+        JMODEL.setVerifyInputWhenFocusTarget(false);
 
         PMETHODS.setBackground(new java.awt.Color(255, 255, 255));
         PMETHODS.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        PMETHODS.setMinimumSize(new java.awt.Dimension(300, 40));
 
-        jLabel8.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 18)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel8.setText("METHODS");
 
         LMETHODS.setBorder(null);
-        LMETHODS.setFont(new java.awt.Font("Segoe UI", Font.ITALIC, 14)); // NOI18N
+        LMETHODS.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
         LMETHODS.setModel(new javax.swing.AbstractListModel<String>() {
-            final String[] strings = { "Select a class" };
+            String[] strings = { "Select a class" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
         LMETHODS.setVisibleRowCount(100);
         jScrollPane3.setViewportView(LMETHODS);
 
-        CountMethods.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 12)); // NOI18N
+        CountMethods.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         CountMethods.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         CountMethods.setText("0");
         CountMethods.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -396,7 +475,7 @@ public class Traceability extends javax.swing.JFrame {
                     .addGroup(PMETHODSLayout.createSequentialGroup()
                         .addGap(100, 100, 100)
                         .addComponent(jLabel8)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 78, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 67, Short.MAX_VALUE)
                         .addComponent(CountMethods, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane3))
                 .addContainerGap())
@@ -405,72 +484,22 @@ public class Traceability extends javax.swing.JFrame {
             PMETHODSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PMETHODSLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(PMETHODSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(PMETHODSLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(CountMethods))
+                    .addGroup(PMETHODSLayout.createSequentialGroup()
+                        .addComponent(CountMethods)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
-
-        jLabel4.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 18)); // NOI18N
-        jLabel4.setText("CONTAINER");
-        jLabel4.setFocusable(false);
-
-        CONTAINER.setFont(new java.awt.Font("Segoe UI", Font.ITALIC, 14)); // NOI18N
-        CONTAINER.setText("Select a project");
-
-        VARIABLES.setFont(new java.awt.Font("Segoe UI", Font.PLAIN, 18)); // NOI18N
-        VARIABLES.setMaximumRowCount(100);
-        VARIABLES.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select a version" }));
-        VARIABLES.setName("Select a variable"); // NOI18N
-
-        LOAD.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 14)); // NOI18N
-        LOAD.setText("Generate New Trace");
-        LOAD.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        LOAD.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        LOAD.setPreferredSize(new java.awt.Dimension(80, 26));
-
-        JMODEL.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        JMODEL.setIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/images.png")))); // NOI18N
-        JMODEL.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        JMODEL.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-
-        BIMAGE.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 14)); // NOI18N
-        BIMAGE.setIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/image.png")))); // NOI18N
-        BIMAGE.setText("Open Image");
-        BIMAGE.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        BIMAGE.setPreferredSize(new java.awt.Dimension(150, 35));
-
-        BDIAGRAM.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 14)); // NOI18N
-        BDIAGRAM.setIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/diagram.png")))); // NOI18N
-        BDIAGRAM.setText("Open Diagram");
-        BDIAGRAM.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        BDIAGRAM.setPreferredSize(new java.awt.Dimension(150, 35));
-
-        HISTORY.setFont(new java.awt.Font("Segoe UI", Font.PLAIN, 18)); // NOI18N
-        HISTORY.setSelectedIndex(-1);
-        HISTORY.setMinimumSize(new java.awt.Dimension(40, 31));
-        HISTORY.setName(""); // NOI18N
-        HISTORY.setPreferredSize(new java.awt.Dimension(40, 31));
-
-        jLabel1.setFont(new java.awt.Font("Segoe UI", Font.PLAIN, 18)); // NOI18N
-        jLabel1.setText("Version #");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(147, 147, 147)
-                .addComponent(JMODEL, javax.swing.GroupLayout.PREFERRED_SIZE, 765, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(32, 32, 32)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(BIMAGE, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(BDIAGRAM, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(12, 12, 12)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSeparator1)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
@@ -478,26 +507,36 @@ public class Traceability extends javax.swing.JFrame {
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(HISTORY, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(38, 38, 38)
+                        .addGap(40, 40, 40)
                         .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(68, 68, 68)
-                        .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
+                        .addGap(66, 66, 66)
+                        .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
-                        .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
+                        .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
                         .addComponent(LOAD, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(24, 24, 24))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(PPROJECTS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(35, 35, 35)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(CONTAINER, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(PCLASSES, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(36, 36, 36)
+                                .addComponent(jLabel4)
+                                .addGap(27, 27, 27)
+                                .addComponent(CONTAINER)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(PCLASSES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(86, 86, 86)))
                         .addComponent(PMETHODS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(24, 24, 24))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(JMODEL, javax.swing.GroupLayout.PREFERRED_SIZE, 813, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(31, 31, 31)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(BIMAGE, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BDIAGRAM, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -505,40 +544,45 @@ public class Traceability extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(7, 7, 7)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(LOAD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(HISTORY, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(11, 11, 11)
+                        .addComponent(LOAD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(8, 8, 8)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(HISTORY, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(VARIABLES))
+                        .addGap(7, 7, 7))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(99, 99, 99)
+                        .addGap(148, 148, 148)
                         .addComponent(BIMAGE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(65, 65, 65)
+                        .addGap(53, 53, 53)
                         .addComponent(BDIAGRAM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(JMODEL, javax.swing.GroupLayout.PREFERRED_SIZE, 383, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(8, 8, 8)
+                        .addComponent(JMODEL, javax.swing.GroupLayout.PREFERRED_SIZE, 396, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(PPROJECTS, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(CONTAINER, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(5, 5, 5)
+                                .addComponent(CONTAINER, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(PCLASSES, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(PPROJECTS, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(PMETHODS, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                        .addComponent(PCLASSES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(PMETHODS, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(15, 15, 15))
         );
 
         HISTORY.getAccessibleContext().setAccessibleName("");
@@ -547,9 +591,9 @@ public class Traceability extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1094, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -595,23 +639,34 @@ public class Traceability extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    public javax.swing.JButton BDIAGRAM;
-    public javax.swing.JButton BIMAGE;
-    public javax.swing.JLabel CONTAINER;
-    public javax.swing.JLabel CountClasses;
-    public javax.swing.JLabel CountMethods;
-    public javax.swing.JLabel CountProjects;
-    public javax.swing.JComboBox<Integer> HISTORY;
-    public javax.swing.JLabel JMODEL;
-    public javax.swing.JList<String> LCLASSES;
-    public javax.swing.JList<String> LMETHODS;
-    public javax.swing.JButton LOAD;
-    public javax.swing.JList<String> LPROJECTS;
-    public javax.swing.JLabel PARTICIPANT;
-    public javax.swing.JPanel PCLASSES;
-    public javax.swing.JPanel PMETHODS;
+    private javax.swing.JButton BDIAGRAM;
+    private javax.swing.JButton BIMAGE;
+    private javax.swing.JLabel CONTAINER;
+    private javax.swing.JLabel CountClasses;
+    private javax.swing.JLabel CountMethods;
+    private javax.swing.JLabel CountProjects;
+    private javax.swing.JComboBox<Integer> HISTORY;
+    private javax.swing.JLabel JMODEL;
+    private javax.swing.JList<String> LCLASSES;
+    private javax.swing.JList<String> LMETHODS;
+    private javax.swing.JButton LOAD;
+    private javax.swing.JList<String> LPROJECTS;
+    private javax.swing.JLabel PARTICIPANT;
+    private javax.swing.JPanel PCLASSES;
+    private javax.swing.JPanel PMETHODS;
+    private javax.swing.JPanel PPROJECTS;
     private javax.swing.JLabel PROCESS;
-    public javax.swing.JComboBox<String> VARIABLES;
-    public javax.swing.JLabel jLabel6;
+    private javax.swing.JComboBox<String> VARIABLES;
+    private javax.swing.JFrame jFrame1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JSeparator jSeparator1;
     // End of variables declaration//GEN-END:variables
 }

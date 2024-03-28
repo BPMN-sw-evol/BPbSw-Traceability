@@ -5,7 +5,7 @@ import com.DataBase.DataBase.DatabaseConnection;
 import java.sql.Connection;
 
 public class DAOManager {
-    private static final DAOManager instance = new DAOManager();
+    private static DAOManager instance;
 
     // Agrega instancias de tus DAOs aquí
     private final HistoryDAO historyDAO;
@@ -33,6 +33,9 @@ public class DAOManager {
     }
 
     public static DAOManager getInstance() {
+        if (instance == null) {
+            instance  = new DAOManager();
+        }
         return instance;
     }
 

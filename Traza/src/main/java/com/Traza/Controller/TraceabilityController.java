@@ -5,6 +5,7 @@ import Interfaces.Traceability;
 import com.Traza.ImageGenerate.BpmnColor;
 import com.Traza.ImageGenerate.ImageCapture;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -161,27 +162,36 @@ public class TraceabilityController {
         }
     }
 
+
     public void handleElementSelection() {
+        view.updateImageIcon();
         if (selectedVariableId <= 0) {
             // Manejar el caso de un ID de variable no válido
             return;
         }
+        // Ejecutar la lógica relacionada con la selección de elementos en un hilo de fondo
+        new Thread(() -> {
+            List<String> usedElementNames = elementDAO.searchElementsUsed(selectedVariableId);
+            String path = pathDAO.getModelBPMNPath(selectedVariableId);
 
-        List<String> usedElementNames = elementDAO.searchElementsUsed(selectedVariableId);
-        String path = pathDAO.getModelBPMNPath(selectedVariableId);
+            if (!usedElementNames.isEmpty() && !usedElementNames.get(0).equals("Elemento no encontrado")) {
+                BpmnColor.getInstance().modifyActivityColors(usedElementNames, path);
 
-        if (!usedElementNames.isEmpty() && !usedElementNames.getFirst().equals("Elemento no encontrado")) {
-            BpmnColor.getInstance().modifyActivityColors(usedElementNames, path);
+                // Captura la imagen
+                new ImageCapture();
 
-            // Captura la imagen
-            new ImageCapture();
 
-            // Carga la imagen en la vista
-            loadImage();
-        } else {
-            System.out.println("No se encontraron elementos usados para la variable con ID " + selectedVariableId);
-        }
+                // Cargar la imagen en la vista dentro del EDT
+                 loadImage();
+
+            } else {
+                System.out.println("No se encontraron elementos usados para la variable con ID " + selectedVariableId);
+                // Ocultar la barra de progreso en caso de que no se encuentren elementos
+            }
+        }).start();
     }
+
+
 
     private void loadImage() {
         String rutaImagen = Paths.get(System.getProperty("user.dir"), "Traza/output", "MSGF-Test-Color.png").toString();
