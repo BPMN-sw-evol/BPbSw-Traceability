@@ -12,10 +12,10 @@
     <modules>
         <module>Traza</module>
         <module>BPMN-tracer</module>
-        <module>biptrac</module>
         <module>DataBase</module>
         <module>api-traceability</module>
         <module>Plugin</module>
+        <module>biptrac</module>
     </modules>
 
     <properties>

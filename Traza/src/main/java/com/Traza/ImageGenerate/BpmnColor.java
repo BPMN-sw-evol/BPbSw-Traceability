@@ -9,11 +9,12 @@ import java.util.*;
 
 public class BpmnColor {
 
+    private static BpmnColor instance;
     private final File archivoTemp = new File(System.getProperty("user.dir") + File.separator + "Traza/output", "ColorModel.bpmn");
     private final String stroke = "#0d4372";
-    private final String fill = "#ffe0b2";
-    private final String background = "#ffe0b2";
     private final String border = "#6b3c00";
+
+    private BpmnColor(){ }
 
     public void modifyActivityColors(List<String> activityNames, String bpmnFilePath) {
         BpmnModelInstance modelInstance = Bpmn.readModelFromFile(new File(bpmnFilePath));
@@ -56,7 +57,7 @@ public class BpmnColor {
                 if (linea.contains("<bpmn:definitions") && !linea.contains("xmlns:bioc=\"http://bpmn.io/schema/bpmn/biocolor/1.0\"") && !linea.contains("xmlns:color=\"http://www.omg.org/spec/BPMN/non-normative/color/1.0\"")) {
                     lineasModificadas.add(modifyLineDefinitions(linea));
                 } else if (linea.contains("bpmndi:BPMNShape") || linea.contains("bpmndi:BPMNEdge") && linea.contains("bpmnElement")) {
-                    String bpmnElement = getAttributeValue(linea, "bpmnElement");
+                    String bpmnElement = getAttributeValue(linea);
                     if (bpmnElement != null && idsModificados.contains(bpmnElement)) {
                         if (bpmnElement.contains("Flow_")) {
                             lineasModificadas.add(linea.replace(">", "")
@@ -87,8 +88,8 @@ public class BpmnColor {
         }
     }
 
-    private String getAttributeValue(String linea, String atributo) {
-        String patron = atributo + "=\"";
+    private String getAttributeValue(String linea) {
+        String patron = "bpmnElement" + "=\"";
         int startIndex = linea.indexOf(patron);
         if (startIndex != -1) {
             startIndex += patron.length();
@@ -101,6 +102,8 @@ public class BpmnColor {
     }
 
     private String modifyLineColor(String linea) {
+        String background = "#ffe0b2";
+        String fill = "#ffe0b2";
         return linea.replace(">", "")
                 + " bioc:stroke=\"" + stroke + "\" bioc:fill=\"" + fill + "\" "
                 + "color:background-color=\"" + background + "\" color:border-color=\"" + border + "\">";
@@ -109,5 +112,12 @@ public class BpmnColor {
     private String modifyLineDefinitions(String linea) {
         return linea.replace(">", "")
                 + " xmlns:bioc=\"http://bpmn.io/schema/bpmn/biocolor/1.0\" xmlns:color=\"http://www.omg.org/spec/BPMN/non-normative/color/1.0\" >";
+    }
+
+    public static BpmnColor getInstance() {
+        if (instance == null) {
+            instance = new BpmnColor();
+        }
+        return instance;
     }
 }

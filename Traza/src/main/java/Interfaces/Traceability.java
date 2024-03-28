@@ -1,434 +1,244 @@
 package Interfaces;
 
-import com.Traza.ImageGenerate.*;
-import com.Traza.Main;
-import com.Trazability.DAO.*;
+import com.Traza.Controller.TraceabilityController;
+import com.Traza.LoadTraza.DataLoad;
 
-import java.awt.Desktop;
-
-import java.awt.Image;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
+import java.util.Objects;
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 public class Traceability extends javax.swing.JFrame {
 
-    private int projectId, selectedVariableId;
-    private HistoryDAO historyDAO;
-    private VariableDAO variableDAO;
-    private ContainerDAO containerDAO;
-    private ProjectDAO projectDAO;
-    private ProcessDAO processDAO;
-    private ClassDAO classDAO;
-    private MethodDAO methodDAO;
-    private ElementDAO elementDAO;
-    private PathDAO pathDAO;
+    private TraceabilityController controller;
 
     public Traceability() {
+
         initComponents();
-        initializeFrame();
-    }
-
-    private void initializeFrame() {
-        this.setResizable(false);
-        this.setTitle("TRACEABILITY");
-
-        BIMAGE.setVisible(false);
-        BDIAGRAM.setVisible(false);
-
-        // Obtener la instancia del DAOManager
-        DAOManager daoManager = DAOManager.getInstance();
-
-        // Obtener intancias de los DAO's
-        this.historyDAO = daoManager.getHistoryDAO();
-        this.variableDAO = daoManager.getVariableDAO();
-        this.containerDAO = daoManager.getContainerDAO();
-        this.projectDAO = daoManager.getProjectDAO();
-        this.processDAO = daoManager.getProcessDAO();
-        this.classDAO = daoManager.getClassDAO();
-        this.methodDAO = daoManager.getMethodDAO();
-        this.elementDAO = daoManager.getElementDAO();
-        this.pathDAO = daoManager.getPathDAO();
-
-        loadHistory(); // Cargar nombres de variables al iniciar
-        addHistorySelectionListener(); // Agrega variables según la version
-        addVariableSelectionListener(); // Agrega proyectos según la variable
-        getProjectSelectionListener(); // Obtener el id según el proyecto
-        getMethodSelectionListener(); // Obtener el id según la clase
-        loadData(); //Hacer actualizacion en la base de datos
-        openImage(); //Abrir la imagen del modelo pintado
-        openDiagram(); //Abrir el modelo en Camunda Modeler
-    }
-
-    private void loadHistory() {
-        try {
-            List<Integer> historyIDs = historyDAO.getAllHistorys();
-            historyIDs.add(0, 0);
-
-            if (!historyIDs.isEmpty()) {
-                updateComboBoxHistory(HISTORY, historyIDs);
-            } else {
-                throw new RuntimeException("No se encontraron nombres de variables.");
-            }
-        } catch (RuntimeException e) {
-            handleException(e);
-        }
-    }
-
-    private void updateComboBoxHistory(JComboBox<Integer> comboBox, List<Integer> items) {
-        comboBox.removeAllItems();
-        items.forEach(comboBox::addItem);
-    }
-
-    private void addHistorySelectionListener() {
-        HISTORY.addActionListener(e -> {
-            try {
-                handleHistorySelection();
-            } catch (IOException | InterruptedException ex) {
-                handleException(ex);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+                updateImageIcon();
             }
         });
+
+        controller = new TraceabilityController(this);
+
+        HISTORY.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.handleHistorySelection();
+            }
+        });
+        VARIABLES.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.handleVariableSelection();
+                controller.handleElementSelection();
+            }
+        });
+
+        LPROJECTS.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    controller.handleProjectSelection();
+                }
+            }
+        });
+
+        LCLASSES.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    controller.handleClassSelection();
+                }
+            }
+        });
+
+        LOAD.addActionListener(e -> {
+            if (new DataLoad().dataProcessor()) {
+                controller.loadHistory();
+            }
+        });
+
     }
 
-    private void handleHistorySelection() throws IOException, InterruptedException {
-        int selectedHistory = getSelectedHistory();
+ // -----------------------------
 
-        if (selectedHistory != 0) {
-            loadVariableNames(selectedHistory);
-        } else {
-            VARIABLES.removeAllItems();
-            VARIABLES.addItem("Choose a version");
-        }
+    public void resetVariablesComboBox() {
+        VARIABLES.removeAllItems();
+        VARIABLES.addItem("Choose a version");
     }
 
-    private int getSelectedHistory() {
+    // Metodos para obtener el elemento
+    public int getSelectedHistory() {
         return (HISTORY.getSelectedItem() != null) ? ((Integer) HISTORY.getSelectedItem()) : 0;
     }
 
-    private void loadVariableNames(int history) {
-        try {
-            List<String> variableNames = variableDAO.getAllVariableNames(history);
-            variableNames.add(0, "Choose a variable");
-
-            if (!variableNames.isEmpty()) {
-                updateComboBox(VARIABLES, variableNames);
-            } else {
-                throw new RuntimeException("No se encontraron nombres de variables.");
-            }
-        } catch (RuntimeException e) {
-            handleException(e);
-        }
-    }
-
-    private void updateComboBox(JComboBox<String> comboBox, List<String> items) {
-        comboBox.removeAllItems();
-        items.forEach(comboBox::addItem);
-    }
-
-    private void addVariableSelectionListener() {
-        VARIABLES.addActionListener(e -> {
-            try {
-
-                handleVariableSelection();
-            } catch (IOException | InterruptedException ex) {
-                handleException(ex);
-            }
-        });
-    }
-
-    private void handleVariableSelection() throws IOException, InterruptedException {
-        String selectedVariable = getSelectedVariable();
-
-        if (!"Choose a variable".equals(selectedVariable) && !"Choose a version".equals(selectedVariable)) {
-            selectedVariableId = variableDAO.searchVariableByName(selectedVariable);
-
-            List<String> projectNames = projectDAO.searchProjectByVariableId(selectedVariableId);
-            Map<String, String> processInfo = processDAO.searchProcessByVariableId(selectedVariableId);
-
-            if (processInfo.containsKey("error")) {
-                System.out.println("Error: " + processInfo.get("error"));
-            } else {
-                updateProcessName(processInfo.get("model_name"));
-                updateParticipant(processInfo.get("process_name"));
-            }
-
-            updateProjectsList(projectNames);
-
-            if (projectNames == null || projectNames.isEmpty()) {
-                CountProjects.setText("0");
-                CountClasses.setText("0");
-                CountMethods.setText("0");
-            }
-
-            getUsedElement(selectedVariableId);
-            BIMAGE.setVisible(true);
-            BDIAGRAM.setVisible(true);
-        } else {
-            updateProjectsList(null);
-            updateProcessName("Select a variable");
-            updateParticipant("Select a variable");
-            JMODEL.setIcon(new ImageIcon(getClass().getResource("/images.png")));
-            BIMAGE.setVisible(false);
-            BDIAGRAM.setVisible(false);
-        }
-
-    }
-
-    private String getSelectedVariable() {
+    public String getSelectedVariable() {
         return (String) VARIABLES.getSelectedItem();
     }
 
-    private void updateProjectsList(List<String> projectNames) {
+    public String getSelectedProject() {
+        return LPROJECTS.getSelectedValue();
+    }
+
+    public String getSelectedClass() {
+        return LCLASSES.getSelectedValue();
+    }
+
+
+    // Métodos para establecer la visibilidad de los botones BImage y BDiagram
+    public void setBImageVisible(boolean visible) {
+        BIMAGE.setVisible(visible);
+    }
+
+    public void setBDiagramVisible(boolean visible) {
+        BDIAGRAM.setVisible(visible);
+    }
+
+    // Metodos para actualizar los diferentes campos en la vista
+    public void updateComboBoxHistory(List<Integer> items) {
+        HISTORY.removeAllItems();
+        items.forEach(HISTORY::addItem);
+    }
+
+    public void updateComboBoxVariables(List<String> items) {
+        VARIABLES.removeAllItems();
+        items.forEach(VARIABLES::addItem);
+    }
+
+    public void updateProcessName(String processName) {
+        PROCESS.setText(processName != null && !processName.isEmpty() ? processName : "Process name not found or error in the search.");
+    }
+
+    public void updateParticipant(String participant) {
+        PARTICIPANT.setText(participant != null && !participant.isEmpty() ? participant : "Participant name not found or error in the search.");
+    }
+
+    public void updateProjectCount(String count) {
+        CountProjects.setText(count);
+    }
+
+    public void updateClassCount(String count) {
+        CountClasses.setText(count);
+    }
+
+    public void updateMethodCount(String count) {
+        CountMethods.setText(count);
+    }
+
+    public void updateImageIcon() {
+        JMODEL.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/images.png"))));
+    }
+
+    public void updateContainerText(String containerName) {
+        CONTAINER.setText(containerName != null && !containerName.isEmpty() ? containerName : "Variable not selected");
+    }
+
+    public void updateProjectsList(List<String> projectNames) {
         if (projectNames != null && !projectNames.isEmpty()) {
             DefaultListModel<String> model = new DefaultListModel<>();
             projectNames.forEach(model::addElement);
             LPROJECTS.setModel(model);
-            CountProjects.setText(Integer.toString(projectNames.size()));
+            updateProjectCount(Integer.toString(projectNames.size()));
         } else {
             DefaultListModel<String> defaultModel = new DefaultListModel<>();
             defaultModel.addElement("Select a variable.");
             LPROJECTS.setModel(defaultModel);
-            CountProjects.setText("0");
         }
     }
 
-    private void updateProcessName(String processName) {
-        PROCESS.setText(processName != null && !processName.isEmpty() ? processName : "Process name not found or error in the search.");
-    }
-
-    private void updateParticipant(String participant) {
-        PARTICIPANT.setText(participant != null && !participant.isEmpty() ? participant : "Participant name not found or error in the search.");
-    }
-
-    private void handleException(Exception e) {
-        Logger.getLogger(Traceability.class.getName()).log(Level.SEVERE, null, e);
-    }
-
-    private void getProjectSelectionListener() {
-        LPROJECTS.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                handleProjectSelection();
-            }
-        });
-    }
-
-    private void handleProjectSelection() {
-        String selectedProject = LPROJECTS.getSelectedValue();
-        projectId = projectDAO.searchProject(selectedProject);
-
-        String containerName = containerDAO.searchContainerName(projectId, selectedVariableId);
-        CONTAINER.setText(containerName != null && !containerName.isEmpty() ? containerName : "variable not selected");
-
-        List<String> classNames = classDAO.searchClassById(projectId, selectedVariableId);
-        updateList(LCLASSES, classNames, CountClasses, "Project not selected");
-
-        if (classNames == null || classNames.isEmpty()) {
-            CountClasses.setText("0");
-            CountMethods.setText("0");
-        }
-    }
-
-    private void getMethodSelectionListener() {
-        LCLASSES.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                handleClassSelection();
-            }
-        });
-    }
-
-    private void handleClassSelection() {
-        String selectedClass = LCLASSES.getSelectedValue();
-        int classId = classDAO.searchClass(selectedClass);
-
-        List<String> methodNames = methodDAO.searchMethodById(classId, selectedVariableId);
-        updateList(LMETHODS, methodNames, CountMethods, "Class not selected");
-
-        if (methodNames == null || methodNames.isEmpty()) {
-            CountMethods.setText("0");
-        }
-    }
-
-    private void updateList(JList<String> list, List<String> items, JLabel countLabel, String emptyMessage) {
-        if (items != null && !items.isEmpty()) {
+    public void updateClassList(List<String> classNames) {
+        if (classNames != null && !classNames.isEmpty()) {
             DefaultListModel<String> model = new DefaultListModel<>();
-            items.forEach(model::addElement);
-            list.setModel(model);
-            countLabel.setText(Integer.toString(items.size()));
+            classNames.forEach(model::addElement);
+            LCLASSES.setModel(model);
+            updateClassCount(Integer.toString(classNames.size()));
         } else {
             DefaultListModel<String> defaultModel = new DefaultListModel<>();
-            defaultModel.addElement(emptyMessage);
-            list.setModel(defaultModel);
+            defaultModel.addElement("Project not selected");
+            LCLASSES.setModel(defaultModel);
         }
     }
 
-    private void getUsedElement(int selectedVariableId) throws IOException, InterruptedException {
-        if (selectedVariableId <= 0) {
-//            System.err.println("Error: ID de variable no válido.");
-            return;
-        }
-
-        List<String> usedElementNames = elementDAO.searchElementsUsed(selectedVariableId);
-//        for (String usedElementName : usedElementNames) {
-//            System.out.println(usedElementName);
-//        }
-        String path = pathDAO.getModelBPMNPath(selectedVariableId);
-        if (!usedElementNames.isEmpty() && !usedElementNames.get(0).equals("Elemento no encontrado")) {
-            BpmnColor modifier = new BpmnColor();
-            modifier.modifyActivityColors(usedElementNames, path);
-
-            ImageCapture capture = new ImageCapture();
-            capture.imageCapture();
-
-            loadImage();
+    public void updateMethodList(List<String> methodNames) {
+        if (methodNames != null && !methodNames.isEmpty()) {
+            DefaultListModel<String> model = new DefaultListModel<>();
+            methodNames.forEach(model::addElement);
+            LMETHODS.setModel(model);
+            updateMethodCount(Integer.toString(methodNames.size()));
         } else {
-            System.out.println("No se encontraron elementos usados para la variable con ID " + selectedVariableId);
+            DefaultListModel<String> defaultModel = new DefaultListModel<>();
+            defaultModel.addElement("Class not selected");
+            LMETHODS.setModel(defaultModel);
         }
     }
 
-    private void loadData() {
-        LOAD.addActionListener(e -> {
-            try {
-                boolean mainSuccess = Main.main(new String[]{});
-                if (mainSuccess) {
-                    loadHistory();
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        });
+    public void displayImage(String imagePath) {
+        ImageIcon icon = new ImageIcon(imagePath);
+        int width = JMODEL.getWidth();
+        int height = JMODEL.getHeight();
+
+        Image image = icon.getImage();
+        Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+
+        ImageIcon scaledIcon = new ImageIcon(scaledImage);
+        JMODEL.setIcon(scaledIcon);
     }
 
-    private void loadImage() {
-        String rutaImagen = Paths.get(System.getProperty("user.dir"), "Traza/output", "MSGF-Test-Color.png").toString();
-        ImageIcon icono = new ImageIcon(rutaImagen);
-
-        // Obtiene las dimensiones del JLabel
-        int anchoJMODEL = JMODEL.getWidth();
-        int altoJMODEL = JMODEL.getHeight();
-
-        // Obtiene las dimensiones originales de la imagen
-        int anchoOriginal = icono.getIconWidth();
-        int altoOriginal = icono.getIconHeight();
-
-        // Calcula las nuevas dimensiones manteniendo la proporción
-        int nuevoAncho = anchoOriginal;
-        int nuevoAlto = altoOriginal;
-
-        double proporcionAncho = (double) anchoJMODEL / anchoOriginal;
-        double proporcionAlto = (double) altoJMODEL / altoOriginal;
-
-        double proporcion = Math.min(proporcionAncho, proporcionAlto);
-
-        nuevoAncho = (int) (anchoOriginal * proporcion);
-        nuevoAlto = (int) (altoOriginal * proporcion);
-
-        // Escala la imagen manteniendo su relación de aspecto
-        Image imagen = icono.getImage();
-        Image imagenEscalada = imagen.getScaledInstance(nuevoAncho, nuevoAlto, Image.SCALE_SMOOTH);
-
-        // Crea un nuevo ImageIcon con la imagen escalada
-        ImageIcon iconoEscalado = new ImageIcon(imagenEscalada);
-
-        // Asigna el ImageIcon al JLabel
-        JMODEL.setIcon(iconoEscalado);
+    public void addOpenImageListener(ActionListener listener) {
+        BIMAGE.addActionListener(listener);
     }
 
-    private void openImage() {
-        BIMAGE.addActionListener(e -> {
-            String rutaImagen = Paths.get(System.getProperty("user.dir"), "Traza/output", "MSGF-Test-Color.png").toString();
-
-            if (Desktop.isDesktopSupported()) {
-                Desktop desktop = Desktop.getDesktop();
-
-                // Obtener el objeto File para la ruta del archivo
-                File archivo = new File(rutaImagen);
-
-                // Verificar si el archivo existe
-                if (archivo.exists()) {
-                    try {
-                        // Abrir el archivo
-                        desktop.open(archivo);
-                    } catch (IOException ex) {
-                        Logger.getLogger(Traceability.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                } else {
-                    System.out.println("El archivo no existe.");
-                }
-
-            }
-        });
-
+    public void addOpenDiagramListener(ActionListener listener) {
+        BDIAGRAM.addActionListener(listener);
     }
 
-    private void openDiagram() {
-        BDIAGRAM.addActionListener(e -> {
-            String rutaDiagram = Paths.get(System.getProperty("user.dir"), "Traza/output", "ColorModel.bpmn").toString();
-
-            if (Desktop.isDesktopSupported()) {
-                Desktop desktop = Desktop.getDesktop();
-
-                // Obtener el objeto File para la ruta del archivo
-                File archivo = new File(rutaDiagram);
-
-                // Verificar si el archivo existe
-                if (archivo.exists()) {
-                    try {
-                        // Abrir el archivo
-                        desktop.open(archivo);
-                    } catch (IOException ex) {
-                        Logger.getLogger(Traceability.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                } else {
-                    System.out.println("El archivo no existe.");
-                }
-
-            }
-        });
-
+    public void displayErrorMessage(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    @SuppressWarnings("unchecked")
+
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jFrame1 = new javax.swing.JFrame();
-        jPanel1 = new javax.swing.JPanel();
+        JFrame jFrame1 = new JFrame();
+        JPanel jPanel1 = new JPanel();
         PARTICIPANT = new javax.swing.JLabel();
         PROCESS = new javax.swing.JLabel();
-        PPROJECTS = new javax.swing.JPanel();
+        JPanel PPROJECTS = new JPanel();
         jLabel6 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        JScrollPane jScrollPane1 = new JScrollPane();
         LPROJECTS = new javax.swing.JList<>();
         CountProjects = new javax.swing.JLabel();
         PCLASSES = new javax.swing.JPanel();
-        jLabel7 = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        JLabel jLabel7 = new JLabel();
+        JScrollPane jScrollPane2 = new JScrollPane();
         LCLASSES = new javax.swing.JList<>();
         CountClasses = new javax.swing.JLabel();
         PMETHODS = new javax.swing.JPanel();
-        jLabel8 = new javax.swing.JLabel();
-        jScrollPane3 = new javax.swing.JScrollPane();
+        JLabel jLabel8 = new JLabel();
+        JScrollPane jScrollPane3 = new JScrollPane();
         LMETHODS = new javax.swing.JList<>();
         CountMethods = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        JLabel jLabel4 = new JLabel();
         CONTAINER = new javax.swing.JLabel();
-        jSeparator1 = new javax.swing.JSeparator();
+        JSeparator jSeparator1 = new JSeparator();
         VARIABLES = new javax.swing.JComboBox<>();
         LOAD = new javax.swing.JButton();
         JMODEL = new javax.swing.JLabel();
         BIMAGE = new javax.swing.JButton();
         BDIAGRAM = new javax.swing.JButton();
         HISTORY = new javax.swing.JComboBox<>();
-        jLabel1 = new javax.swing.JLabel();
+        JLabel jLabel1 = new JLabel();
 
         javax.swing.GroupLayout jFrame1Layout = new javax.swing.GroupLayout(jFrame1.getContentPane());
         jFrame1.getContentPane().setLayout(jFrame1Layout);
@@ -445,31 +255,31 @@ public class Traceability extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
-        PARTICIPANT.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
+        PARTICIPANT.setFont(new java.awt.Font("Segoe UI", Font.BOLD | Font.ITALIC, 14)); // NOI18N
         PARTICIPANT.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         PARTICIPANT.setText("Select a variable");
 
-        PROCESS.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
+        PROCESS.setFont(new java.awt.Font("Segoe UI", Font.BOLD | Font.ITALIC, 14)); // NOI18N
         PROCESS.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         PROCESS.setText("Select a variable");
 
         PPROJECTS.setBackground(new java.awt.Color(255, 255, 255));
         PPROJECTS.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 18)); // NOI18N
         jLabel6.setText("PROJECTS");
 
         LPROJECTS.setBorder(javax.swing.BorderFactory.createCompoundBorder());
-        LPROJECTS.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
+        LPROJECTS.setFont(new java.awt.Font("Segoe UI", Font.ITALIC, 14)); // NOI18N
         LPROJECTS.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Select a variable" };
+            final String[] strings = { "Select a variable" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
         LPROJECTS.setVisibleRowCount(100);
         jScrollPane1.setViewportView(LPROJECTS);
 
-        CountProjects.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        CountProjects.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 12)); // NOI18N
         CountProjects.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         CountProjects.setText("0");
         CountProjects.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -507,19 +317,19 @@ public class Traceability extends javax.swing.JFrame {
         PCLASSES.setBackground(new java.awt.Color(255, 255, 255));
         PCLASSES.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 18)); // NOI18N
         jLabel7.setText("CLASSES");
 
         LCLASSES.setBorder(null);
-        LCLASSES.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
+        LCLASSES.setFont(new java.awt.Font("Segoe UI", Font.ITALIC, 14)); // NOI18N
         LCLASSES.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Select a project" };
+            final String[] strings = { "Select a project" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
         jScrollPane2.setViewportView(LCLASSES);
 
-        CountClasses.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        CountClasses.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 12)); // NOI18N
         CountClasses.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         CountClasses.setText("0");
         CountClasses.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -556,20 +366,20 @@ public class Traceability extends javax.swing.JFrame {
         PMETHODS.setBackground(new java.awt.Color(255, 255, 255));
         PMETHODS.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 18)); // NOI18N
         jLabel8.setText("METHODS");
 
         LMETHODS.setBorder(null);
-        LMETHODS.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
+        LMETHODS.setFont(new java.awt.Font("Segoe UI", Font.ITALIC, 14)); // NOI18N
         LMETHODS.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Select a class" };
+            final String[] strings = { "Select a class" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
         LMETHODS.setVisibleRowCount(100);
         jScrollPane3.setViewportView(LMETHODS);
 
-        CountMethods.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        CountMethods.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 12)); // NOI18N
         CountMethods.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         CountMethods.setText("0");
         CountMethods.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -603,48 +413,48 @@ public class Traceability extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 18)); // NOI18N
         jLabel4.setText("CONTAINER");
         jLabel4.setFocusable(false);
 
-        CONTAINER.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
+        CONTAINER.setFont(new java.awt.Font("Segoe UI", Font.ITALIC, 14)); // NOI18N
         CONTAINER.setText("Select a project");
 
-        VARIABLES.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        VARIABLES.setFont(new java.awt.Font("Segoe UI", Font.PLAIN, 18)); // NOI18N
         VARIABLES.setMaximumRowCount(100);
         VARIABLES.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select a version" }));
         VARIABLES.setName("Select a variable"); // NOI18N
 
-        LOAD.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        LOAD.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 14)); // NOI18N
         LOAD.setText("Generate New Trace");
         LOAD.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         LOAD.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         LOAD.setPreferredSize(new java.awt.Dimension(80, 26));
 
         JMODEL.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        JMODEL.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images.png"))); // NOI18N
+        JMODEL.setIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/images.png")))); // NOI18N
         JMODEL.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         JMODEL.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
-        BIMAGE.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        BIMAGE.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image.png"))); // NOI18N
+        BIMAGE.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 14)); // NOI18N
+        BIMAGE.setIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/image.png")))); // NOI18N
         BIMAGE.setText("Open Image");
         BIMAGE.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         BIMAGE.setPreferredSize(new java.awt.Dimension(150, 35));
 
-        BDIAGRAM.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        BDIAGRAM.setIcon(new javax.swing.ImageIcon(getClass().getResource("/diagram.png"))); // NOI18N
+        BDIAGRAM.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 14)); // NOI18N
+        BDIAGRAM.setIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/diagram.png")))); // NOI18N
         BDIAGRAM.setText("Open Diagram");
         BDIAGRAM.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         BDIAGRAM.setPreferredSize(new java.awt.Dimension(150, 35));
 
-        HISTORY.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        HISTORY.setFont(new java.awt.Font("Segoe UI", Font.PLAIN, 18)); // NOI18N
         HISTORY.setSelectedIndex(-1);
         HISTORY.setMinimumSize(new java.awt.Dimension(40, 31));
         HISTORY.setName(""); // NOI18N
         HISTORY.setPreferredSize(new java.awt.Dimension(40, 31));
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Segoe UI", Font.PLAIN, 18)); // NOI18N
         jLabel1.setText("Version #");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -754,7 +564,7 @@ public class Traceability extends javax.swing.JFrame {
 
     public static Traceability instance;
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -767,13 +577,8 @@ public class Traceability extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Traceability.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Traceability.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Traceability.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
+                 UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(Traceability.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
@@ -805,19 +610,8 @@ public class Traceability extends javax.swing.JFrame {
     public javax.swing.JLabel PARTICIPANT;
     public javax.swing.JPanel PCLASSES;
     public javax.swing.JPanel PMETHODS;
-    private javax.swing.JPanel PPROJECTS;
     private javax.swing.JLabel PROCESS;
     public javax.swing.JComboBox<String> VARIABLES;
-    private javax.swing.JFrame jFrame1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel4;
     public javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JSeparator jSeparator1;
     // End of variables declaration//GEN-END:variables
 }

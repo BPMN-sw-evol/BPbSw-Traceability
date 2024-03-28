@@ -5,41 +5,40 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ImageCapture {
-    
-   public void imageCapture() {
-    try {
-        // Ruta relativa al modelo desde la raíz del proyecto
-        String relativePathToModel = Paths.get("Traza/output", "ColorModel.bpmn").toString();
 
-        // Ruta completa al modelo desde la raíz del proyecto
-        String diagramFile = Paths.get(System.getProperty("user.dir"), relativePathToModel).toString();
+    public ImageCapture() {
+        try {
+            // Ruta relativa al modelo desde la raíz del proyecto
+            String relativePathToModel = Paths.get("Traza/output", "ColorModel.bpmn").toString();
 
-        // Nombre del archivo de salida
-        String outputConfig = "MSGF-Test-Color.png";
+            // Ruta completa al modelo desde la raíz del proyecto
+            String diagramFile = Paths.get(System.getProperty("user.dir"), relativePathToModel).toString();
 
-        // Construir el comando completo
-        String fullCommand = String.format("bpmn-to-image %s;%s", diagramFile, outputConfig);
+            // Nombre del archivo de salida
+            String outputConfig = "MSGF-Test-Color.png";
 
-        // Ruta del directorio que contiene el archivo BPMN
-        Path directorio = Paths.get("Traza/output");
+            // Construir el comando completo
+            String fullCommand = String.format("bpmn-to-image %s;%s", diagramFile, outputConfig);
 
-        // Crear el proceso para ejecutar el comando en el directorio especificado
-        ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/C", fullCommand);
-        processBuilder.directory(directorio.toFile());
+            // Ruta del directorio que contiene el archivo BPMN
+            Path directorio = Paths.get("Traza/output");
 
-        // Iniciar el proceso
-        Process p = processBuilder.start();
+            // Crear el proceso para ejecutar el comando en el directorio especificado
+            ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/C", fullCommand);
+            processBuilder.directory(directorio.toFile());
 
-        // Esperar a que el proceso termine
-        int exitCode = p.waitFor();
+            // Iniciar el proceso
+            Process p = processBuilder.start();
 
-        // Imprimir el resultado
-        // System.out.println((exitCode == 0) ? "Image generated successfully." : "Error generating image.");
+            // Esperar a que el proceso termine
+            p.waitFor();
 
-    } catch (IOException | InterruptedException e) {
-        e.printStackTrace();
+            // Imprimir el resultado
+            // System.out.println((exitCode == 0) ? "Image generated successfully." : "Error generating image.");
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
-}
-
 }
 

@@ -5,6 +5,8 @@
     <file url="file://$PROJECT_DIR$/BPMN-tracer/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DataBase/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DataBase/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Plugin/dist" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Plugin/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Traza/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Traza/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/api-traceability/src/main/java" charset="UTF-8" />
