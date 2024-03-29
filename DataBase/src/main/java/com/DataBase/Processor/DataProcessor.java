@@ -6,8 +6,6 @@ import com.DataBase.Extraction.BPMNInfoExtractor;
 import com.DataBase.Extraction.ProjectInfoExtractor;
 import org.json.JSONObject;
 
-import java.io.IOException;
-
 public class DataProcessor {
     private final commonDataExtraction commonDataExtractor;
     private final BPMNInfoExtractor bpmnDataExtractor;

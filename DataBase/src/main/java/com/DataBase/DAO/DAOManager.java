@@ -6,30 +6,11 @@ import java.sql.Connection;
 
 public class DAOManager {
     private static DAOManager instance;
-
-    // Agrega instancias de tus DAOs aquí
-    private final HistoryDAO historyDAO;
-    private final VariableDAO variableDAO;
-    private final ContainerDAO containerDAO;
-    private final ProjectDAO projectDAO;
-    private final ClassDAO classDAO;
-    private final MethodDAO methodDAO;
-    private final ProcessDAO processDAO;
-    private final ElementDAO elementDAO;
-    private final PathDAO pathDAO;
+    private final Connection con;
 
     private DAOManager() {
         // Inicializa tus DAOs aquí
-        Connection con = DatabaseConnection.getInstance().getConnection();
-        historyDAO = new HistoryDAO(con);
-        variableDAO = new VariableDAO(con);
-        containerDAO = new ContainerDAO(con);
-        projectDAO = new ProjectDAO(con);
-        classDAO = new ClassDAO(con);
-        methodDAO = new MethodDAO(con);
-        processDAO = new ProcessDAO(con);
-        elementDAO = new ElementDAO(con);
-        pathDAO = new PathDAO(con);
+        this.con = DatabaseConnection.getInstance().getConnection();
     }
 
     public static DAOManager getInstance() {
@@ -40,38 +21,38 @@ public class DAOManager {
     }
 
     public HistoryDAO getHistoryDAO() {
-        return historyDAO;
+        return new HistoryDAO(con);
     }
 
     public VariableDAO getVariableDAO() {
-        return variableDAO;
+        return new VariableDAO(con);
     }
 
     public ContainerDAO getContainerDAO() {
-        return containerDAO;
+        return new ContainerDAO(con);
     }
 
     public ProjectDAO getProjectDAO() {
-        return projectDAO;
+        return new ProjectDAO(con);
     }
 
     public ClassDAO getClassDAO() {
-        return classDAO;
+        return new ClassDAO(con);
     }
 
     public MethodDAO getMethodDAO() {
-        return methodDAO;
+        return new MethodDAO(con);
     }
 
     public ProcessDAO getProcessDAO() {
-        return processDAO;
+        return new ProcessDAO(con);
     }
 
     public ElementDAO getElementDAO() {
-        return elementDAO;
+        return new ElementDAO(con);
     }
 
     public PathDAO getPathDAO() {
-        return pathDAO;
+        return new PathDAO(con);
     }
 }

@@ -14,8 +14,7 @@ public class BPMNInfoExtractor implements IDataExtractor {
 
     private final JSONObject bpmnInfo;
     private final ArrayList<String> type = new ArrayList<String>();
-    private final ProcessDAO processDAO;
-    private final ElementDAO elementDAO;
+    private final DAOManager daoManager;
 
     public BPMNInfoExtractor(JSONObject bpmnFilePath) {
 
@@ -24,11 +23,8 @@ public class BPMNInfoExtractor implements IDataExtractor {
         this.bpmnInfo = bpmnFilePath;
 
         // Obtener la instancia del DAOManager
-        DAOManager daoManager = DAOManager.getInstance();
+        this.daoManager = DAOManager.getInstance();
 
-        // Obtener intancias de los DAO's
-        this.processDAO = daoManager.getProcessDAO();
-        this.elementDAO = daoManager.getElementDAO();
     }
 
     @Override
@@ -41,7 +37,7 @@ public class BPMNInfoExtractor implements IDataExtractor {
     }
 
     private void setProcess(){
-        processDAO.insertProcess(this.bpmnInfo.getString("bpmNameProcess"),this.bpmnInfo.getString("bpmNameFile"),this.bpmnInfo.getString("bpmPath"));
+        daoManager.getProcessDAO().insertProcess(this.bpmnInfo.getString("bpmNameProcess"),this.bpmnInfo.getString("bpmNameFile"),this.bpmnInfo.getString("bpmPath"));
     }
 
     private void setElementType(){
@@ -49,9 +45,9 @@ public class BPMNInfoExtractor implements IDataExtractor {
         for(Object i : p){
             JSONObject j = (JSONObject) i;
 
-            if(!this.type.contains(j.getString("taskType")) && elementDAO.searchElementType(j.getString("taskType"))==-1){
+            if(!this.type.contains(j.getString("taskType")) && daoManager.getElementDAO().searchElementType(j.getString("taskType"))==-1){
                 this.type.add(j.getString("taskType"));
-                elementDAO.insertElementType(j.getString("taskType"));
+                daoManager.getElementDAO().insertElementType(j.getString("taskType"));
             }
         }
     }
@@ -60,11 +56,11 @@ public class BPMNInfoExtractor implements IDataExtractor {
         JSONArray p = this.bpmnInfo.getJSONArray("trace");
         for(Object i : p){
             JSONObject j = (JSONObject) i;
-            int id_type = elementDAO.searchElementType(j.getString("taskType"));
+            int id_type = daoManager.getElementDAO().searchElementType(j.getString("taskType"));
             String name = j.getString("taskName");
             String lane = "Lane"; //cuando BPMN-Tracer traiga el lane, modificar esta linea
-            int id_process = processDAO.searchProcess(this.bpmnInfo.getString("bpmNameProcess"),this.bpmnInfo.getString("bpmNameFile"),this.bpmnInfo.getString("bpmPath"));
-            elementDAO.insertElement(id_type, name, lane, id_process);
+            int id_process = daoManager.getProcessDAO().searchProcess(this.bpmnInfo.getString("bpmNameProcess"),this.bpmnInfo.getString("bpmNameFile"),this.bpmnInfo.getString("bpmPath"));
+            daoManager.getElementDAO().insertElement(id_type, name, lane, id_process);
         }
     }
 }

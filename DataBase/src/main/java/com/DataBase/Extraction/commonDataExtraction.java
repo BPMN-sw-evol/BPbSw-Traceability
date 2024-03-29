@@ -16,12 +16,7 @@ public class commonDataExtraction implements IDataExtractor {
     private final ArrayList<String> variables = new ArrayList<String>();
     private final ArrayList<String> projects = new ArrayList<String>();
     private final ArrayList<String> paths = new ArrayList<String>();
-    private final VariableDAO variableDAO;
-    private final ContainerDAO containerDAO;
-    private final ProjectDAO projectDAO;
-    private final ClassDAO classDAO;
-    private final MethodDAO methodDAO;
-    private final ElementDAO elementDAO;
+    private final DAOManager daoManager;
 
     public commonDataExtraction(JSONObject projectFilePath, JSONObject bpmnFilePath, String name) {
         // Obtener las rutas de los archivos
@@ -29,15 +24,7 @@ public class commonDataExtraction implements IDataExtractor {
         this.bpmnInfo = bpmnFilePath;
 
         // Obtener la instancia del DAOManager
-        DAOManager daoManager = DAOManager.getInstance();
-
-        // Obtener intancias de los DAO's
-        this.variableDAO = daoManager.getVariableDAO();
-        this.containerDAO = daoManager.getContainerDAO();
-        this.projectDAO = daoManager.getProjectDAO();
-        this.classDAO = daoManager.getClassDAO();
-        this.methodDAO = daoManager.getMethodDAO();
-        this.elementDAO = daoManager.getElementDAO();
+        this.daoManager = DAOManager.getInstance();
 
         // Utiliza DAO History
         this.history = daoManager.getHistoryDAO().createHistory(name);
@@ -76,16 +63,16 @@ public class commonDataExtraction implements IDataExtractor {
                 for(int l=0; l<k.length();l++){
                     if(!this.variables.contains(k.opt(l))){
                         this.variables.add(k.opt(l).toString());
-                        variableDAO.insertVariable(k.opt(l).toString(),this.history);
+                        daoManager.getVariableDAO().insertVariable(k.opt(l).toString(),this.history);
                     }
                 }
             }
         }
 
         for (String i : this.variables) {
-            int variable = variableDAO.searchVariable(i,this.history);
+            int variable = daoManager.getVariableDAO().searchVariable(i,this.history);
             for (int j=0;j<this.projects.size();j++){
-                int project = projectDAO.searchProject(this.projects.get(j),this.paths.get(j));
+                int project = daoManager.getProjectDAO().searchProject(this.projects.get(j),this.paths.get(j));
                 for (String k : this.projectInfo.getJSONObject(this.projects.get(j)).keySet()) {
                     for (String l: this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).keySet()) {
                         JSONArray v = this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).optJSONArray("variables");
@@ -94,22 +81,22 @@ public class commonDataExtraction implements IDataExtractor {
 
                             for(Object m : v){
                                 if(m.toString().equals(i) && this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).keySet().contains("container")){
-                                    int container = containerDAO.searchContainer(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).getString("container"),project);
-                                    if(containerDAO.searchContainedIn(variable, container)==-1){
-                                        containerDAO.insertContainedIn(variable, container);
+                                    int container = daoManager.getContainerDAO().searchContainer(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).getString("container"),project);
+                                    if(daoManager.getContainerDAO().searchContainedIn(variable, container)==-1){
+                                        daoManager.getContainerDAO().insertContainedIn(variable, container);
                                     }
                                     break;
                                 }
                             }
                         }else if(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).optString("variables").equals(i) && this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).keySet().contains("container")){
-                            int container = containerDAO.searchContainer(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).getString("container"),project);
-                            if(containerDAO.searchContainedIn(variable, container)==-1){
-                                containerDAO.insertContainedIn(variable, container);
+                            int container = daoManager.getContainerDAO().searchContainer(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).getString("container"),project);
+                            if(daoManager.getContainerDAO().searchContainedIn(variable, container)==-1){
+                                daoManager.getContainerDAO().insertContainedIn(variable, container);
                             }
                         }else if(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).optString("variables").equals(i)){
-                            int container = containerDAO.searchContainer("NA",project);
-                            if(containerDAO.searchContainedIn(variable, container)==-1){
-                                containerDAO.insertContainedIn(variable, container);
+                            int container = daoManager.getContainerDAO().searchContainer("NA",project);
+                            if(daoManager.getContainerDAO().searchContainedIn(variable, container)==-1){
+                                daoManager.getContainerDAO().insertContainedIn(variable, container);
                             }
                         }
                     }
@@ -123,9 +110,9 @@ public class commonDataExtraction implements IDataExtractor {
     private void setMethodUsed(){
         //setVariables();
         for (String i : this.variables) {
-            int id_variable = variableDAO.searchVariable(i,this.history);
+            int id_variable = daoManager.getVariableDAO().searchVariable(i,this.history);
             for (int j=0;j<this.projects.size();j++){
-                int id_project = projectDAO.searchProject(this.projects.get(j),this.paths.get(j));
+                int id_project = daoManager.getProjectDAO().searchProject(this.projects.get(j),this.paths.get(j));
                 for (String k : this.projectInfo.getJSONObject(this.projects.get(j)).keySet()) {
                     for (String l: this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).keySet()) {
                         if(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).keySet().contains("variables")){
@@ -133,26 +120,26 @@ public class commonDataExtraction implements IDataExtractor {
                             if(v!=null){
                                 for(Object m : v){
                                     if(m.toString().equals(i)){
-                                        int id_class = classDAO.searchClass(k.split(": ")[1],id_project);
-                                        int id_method = methodDAO.searchMethod(id_class,l.split(": ")[1].split(" ")[0]);
+                                        int id_class = daoManager.getClassDAO().searchClass(k.split(": ")[1],id_project);
+                                        int id_method = daoManager.getMethodDAO().searchMethod(id_class,l.split(": ")[1].split(" ")[0]);
 
                                         if(l.toString().contains("set")){
-                                            methodDAO.insertMethodUsed(id_variable,id_method, true);
+                                            daoManager.getMethodDAO().insertMethodUsed(id_variable,id_method, true);
                                         }else{
-                                            methodDAO.insertMethodUsed(id_variable,id_method, false);
+                                            daoManager.getMethodDAO().insertMethodUsed(id_variable,id_method, false);
                                         }
 
                                         break;
                                     }
                                 }
                             }else if(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).getString("variables").equals(i)){
-                                int id_class = classDAO.searchClass(k.split(": ")[1],id_project);
-                                int id_method = methodDAO.searchMethod(id_class,l.split(": ")[1].split(" ")[0]);
+                                int id_class = daoManager.getClassDAO().searchClass(k.split(": ")[1],id_project);
+                                int id_method = daoManager.getMethodDAO().searchMethod(id_class,l.split(": ")[1].split(" ")[0]);
 
                                 if(l.toString().contains("set")){
-                                    methodDAO.insertMethodUsed(id_variable,id_method, true);
+                                    daoManager.getMethodDAO().insertMethodUsed(id_variable,id_method, true);
                                 }else{
-                                    methodDAO.insertMethodUsed(id_variable,id_method, false);
+                                    daoManager.getMethodDAO().insertMethodUsed(id_variable,id_method, false);
                                 }
                             }
                         }
@@ -199,9 +186,9 @@ public class commonDataExtraction implements IDataExtractor {
 
                             if(!serviceVariables.isEmpty()){
                                 for (String n : serviceVariables) {
-                                    int id_variable = variableDAO.searchVariable(n,this.history);
-                                    int id_element = elementDAO.searchElement(element);
-                                    elementDAO.insertElementUsed(id_variable, id_element,"NA");
+                                    int id_variable = daoManager.getVariableDAO().searchVariable(n,this.history);
+                                    int id_element = daoManager.getElementDAO().searchElement(element);
+                                    daoManager.getElementDAO().insertElementUsed(id_variable, id_element,"NA");
                                 }
                                 serviceVariables = new ArrayList<String>();
                             }
@@ -212,15 +199,15 @@ public class commonDataExtraction implements IDataExtractor {
                 JSONArray k = j.optJSONArray("variables");
                 if(k!=null){
                     for(int l=0; l<k.length();l++){
-                        int id_variable = variableDAO.searchVariable(k.opt(l).toString(),this.history);
-                        int id_element = elementDAO.searchElement(j.getString("taskName"));
-                        elementDAO.insertElementUsed(id_variable, id_element,"NA");
+                        int id_variable = daoManager.getVariableDAO().searchVariable(k.opt(l).toString(),this.history);
+                        int id_element = daoManager.getElementDAO().searchElement(j.getString("taskName"));
+                        daoManager.getElementDAO().insertElementUsed(id_variable, id_element,"NA");
                     }
                 }else if(j.optString("variables")!=""){
                     String v = j.optString("variables");
-                    int id_variable = variableDAO.searchVariable(v,this.history);
-                    int id_element = elementDAO.searchElement(j.getString("taskName"));
-                    elementDAO.insertElementUsed(id_variable, id_element,"NA");
+                    int id_variable = daoManager.getVariableDAO().searchVariable(v,this.history);
+                    int id_element = daoManager.getElementDAO().searchElement(j.getString("taskName"));
+                    daoManager.getElementDAO().insertElementUsed(id_variable, id_element,"NA");
                 }
             }
         }

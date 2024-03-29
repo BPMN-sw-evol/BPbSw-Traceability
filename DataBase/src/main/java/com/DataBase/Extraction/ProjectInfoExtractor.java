@@ -12,10 +12,7 @@ public class ProjectInfoExtractor implements IDataExtractor {
     private final JSONObject projectInfo;
     private final ArrayList<String> projects = new ArrayList<>();
     private final ArrayList<String> paths = new ArrayList<>();
-    private final ContainerDAO containerDAO;
-    private final ProjectDAO projectDAO;
-    private final ClassDAO classDAO;
-    private final MethodDAO methodDAO;
+    private final DAOManager daoManager;
 
     public ProjectInfoExtractor(JSONObject projectFilePath) {
 
@@ -23,13 +20,7 @@ public class ProjectInfoExtractor implements IDataExtractor {
         this.projectInfo = projectFilePath;
 
         // Obtener la instancia del DAOManager
-        DAOManager daoManager = DAOManager.getInstance();
-
-        // Obtener intancias de los DAO's
-        this.containerDAO = daoManager.getContainerDAO();
-        this.projectDAO = daoManager.getProjectDAO();
-        this.classDAO = daoManager.getClassDAO();
-        this.methodDAO = daoManager.getMethodDAO();
+        this.daoManager = DAOManager.getInstance();
     }
 
     @Override
@@ -56,18 +47,18 @@ public class ProjectInfoExtractor implements IDataExtractor {
         }
 
         for (int i=0;i<this.projects.size();i++){
-            if(projectDAO.searchProject(this.projects.get(i),this.paths.get(i))==-1){
-                projectDAO.insertProject(this.projects.get(i),this.paths.get(i));
+            if(daoManager.getProjectDAO().searchProject(this.projects.get(i),this.paths.get(i))==-1){
+                daoManager.getProjectDAO().insertProject(this.projects.get(i),this.paths.get(i));
             }
         }
     }
 
     private void setClasses(){
         for (int i=0;i<this.projects.size();i++){
-            int id_project = projectDAO.searchProject(this.projects.get(i),this.paths.get(i));
+            int id_project = daoManager.getProjectDAO().searchProject(this.projects.get(i),this.paths.get(i));
             for (String j : this.projectInfo.getJSONObject(this.projects.get(i)).keySet()) {
-                if(classDAO.searchClass(j.split(": ")[1], id_project)==-1){
-                    classDAO.insertClass(id_project, j.split(": ")[1]);
+                if(daoManager.getClassDAO().searchClass(j.split(": ")[1], id_project)==-1){
+                    daoManager.getClassDAO().insertClass(id_project, j.split(": ")[1]);
                 }
             }
         }
@@ -76,17 +67,17 @@ public class ProjectInfoExtractor implements IDataExtractor {
     private void setContainer(){
         ArrayList<String> container = new ArrayList<String>();
         for (int i=0;i<this.projects.size();i++){
-            int id_project = projectDAO.searchProject(this.projects.get(i),this.paths.get(i));
-            if(containerDAO.searchContainer("NA", id_project)==-1){
-                containerDAO.insertContainer("NA",id_project);
+            int id_project = daoManager.getProjectDAO().searchProject(this.projects.get(i),this.paths.get(i));
+            if(daoManager.getContainerDAO().searchContainer("NA", id_project)==-1){
+                daoManager.getContainerDAO().insertContainer("NA",id_project);
             }
             for (String j : this.projectInfo.getJSONObject(this.projects.get(i)).keySet()) {
                 for (String k: this.projectInfo.getJSONObject(this.projects.get(i)).getJSONObject(j).keySet()) {
                     if(this.projectInfo.getJSONObject(this.projects.get(i)).getJSONObject(j).get(k).toString().contains("container")){
                         String p = this.projectInfo.getJSONObject(this.projects.get(i)).getJSONObject(j).getJSONObject(k).getString("container");
-                        if(!container.contains(p) && containerDAO.searchContainer(p, id_project)==-1){
+                        if(!container.contains(p) && daoManager.getContainerDAO().searchContainer(p, id_project)==-1){
                             container.add(p);
-                            containerDAO.insertContainer(p,id_project);
+                            daoManager.getContainerDAO().insertContainer(p,id_project);
                         }
                     }
                 }
@@ -96,12 +87,12 @@ public class ProjectInfoExtractor implements IDataExtractor {
 
     private void setMethod(){
         for (int i=0;i<this.projects.size();i++){
-            int id_project = projectDAO.searchProject(this.projects.get(i),this.paths.get(i));
+            int id_project = daoManager.getProjectDAO().searchProject(this.projects.get(i),this.paths.get(i));
             for (String j : this.projectInfo.getJSONObject(this.projects.get(i)).keySet()) {
-                int id_class = classDAO.searchClass(j.split(": ")[1],id_project);
+                int id_class = daoManager.getClassDAO().searchClass(j.split(": ")[1],id_project);
                 for (String k: this.projectInfo.getJSONObject(this.projects.get(i)).getJSONObject(j).keySet()) {
                     if(k.contains("Method")){
-                        methodDAO.insertMethod(id_class, k.split(": ")[1].split(" ")[0]);
+                        daoManager.getMethodDAO().insertMethod(id_class, k.split(": ")[1].split(" ")[0]);
                     }
                 }
             }
