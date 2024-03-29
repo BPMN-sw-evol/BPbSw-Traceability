@@ -3,11 +3,10 @@ package com.XMLtracer.Factory;
 import com.XMLtracer.Activity.SendTaskDetailsStrategy;
 import com.XMLtracer.Activity.ServiceTaskDetailsStrategy;
 import com.XMLtracer.Activity.UserTaskDetailsStrategy;
-import com.XMLtracer.Interface.ITaskDetailsFactory;
 import com.XMLtracer.Interface.ITaskDetailsStrategy;
 import org.camunda.bpm.model.bpmn.instance.*;
 
-public class TaskDetailsFactory implements ITaskDetailsFactory {
+public class TaskDetailsFactory {
 
     // Instancia única de la fábrica
     private static TaskDetailsFactory instance;
@@ -23,7 +22,6 @@ public class TaskDetailsFactory implements ITaskDetailsFactory {
         return instance;
     }
 
-    @Override
     public ITaskDetailsStrategy createStrategy(Activity activity) {
         if (activity instanceof UserTask) {
             return new UserTaskDetailsStrategy();
