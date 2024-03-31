@@ -46,13 +46,24 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>2.7.9</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<mainClass>com.example.api.apitraceability.ApiTraceabilityApplication</mainClass>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version> <!-- o la versión que estés utilizando -->
+				<version>3.8.1</version> <!-- Version del plugin del compilador de Maven -->
 				<configuration>
-					<source>21</source> <!-- o la versión de Java que estés utilizando -->
+					<source>21</source>
 					<target>21</target>
 					<compilerArgs>
 						<arg>-parameters</arg>
@@ -61,5 +72,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
