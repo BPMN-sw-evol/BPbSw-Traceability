@@ -1,9 +1,6 @@
 package com.DataBase.DAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,25 +43,49 @@ public class VariableDAO {
         }
     }
 
-    public List<String> getAllVariableNames(int history) {
+    public List<String> getAllVariableNames(Timestamp history) {
         List<String> variableNames = new ArrayList<>();
-        try {
-            String sql = "SELECT variable_name FROM variable where id_history = ?";
-            ps = connection.prepareStatement(sql);
-            ps.setInt(1, history);
-            rs = ps.executeQuery();
+        int historyId = getHistoryIdByDate(history); // Obtener el id de history usando la fecha
+        if (historyId != -1) { // Verificar si se encontró un id válido
+            try {
+                String sql = "SELECT variable_name FROM variable WHERE id_history = ?";
+                ps = connection.prepareStatement(sql);
+                ps.setInt(1, historyId);
+                rs = ps.executeQuery();
 
-            while (rs.next()) {
-                String variableName = rs.getString("variable_name");
-                variableNames.add(variableName);
+                while (rs.next()) {
+                    String variableName = rs.getString("variable_name");
+                    variableNames.add(variableName);
+                }
+            } catch (SQLException e) {
+                System.err.println("Error al realizar la búsqueda: " + e);
+            } finally {
+                // Cerrar recursos (ps, rs) aquí si es necesario
             }
-        } catch (SQLException e) {
-            System.err.println("Error al realizar la búsqueda: " + e);
-        } finally {
-            // Cerrar recursos (ps, rs) aquí si es necesario
         }
         return variableNames;
     }
+
+    private int getHistoryIdByDate(Timestamp historyDate) {
+        int historyId = -1;
+        try {
+            System.out.println("llega aqui");
+            String sql = "SELECT id_history FROM history WHERE date = ?";
+            ps = connection.prepareStatement(sql);
+            ps.setTimestamp(1, historyDate);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                historyId = rs.getInt("id_history");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener el id de history: " + e);
+        } finally {
+            // Cerrar recursos (ps, rs) aquí si es necesario
+        }
+        return historyId;
+    }
+
 
     public int searchVariableByName(String name) {
         try {

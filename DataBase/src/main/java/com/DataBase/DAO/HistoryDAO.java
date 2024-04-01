@@ -1,9 +1,6 @@
 package com.DataBase.DAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,21 +32,25 @@ public class HistoryDAO {
         return -1;
     }
 
-    public List<Integer> getAllHistorys() {
-        List<Integer> historyIDs = new ArrayList<>();
+    public List<Timestamp> getAllHistorys() {
+        List<Timestamp> historyDates = new ArrayList<>();
         try {
-            String sql = "SELECT id_history FROM history";
+            String sql = "SELECT date FROM history";
             ps = connection.prepareStatement(sql);
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                historyIDs.add(rs.getInt("id_history"));
+                Timestamp timestamp = rs.getTimestamp("date");
+                if (timestamp != null) {
+                    historyDates.add(new Timestamp(timestamp.getTime()));
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error al realizar la búsqueda: " + e);
         } finally {
             // Cerrar recursos (ps, rs) aquí si es necesario
         }
-        return historyIDs;
+        return historyDates;
     }
+
 }

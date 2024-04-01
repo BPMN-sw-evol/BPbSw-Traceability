@@ -1,15 +1,16 @@
 package com.Traza.Controller;
 
-import com.DataBase.DAO.*;
+import com.DataBase.DAO.DAOManager;
 import Interfaces.Traceability;
 import com.Traza.ImageGenerate.BpmnColor;
 import com.Traza.ImageGenerate.ImageCapture;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -17,33 +18,14 @@ import java.util.logging.Logger;
 
 public class TraceabilityController {
     private final Traceability view;
-    private final HistoryDAO historyDAO;
-    private final VariableDAO variableDAO;
-    private final ContainerDAO containerDAO;
-    private final ProjectDAO projectDAO;
-    private final ProcessDAO processDAO;
-    private final ClassDAO classDAO;
-    private final MethodDAO methodDAO;
-    private final ElementDAO elementDAO;
-    private final PathDAO pathDAO;
+    private final DAOManager daoManager;
     private int selectedVariableId;
 
     public TraceabilityController(Traceability view) {
         this.view = view;
 
         // Obtener la instancia del DAOManager
-        DAOManager daoManager = DAOManager.getInstance();
-
-        // Obtener intancias de los DAO's
-        this.historyDAO = daoManager.getHistoryDAO();
-        this.variableDAO = daoManager.getVariableDAO();
-        this.containerDAO = daoManager.getContainerDAO();
-        this.projectDAO = daoManager.getProjectDAO();
-        this.processDAO = daoManager.getProcessDAO();
-        this.classDAO = daoManager.getClassDAO();
-        this.methodDAO = daoManager.getMethodDAO();
-        this.elementDAO = daoManager.getElementDAO();
-        this.pathDAO = daoManager.getPathDAO();
+        this.daoManager = DAOManager.getInstance();
 
         initView();
     }
@@ -62,8 +44,8 @@ public class TraceabilityController {
 
     public void loadHistory() {
         try {
-            List<Integer> historyIDs = historyDAO.getAllHistorys();
-            historyIDs.addFirst(0);
+            List<Timestamp> historyIDs = daoManager.getHistoryDAO().getAllHistorys();
+            historyIDs.addFirst(null);
             if (!historyIDs.isEmpty()) {
                 view.updateComboBoxHistory(historyIDs);
             } else {
@@ -75,9 +57,9 @@ public class TraceabilityController {
     }
 
 
-    private void loadVariableNames(int history) {
+    private void loadVariableNames(Timestamp history) {
         try {
-            List<String> variableNames = variableDAO.getAllVariableNames(history);
+            List<String> variableNames = daoManager.getVariableDAO().getAllVariableNames(history);
             variableNames.addFirst("Choose a variable");
 
             if (!variableNames.isEmpty()) {
@@ -91,9 +73,9 @@ public class TraceabilityController {
     }
 
     public void handleHistorySelection() {
-        int selectedHistory = view.getSelectedHistory();
+        Timestamp selectedHistory = view.getSelectedHistory();
 
-        if (selectedHistory != 0) {
+        if (selectedHistory != null) {
             loadVariableNames(selectedHistory);
         } else {
             view.resetVariablesComboBox();
@@ -105,10 +87,10 @@ public class TraceabilityController {
         String selectedVariable = view.getSelectedVariable();
 
         if (!"Choose a variable".equals(selectedVariable) && !"Choose a version".equals(selectedVariable)) {
-            selectedVariableId = variableDAO.searchVariableByName(selectedVariable);
+            selectedVariableId = daoManager.getVariableDAO().searchVariableByName(selectedVariable);
 
-            List<String> projectNames = projectDAO.searchProjectByVariableId(selectedVariableId);
-            Map<String, String> processInfo = processDAO.searchProcessByVariableId(selectedVariableId);
+            List<String> projectNames = daoManager.getProjectDAO().searchProjectByVariableId(selectedVariableId);
+            Map<String, String> processInfo = daoManager.getProcessDAO().searchProcessByVariableId(selectedVariableId);
 
             if (!processInfo.containsKey("error")) {
                 view.updateProcessName(processInfo.get("model_name"));
@@ -137,12 +119,12 @@ public class TraceabilityController {
 
     public void handleProjectSelection() {
         String selectedProject = view.getSelectedProject();
-        int projectId = projectDAO.searchProject(selectedProject);
+        int projectId = daoManager.getProjectDAO().searchProject(selectedProject);
 
-        String containerName = containerDAO.searchContainerName(projectId, selectedVariableId);
+        String containerName = daoManager.getContainerDAO().searchContainerName(projectId, selectedVariableId);
         view.updateContainerText(containerName);
 
-        List<String> classNames = classDAO.searchClassById(projectId, selectedVariableId);
+        List<String> classNames = daoManager.getClassDAO().searchClassById(projectId, selectedVariableId);
         view.updateClassList(classNames);
 
         if (classNames == null || classNames.isEmpty()) {
@@ -152,9 +134,9 @@ public class TraceabilityController {
 
     public void handleClassSelection() {
         String selectedClass = view.getSelectedClass();
-        int classId = classDAO.searchClass(selectedClass);
+        int classId = daoManager.getClassDAO().searchClass(selectedClass);
 
-        List<String> methodNames = methodDAO.searchMethodById(classId, selectedVariableId);
+        List<String> methodNames = daoManager.getMethodDAO().searchMethodById(classId, selectedVariableId);
         view.updateMethodList(methodNames);
 
         if (methodNames == null || methodNames.isEmpty()) {
@@ -171,8 +153,8 @@ public class TraceabilityController {
         }
         // Ejecutar la lógica relacionada con la selección de elementos en un hilo de fondo
         new Thread(() -> {
-            List<String> usedElementNames = elementDAO.searchElementsUsed(selectedVariableId);
-            String path = pathDAO.getModelBPMNPath(selectedVariableId);
+            List<String> usedElementNames = daoManager.getElementDAO().searchElementsUsed(selectedVariableId);
+            String path = daoManager.getPathDAO().getModelBPMNPath(selectedVariableId);
 
             if (!usedElementNames.isEmpty() && !usedElementNames.get(0).equals("Elemento no encontrado")) {
                 BpmnColor.getInstance().modifyActivityColors(usedElementNames, path);
