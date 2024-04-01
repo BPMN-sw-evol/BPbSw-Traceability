@@ -22,7 +22,7 @@ The applications created in this implementation were developed using the Java pr
 [Camunda Modeler](https://camunda.com/download/modeler/) is a desktop application that provides a graphical user interface for designing BPMN and DMN diagrams. It allows users to visually model their business processes and decision tables using drag-and-drop elements, making it easy to create, edit, and analyze process models.
 ## Applications
 
-1. **BPM-tracer**: program that analyzes a BPMN model by traversing its XML to learn information that helps developers to evolve the sw that supports the model execution. Mainly the execution links of the model activities. This code is used for models executed in the Camunda engine.. [Repository Link](https://github.com/BPMN-sw-evol/BPMN-tracer)
+1. **BPM-tracer**: program that analyzes a BPMN model by traversing its XML to obtain information that helps developers to evolve the sw that supports the model execution. Mainly the execution links of the model activities. This code is used for models executed in the Camunda engine. [Repository Link](https://github.com/BPMN-sw-evol/BPMN-tracer)
 
 2. **biptrac**: program that analyzes the static code of various projects in search of process variables to determine the existing traceability by generating information and persisting it to a MySQL database and in a JSON file. [Repository Link](https://github.com/BPMN-sw-evol/biptrac)
 
