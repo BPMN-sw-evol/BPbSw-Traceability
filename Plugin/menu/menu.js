@@ -3,12 +3,15 @@
 var path = require("path");
 var electron = require("electron");
 
-// var jarPath = path.join(__dirname, "api-traceability-1.0-SNAPSHOT.jar");
-// console.log(jarPath);
-// const comando = 'java -jar '+jarPath.replace("\\menu\\","\\"); // O cualquier comando que sea necesario para ejecutar tu archivo Java
-// const child = exec(comando);
+var jarPath = path.join(__dirname, "api-traceability-1.0-SNAPSHOT.jar");
+const comando = 'java -jar '+jarPath.replace("\\menu\\","\\"); // O cualquier comando que sea necesario para ejecutar tu archivo Java
+const child = exec(comando);
 
 module.exports = function (electronApp, menuState) {
+  electronApp.on('will-quit', () => {
+    fetch('http://localhost:8080/exit')
+  })
+
   return menu(electronApp, menuState);
 }
 
