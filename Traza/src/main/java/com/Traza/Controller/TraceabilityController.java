@@ -31,7 +31,7 @@ public class TraceabilityController {
     }
 
     private void initView() {
-        view.setResizable(false);
+//        view.setResizable(false);
         view.setTitle("TRACEABILITY");
         view.setBImageVisible(false);
         view.setBDiagramVisible(false);
@@ -151,6 +151,7 @@ public class TraceabilityController {
             // Manejar el caso de un ID de variable no válido
             return;
         }
+        view.showProgressBar();
         // Ejecutar la lógica relacionada con la selección de elementos en un hilo de fondo
         new Thread(() -> {
             List<String> usedElementNames = daoManager.getElementDAO().searchElementsUsed(selectedVariableId);
@@ -171,6 +172,7 @@ public class TraceabilityController {
                 // Ocultar la barra de progreso en caso de que no se encuentren elementos
             }
         }).start();
+
     }
 
 
@@ -178,6 +180,8 @@ public class TraceabilityController {
     private void loadImage() {
         String rutaImagen = Paths.get(System.getProperty("user.dir"), "output", "MSGF-Test-Color.png").toString();
         view.displayImage(rutaImagen);
+        view.hideProgressBar();
+
     }
 
     private void openImage() {
