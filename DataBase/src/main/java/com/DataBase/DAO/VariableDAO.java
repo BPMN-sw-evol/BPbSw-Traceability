@@ -69,7 +69,6 @@ public class VariableDAO {
     private int getHistoryIdByDate(Timestamp historyDate) {
         int historyId = -1;
         try {
-            System.out.println("llega aqui");
             String sql = "SELECT id_history FROM history WHERE date = ?";
             ps = connection.prepareStatement(sql);
             ps.setTimestamp(1, historyDate);

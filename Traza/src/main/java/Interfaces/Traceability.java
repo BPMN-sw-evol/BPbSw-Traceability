@@ -89,11 +89,18 @@ public class Traceability extends javax.swing.JFrame {
             if (item.equals(variable)) {
                 // Seleccionar la variable si se encuentra
                 VARIABLES.setSelectedIndex(i);
+                LPROJECTS.setSelectedIndex(0);
+                LCLASSES.setSelectedIndex(0);
                 return; // Salir del método una vez que se encuentra la variable
             }
         }
+
         // Si la variable no se encuentra, mostrar un mensaje de error
-        JOptionPane.showMessageDialog(null, "Error: La variable seleccionada no se encuentra en la lista.", "Error", JOptionPane.ERROR_MESSAGE);
+        int opcion = JOptionPane.showConfirmDialog(null, "La variable seleccionada no se encuentra trazada, ¿Desea generar una traza?", "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+
+        if (opcion == JOptionPane.YES_OPTION) {
+            new DataLoad().dataProcessor();
+        }
     }
 
 
@@ -174,6 +181,7 @@ public class Traceability extends javax.swing.JFrame {
             projectNames.forEach(model::addElement);
             LPROJECTS.setModel(model);
             updateProjectCount(Integer.toString(projectNames.size()));
+            LPROJECTS.setSelectedIndex(0);
         } else {
             DefaultListModel<String> defaultModel = new DefaultListModel<>();
             defaultModel.addElement("Select a variable.");
@@ -187,6 +195,7 @@ public class Traceability extends javax.swing.JFrame {
             classNames.forEach(model::addElement);
             LCLASSES.setModel(model);
             updateClassCount(Integer.toString(classNames.size()));
+            LCLASSES.setSelectedIndex(0);
         } else {
             DefaultListModel<String> defaultModel = new DefaultListModel<>();
             defaultModel.addElement("Project not selected");
