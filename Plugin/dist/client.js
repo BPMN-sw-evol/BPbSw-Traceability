@@ -392,7 +392,10 @@ function addTooltip(elementOverlays, overlays, element, tooltipId) {
 
   variables.forEach(function(elemento) {
     elemento.addEventListener('click', function() {
-      console.log(elemento.textContent);
+      if (!elemento.textContent.includes(":") && v!=elemento.textContent){
+        v = elemento.textContent;
+        fetch('http://localhost:8080/open/traceability?variable='+v)
+      }
     });
   });
 }

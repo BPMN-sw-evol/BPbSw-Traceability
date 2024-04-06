@@ -9,10 +9,10 @@ public class ImageCapture {
     public ImageCapture() {
         try {
             // Ruta relativa al modelo desde la raíz del proyecto
-            String relativePathToModel = Paths.get("Traza/output", "ColorModel.bpmn").toString();
+            String relativePathToModel = Paths.get("output", "ColorModel.bpmn").toString();
 
             // Ruta completa al modelo desde la raíz del proyecto
-            String diagramFile = Paths.get(System.getProperty("user.dir"), relativePathToModel).toString();
+            String diagramFile = Paths.get(System.getProperty("user.dir"),relativePathToModel).toString();
 
             // Nombre del archivo de salida
             String outputConfig = "MSGF-Test-Color.png";
@@ -21,7 +21,7 @@ public class ImageCapture {
             String fullCommand = String.format("bpmn-to-image %s;%s", diagramFile, outputConfig);
 
             // Ruta del directorio que contiene el archivo BPMN
-            Path directorio = Paths.get("Traza/output");
+            Path directorio = Paths.get("output");
 
             // Crear el proceso para ejecutar el comando en el directorio especificado
             ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/C", fullCommand);

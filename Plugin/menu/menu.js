@@ -3,6 +3,24 @@
 var path = require("path");
 var electron = require("electron");
 
+// const { exec } = require('child_process');
+
+// const comando = 'java -jar D:\\Documentos\\EPI\\BPbSw-Traceability\\api-traceability\\target\\api-traceability-1.0-SNAPSHOT.jar'; // O cualquier comando que sea necesario para ejecutar tu archivo Java
+// const child = exec(comando);
+
+// // Manejar la salida del proceso
+// child.stdout.on('data', (data) => {
+//   console.log(`Salida estándar: ${data}`);
+// });
+
+// child.stderr.on('data', (data) => {
+//   console.error(`Error en la salida estándar: ${data}`);
+// });
+
+// child.on('close', (code) => {
+//   console.log(`Proceso hijo finalizado con código de salida ${code}`);
+// });
+
 module.exports = function (electronApp, menuState) {
   return menu(electronApp, menuState);
 }

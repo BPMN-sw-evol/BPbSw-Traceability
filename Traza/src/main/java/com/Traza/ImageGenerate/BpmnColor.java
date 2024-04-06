@@ -10,13 +10,21 @@ import java.util.*;
 public class BpmnColor {
 
     private static BpmnColor instance;
-    private final File archivoTemp = new File(System.getProperty("user.dir") + File.separator + "Traza/output", "ColorModel.bpmn");
+    private final String directorioSalida = System.getProperty("user.dir") + File.separator + "output";
+    private final File carpetaSalida = new File(directorioSalida);
+
+    private final File archivoTemp = new File(directorioSalida, "ColorModel.bpmn");
     private final String stroke = "#0d4372";
     private final String border = "#6b3c00";
 
-    private BpmnColor(){ }
+    private BpmnColor(){
+     }
 
     public void modifyActivityColors(List<String> activityNames, String bpmnFilePath) {
+        if (!carpetaSalida.exists()) {
+            carpetaSalida.mkdirs(); // Crea la carpeta y cualquier directorio padre que falte
+        }
+        
         BpmnModelInstance modelInstance = Bpmn.readModelFromFile(new File(bpmnFilePath));
         List<String> activityIds = findActivityIds(modelInstance, activityNames);
         modifyColor(activityIds, bpmnFilePath);

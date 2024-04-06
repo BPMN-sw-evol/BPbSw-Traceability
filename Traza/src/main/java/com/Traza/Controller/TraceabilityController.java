@@ -176,20 +176,20 @@ public class TraceabilityController {
 
 
     private void loadImage() {
-        String rutaImagen = Paths.get(System.getProperty("user.dir"), "Traza/output", "MSGF-Test-Color.png").toString();
+        String rutaImagen = Paths.get(System.getProperty("user.dir"), "output", "MSGF-Test-Color.png").toString();
         view.displayImage(rutaImagen);
     }
 
     private void openImage() {
         view.addOpenImageListener(e -> {
-            String rutaImagen = Paths.get(System.getProperty("user.dir"), "Traza/output", "MSGF-Test-Color.png").toString();
+            String rutaImagen = Paths.get(System.getProperty("user.dir"), "output", "MSGF-Test-Color.png").toString();
             openFile(rutaImagen);
         });
     }
 
     private void openDiagram() {
         view.addOpenDiagramListener(e -> {
-            String rutaDiagram = Paths.get(System.getProperty("user.dir"), "Traza/output", "ColorModel.bpmn").toString();
+            String rutaDiagram = Paths.get(System.getProperty("user.dir"), "output", "ColorModel.bpmn").toString();
             openFile(rutaDiagram);
         });
     }
