@@ -1,0 +1,260 @@
+{
+  "bpmPath": "C:\\Users\\SOPORTES JPVM\\Desktop\\MSGF-CreditRequest.bpmn",
+  "bpmNameFile": "MSGF-CreditRequest.bpmn",
+  "bpmNameProcess": "MsgFoundation - Credit Request",
+  "trace": [
+    {
+      "taskID": "StartEvent_1",
+      "taskName": "Deseo obtener un crédito con MsgFoundation",
+      "taskType": "Start Event",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Activity_1emma31",
+      "taskName": "Diligenciar formulario de solicitud",
+      "taskType": "User Task",
+      "taskImplementationType": "Generated Task Form",
+      "taskReferenceOrImplementation": "Have a Fields Form",
+      "variables": [
+        "coupleName1",
+        "coupleName2",
+        "coupleEmail1",
+        "coupleEmail2",
+        "creationDate",
+        "codRequest",
+        "applicantCouple",
+        "bothEmployees",
+        "marriageYears",
+        "countReviewsBpm",
+        "pdfSupport",
+        "workSupport"
+      ]
+    },
+    {
+      "taskID": "Activity_0h13zv2",
+      "taskName": "Revisar detalles de solicitud",
+      "taskType": "User Task",
+      "taskImplementationType": "Camunda Form",
+      "taskReferenceOrImplementation": "requestReview",
+      "variables": [
+        "coupleName1",
+        "coupleEmail1",
+        "coupleName2",
+        "coupleEmail2",
+        "creationDate",
+        "bothEmployees",
+        "marriageYears",
+        "countReviewsBpm",
+        "workSupport"
+      ]
+    },
+    {
+      "taskID": "Activity_0pz6k7s",
+      "taskName": "Consultar información financiera",
+      "taskType": "Service Task",
+      "taskImplementationType": "Java Class",
+      "taskReferenceOrImplementation": "com.msgfoundation.delegation.DatabaseServiceTaskDelegate",
+      "variables": [
+        "coupleSavings",
+        "quotaValue",
+        "housePrices",
+        "codRequest"
+      ]
+    },
+    {
+      "taskID": "Activity_0rzlyv4",
+      "taskName": "Evaluar credito",
+      "taskType": "User Task",
+      "taskImplementationType": "Generated Task Form",
+      "taskReferenceOrImplementation": "Have a Fields Form",
+      "variables": [
+        "coupleSavings",
+        "housePrices",
+        "quotaValue",
+        "isValid",
+        "bothEmployees",
+        "marriageYears",
+        "workSupport"
+      ]
+    },
+    {
+      "taskID": "Activity_15y8fg5",
+      "taskName": "Revisar soportes de solicitud",
+      "taskType": "User Task",
+      "taskImplementationType": "Generated Task Form",
+      "taskReferenceOrImplementation": "Have a Fields Form",
+      "variables": [
+        "pdfSupport",
+        "workSupport",
+        "validSupports"
+      ]
+    },
+    {
+      "taskID": "Activity_14drlg2",
+      "taskName": "Informar solicitud anulada por incumplimiento",
+      "taskType": "Send Task",
+      "taskImplementationType": "Delegate Expression",
+      "taskReferenceOrImplementation": "#{requestReject}",
+      "variables": [
+        "coupleName1",
+        "coupleEmail1",
+        "coupleName2",
+        "coupleEmail2",
+        "pdfSupport",
+        "workSupport"
+      ]
+    },
+    {
+      "taskID": "Event_0koz45z",
+      "taskName": "solicitud anulada por incumplimiento",
+      "taskType": "End Event",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Activity_012ypn5",
+      "taskName": "Determinar viabilidad financiera",
+      "taskType": "User Task",
+      "taskImplementationType": "Generated Task Form",
+      "taskReferenceOrImplementation": "Have a Fields Form",
+      "variables": [
+        "legalConcept"
+      ]
+    },
+    {
+      "taskID": "Activity_1es89wk",
+      "taskName": "Informar concepto jurídico no viable",
+      "taskType": "Send Task",
+      "taskImplementationType": "Java Class",
+      "taskReferenceOrImplementation": "com.msgfoundation.messages.RequestInviableDelegate",
+      "variables": [
+        "coupleName1",
+        "coupleEmail1",
+        "coupleName2",
+        "coupleEmail2",
+        "quotaValue",
+        "coupleSavings",
+        "housePrices"
+      ]
+    },
+    {
+      "taskID": "Event_1j6gctc",
+      "taskName": "Solicitud con concepto jurídico no viable",
+      "taskType": "End Event",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Activity_0hyf97s",
+      "taskName": "Aprobar proceso de pago",
+      "taskType": "User Task",
+      "taskImplementationType": "Camunda Form",
+      "taskReferenceOrImplementation": "paymentApproval"
+    },
+    {
+      "taskID": "Activity_0fra7nj",
+      "taskName": "Informar desembolso a pareja y a vendedor",
+      "taskType": "Send Task",
+      "taskImplementationType": "Connector",
+      "taskReferenceOrImplementation": "http-connector",
+      "variables": [
+        "coupleName1",
+        "coupleEmail1",
+        "coupleName2",
+        "coupleEmail2",
+        "housePrices",
+        "quotaValue"
+      ]
+    },
+    {
+      "taskID": "Event_06o7665",
+      "taskName": "Solicitud finalizada",
+      "taskType": "End Event",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Activity_0ix3pe0",
+      "taskName": "Calcular cuota de manejo",
+      "taskType": "Service Task",
+      "taskImplementationType": "Expression",
+      "taskReferenceOrImplementation": "value1"
+    },
+    {
+      "taskID": "Activity_0cgomcg",
+      "taskName": "Realizar desembolso",
+      "taskType": "Service Task",
+      "taskImplementationType": "Connector",
+      "taskReferenceOrImplementation": "http-connector"
+    },
+    {
+      "taskID": "Activity_0wssoib",
+      "taskName": "Informar rechazo de solicitud",
+      "taskType": "Send Task",
+      "taskImplementationType": "Java Class",
+      "taskReferenceOrImplementation": "com.msgfoundation.messages.RequestRejectByCommitteeDelegate",
+      "variables": [
+        "coupleName1",
+        "coupleEmail1",
+        "coupleName2",
+        "coupleEmail2",
+        "pdfSupport",
+        "bothEmployees"
+      ]
+    },
+    {
+      "taskID": "Event_064w5sm",
+      "taskName": "Solicitud rechazada",
+      "taskType": "End Event",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    },
+    {
+      "taskID": "Activity_0r194vo",
+      "taskName": "Habilitar edición formulario",
+      "taskType": "Service Task",
+      "taskImplementationType": "Delegate Expression",
+      "taskReferenceOrImplementation": "#{activateForm}",
+      "variables": [
+        "codRequest"
+      ]
+    },
+    {
+      "taskID": "Activity_0n39p7y",
+      "taskName": "Informar inconsistencias",
+      "taskType": "Send Task",
+      "taskImplementationType": "Java Class",
+      "taskReferenceOrImplementation": "com.msgfoundation.messages.InconsistenciesDelegate",
+      "variables": [
+        "coupleName1",
+        "coupleEmail1",
+        "coupleName2",
+        "coupleEmail2",
+        "creationDate",
+        "workSupport"
+      ]
+    },
+    {
+      "taskID": "Event_19e8a1c",
+      "taskName": "Mensaje de inconsistencias ajustadas",
+      "taskType": "Message Intermediate Event",
+      "taskImplementationType": "hayIncosistencias",
+      "taskReferenceOrImplementation": "hayIncosistencias"
+    },
+    {
+      "taskID": "Event_081wxiz",
+      "taskName": "15 días",
+      "taskType": "Timer Intermediate Event",
+      "taskImplementationType": "Duration",
+      "taskReferenceOrImplementation": "P15D"
+    },
+    {
+      "taskID": "Event_0sf663o",
+      "taskName": "Solicitud cancelada por inconsistencias",
+      "taskType": "End Event",
+      "taskImplementationType": "None",
+      "taskReferenceOrImplementation": "None"
+    }
+  ]
+}
