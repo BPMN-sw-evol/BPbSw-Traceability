@@ -1,0 +1,16 @@
+# Traceability Tool
+# Configuration for running with docker compose 
+
+version: '3'
+
+services:
+  traceability_db:
+    image: mysql:latest
+    container_name: db_traceability
+    environment:
+      MYSQL_DATABASE: db_traceability
+      MYSQL_ROOT_PASSWORD: mysql
+    ports:
+      - "3326:3306"
+    volumes:
+      - .\Traza\Doc\DataBase\db_traceability:/docker-entrypoint-initdb.d

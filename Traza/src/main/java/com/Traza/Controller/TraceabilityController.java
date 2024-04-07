@@ -31,7 +31,7 @@ public class TraceabilityController {
     }
 
     private void initView() {
-//        view.setResizable(false);
+        view.setResizable(false);
         view.setTitle("TRACEABILITY");
         view.setBImageVisible(false);
         view.setBDiagramVisible(false);
@@ -45,7 +45,6 @@ public class TraceabilityController {
     public void loadHistory() {
         try {
             List<Timestamp> historyIDs = daoManager.getHistoryDAO().getAllHistorys();
-            historyIDs.addFirst(null);
             if (!historyIDs.isEmpty()) {
                 view.updateComboBoxHistory(historyIDs);
             } else {
@@ -73,12 +72,14 @@ public class TraceabilityController {
     }
 
     public void handleHistorySelection() {
-        Timestamp selectedHistory = view.getSelectedHistory();
+        Object selectedHistory = view.getSelectedHistory();
 
-        if (selectedHistory != null) {
-            loadVariableNames(selectedHistory);
+        if (!selectedHistory.toString().equals("Select a Version")) {
+            loadVariableNames((Timestamp) selectedHistory);
         } else {
             view.resetVariablesComboBox();
+            view.setBImageVisible(false);
+            view.setBDiagramVisible(false);
 
         }
     }
@@ -105,15 +106,11 @@ public class TraceabilityController {
                 view.updateMethodCount("0");
             }
 
-            view.setBImageVisible(true);
-            view.setBDiagramVisible(true);
         } else {
             view.updateProjectsList(null);
             view.updateProcessName("Select a variable");
             view.updateParticipant("Select a variable");
             view.updateImageIcon();
-            view.setBImageVisible(false);
-            view.setBDiagramVisible(false);
         }
     }
 
@@ -181,6 +178,8 @@ public class TraceabilityController {
         String rutaImagen = Paths.get(System.getProperty("user.dir"), "output", "MSGF-Test-Color.png").toString();
         view.displayImage(rutaImagen);
         view.hideProgressBar();
+        view.setBImageVisible(true);
+        view.setBDiagramVisible(true);
 
     }
 

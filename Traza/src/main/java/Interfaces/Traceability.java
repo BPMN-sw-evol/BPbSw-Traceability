@@ -8,14 +8,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.basic.BasicProgressBarUI;
 
 public class Traceability extends javax.swing.JFrame {
 
@@ -100,6 +98,7 @@ public class Traceability extends javax.swing.JFrame {
 
         if (opcion == JOptionPane.YES_OPTION) {
             new DataLoad().dataProcessor();
+            controller.loadHistory();
         }
     }
 
@@ -110,8 +109,8 @@ public class Traceability extends javax.swing.JFrame {
     }
 
     // Metodos para obtener el elemento
-    public Timestamp getSelectedHistory() {
-        return (HISTORY.getSelectedItem() != null) ? ((Timestamp) HISTORY.getSelectedItem()) : null;
+    public Object getSelectedHistory() {
+        return (HISTORY.getSelectedItem() != null) ? (HISTORY.getSelectedItem()) : null;
     }
 
     public String getSelectedVariable() {
@@ -129,16 +128,17 @@ public class Traceability extends javax.swing.JFrame {
 
     // Métodos para establecer la visibilidad de los botones BImage y BDiagram
     public void setBImageVisible(boolean visible) {
-        BIMAGE.setVisible(visible);
+        BIMAGE.setEnabled(visible);
     }
 
     public void setBDiagramVisible(boolean visible) {
-        BDIAGRAM.setVisible(visible);
+        BDIAGRAM.setEnabled(visible);
     }
 
     // Metodos para actualizar los diferentes campos en la vista
     public void updateComboBoxHistory(List<Timestamp> items) {
         HISTORY.removeAllItems();
+        HISTORY.addItem("Select a Version");
         items.forEach(HISTORY::addItem);
     }
 
@@ -274,7 +274,7 @@ public class Traceability extends javax.swing.JFrame {
         LOAD = new javax.swing.JButton();
         BIMAGE = new javax.swing.JButton();
         BDIAGRAM = new javax.swing.JButton();
-        HISTORY = new javax.swing.JComboBox<>();
+        HISTORY = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
         JMODEL = new javax.swing.JLabel();
         PMETHODS = new javax.swing.JPanel();
@@ -415,6 +415,9 @@ public class Traceability extends javax.swing.JFrame {
 
         PROGRESSBAR.setFocusable(false);
         PROGRESSBAR.setIndeterminate(true);
+        PROGRESSBAR.setMaximumSize(new java.awt.Dimension(792, 9));
+        PROGRESSBAR.setMinimumSize(new java.awt.Dimension(792, 9));
+        PROGRESSBAR.setPreferredSize(new java.awt.Dimension(792, 9));
         PROGRESSBAR.setRequestFocusEnabled(false);
         PROGRESSBAR.setVerifyInputWhenFocusTarget(false);
 
@@ -428,27 +431,31 @@ public class Traceability extends javax.swing.JFrame {
         VARIABLES.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         VARIABLES.setMaximumRowCount(100);
         VARIABLES.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select a version" }));
+        VARIABLES.setBorder(null);
         VARIABLES.setName("Select a variable"); // NOI18N
 
         LOAD.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         LOAD.setText("Generate New Trace");
-        LOAD.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        LOAD.setBorder(null);
         LOAD.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         LOAD.setPreferredSize(new java.awt.Dimension(80, 26));
 
         BIMAGE.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         BIMAGE.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image.png"))); // NOI18N
         BIMAGE.setText("Open Image");
-        BIMAGE.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        BIMAGE.setBorder(null);
         BIMAGE.setPreferredSize(new java.awt.Dimension(150, 35));
 
         BDIAGRAM.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         BDIAGRAM.setIcon(new javax.swing.ImageIcon(getClass().getResource("/diagram.png"))); // NOI18N
         BDIAGRAM.setText("Open Diagram");
-        BDIAGRAM.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        BDIAGRAM.setBorder(null);
         BDIAGRAM.setPreferredSize(new java.awt.Dimension(150, 35));
 
         HISTORY.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        HISTORY.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Select a Version" }));
+        HISTORY.setSelectedItem("Select a Version");
+        HISTORY.setBorder(null);
         HISTORY.setMinimumSize(new java.awt.Dimension(40, 31));
         HISTORY.setName(""); // NOI18N
         HISTORY.setPreferredSize(new java.awt.Dimension(40, 31));
@@ -458,10 +465,10 @@ public class Traceability extends javax.swing.JFrame {
 
         JMODEL.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         JMODEL.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images.png"))); // NOI18N
-        JMODEL.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         JMODEL.setFocusable(false);
         JMODEL.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         JMODEL.setInheritsPopupMenu(false);
+        JMODEL.setMinimumSize(new java.awt.Dimension(792, 396));
         JMODEL.setPreferredSize(new java.awt.Dimension(792, 396));
         JMODEL.setRequestFocusEnabled(false);
         JMODEL.setVerifyInputWhenFocusTarget(false);
@@ -556,15 +563,16 @@ public class Traceability extends javax.swing.JFrame {
                                 .addComponent(PMETHODS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                     .addGroup(CONTENEDORLayout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(PROGRESSBAR, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(JMODEL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(44, 44, 44)
                         .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(BIMAGE, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(BDIAGRAM, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(PROGRESSBAR, javax.swing.GroupLayout.PREFERRED_SIZE, 792, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(CONTENEDORLayout.createSequentialGroup()
+                                .addComponent(JMODEL, javax.swing.GroupLayout.PREFERRED_SIZE, 792, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(81, 81, 81)
+                                .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(BIMAGE, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(BDIAGRAM, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addGap(14, 14, 14)))
-                .addContainerGap())
+                .addGap(7, 7, 7))
         );
         CONTENEDORLayout.setVerticalGroup(
             CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -587,18 +595,18 @@ public class Traceability extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CONTENEDORLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(JMODEL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(CONTENEDORLayout.createSequentialGroup()
                         .addGap(149, 149, 149)
-                        .addComponent(BIMAGE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(BIMAGE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(51, 51, 51)
-                        .addComponent(BDIAGRAM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(131, 131, 131)))
-                .addGap(1, 1, 1)
-                .addComponent(PROGRESSBAR, javax.swing.GroupLayout.PREFERRED_SIZE, 9, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(BDIAGRAM, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(150, 150, 150))
+                    .addGroup(CONTENEDORLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(JMODEL, javax.swing.GroupLayout.PREFERRED_SIZE, 397, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(PROGRESSBAR, javax.swing.GroupLayout.PREFERRED_SIZE, 9, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(CONTENEDORLayout.createSequentialGroup()
                         .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -622,14 +630,14 @@ public class Traceability extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addComponent(CONTENEDOR, javax.swing.GroupLayout.PREFERRED_SIZE, 1132, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addComponent(CONTENEDOR, javax.swing.GroupLayout.PREFERRED_SIZE, 705, Short.MAX_VALUE)
                 .addContainerGap())
         );
@@ -677,7 +685,7 @@ public class Traceability extends javax.swing.JFrame {
     public javax.swing.JLabel CountClasses;
     public javax.swing.JLabel CountMethods;
     public javax.swing.JLabel CountProjects;
-    public javax.swing.JComboBox<Timestamp> HISTORY;
+    public javax.swing.JComboBox HISTORY;
     public javax.swing.JLabel JMODEL;
     public javax.swing.JList<String> LCLASSES;
     public javax.swing.JList<String> LMETHODS;

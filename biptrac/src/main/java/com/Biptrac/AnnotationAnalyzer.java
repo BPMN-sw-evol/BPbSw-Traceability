@@ -197,7 +197,7 @@ public class AnnotationAnalyzer {
             String currentDirectory = System.getProperty("user.dir");
 
             // Crear el directorio "output" si no existe
-            String outputDirectory = currentDirectory + File.separator + "biptrac/output";
+            String outputDirectory = currentDirectory + File.separator + "biptrac/JSONResult";
             Path outputPath = Paths.get(outputDirectory);
             if (!Files.exists(outputPath)) {
                 Files.createDirectories(outputPath);

@@ -102,7 +102,7 @@ public class CamundaElement {
             String currentDirectory = System.getProperty("user.dir");
 
             // Crear el directorio "output" si no existe
-            String outputDirectory = currentDirectory + File.separator + "BPMN-tracer/output";
+            String outputDirectory = currentDirectory + File.separator + "BPMN-tracer/JSONResult";
             Path outputPath = Paths.get(outputDirectory);
             if (!Files.exists(outputPath)) {
                 Files.createDirectories(outputPath);
