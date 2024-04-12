@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.34, for Win64 (x86_64)
 --
--- Host: localhost    Database: db_traceability
+-- Host: localhost    Database: dbTraceability
 -- ------------------------------------------------------
 -- Server version	8.0.33
 
@@ -16,33 +16,31 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `element`
+-- Table structure for table `used_by_method`
 --
 
-DROP TABLE IF EXISTS `element`;
+-- Verificar si la tabla existe
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `element` (
-  `id_element` int NOT NULL AUTO_INCREMENT,
-  `id_element_type` int NOT NULL,
-  `element_name` varchar(100) NOT NULL,
-  `lane` varchar(100) NOT NULL,
-  `id_process` int NOT NULL,
-  PRIMARY KEY (`id_element`),
-  KEY `id_element_type_idx` (`id_element_type`),
-  KEY `id_process_idx` (`id_process`),
-  CONSTRAINT `id_element_type` FOREIGN KEY (`id_element_type`) REFERENCES `element_type` (`id_element_type`),
-  CONSTRAINT `id_process` FOREIGN KEY (`id_process`) REFERENCES `process` (`id_process`)
+CREATE TABLE IF NOT EXISTS `used_by_method` (
+                                  `id_used_by_method` int NOT NULL AUTO_INCREMENT,
+                                  `id_variable` int NOT NULL,
+                                  `id_method` int NOT NULL,
+                                  `modify` tinyint NOT NULL,
+                                  PRIMARY KEY (`id_used_by_method`),
+                                  KEY `id_variable_idx` (`id_variable`),
+                                  KEY `id_method_idx` (`id_method`),
+                                  CONSTRAINT `id_method` FOREIGN KEY (`id_method`) REFERENCES `method` (`id_method`),
+                                  CONSTRAINT `id_variable` FOREIGN KEY (`id_variable`) REFERENCES `variable` (`id_variable`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `element`
+-- Dumping data for table `used_by_method`
 --
 
-LOCK TABLES `element` WRITE;
-/*!40000 ALTER TABLE `element` DISABLE KEYS */;
-/*!40000 ALTER TABLE `element` ENABLE KEYS */;
+LOCK TABLES `used_by_method` WRITE;
+/*!40000 ALTER TABLE `used_by_method` DISABLE KEYS */;
+/*!40000 ALTER TABLE `used_by_method` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

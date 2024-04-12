@@ -104,4 +104,39 @@ public class VariableDAO {
         }
     }
 
+    public List<Integer> getVariablesHistory(int id_history) {
+        List<Integer> variables = new ArrayList<>();
+        try {
+            String sql = "SELECT id_variable FROM variable WHERE id_history = ?";
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, id_history);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Integer variable = rs.getInt("id_variable");
+                if (variable != null) {
+                    variables.add(variable);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la búsqueda: " + e);
+        } finally {
+            // Cerrar recursos (ps, rs) aquí si es necesario
+        }
+        return variables;
+    }
+
+    public boolean deleteVariable(int history) {
+        try {
+            String sql = "DELETE FROM variable WHERE id_history = ?";
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, history);
+            int filasAfectadas = ps.executeUpdate();
+            return filasAfectadas > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la eliminación: " + e);
+            return false;
+        }
+    }
+
 }

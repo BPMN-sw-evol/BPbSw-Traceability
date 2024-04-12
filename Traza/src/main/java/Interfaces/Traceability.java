@@ -17,7 +17,9 @@ import javax.swing.event.ListSelectionListener;
 
 public class Traceability extends javax.swing.JFrame {
 
-    private TraceabilityController controller;
+    private final DataLoad dataLoad = new DataLoad();
+    private final TraceabilityController controller;
+    private boolean flag = false;
 
     public Traceability() {
 
@@ -25,9 +27,11 @@ public class Traceability extends javax.swing.JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowOpened(WindowEvent e) {
-                updateImageIcon();
+                updateImageIcon("/images.png");
+                PMENU.setVisible(flag);
             }
         });
+        
         controller = new TraceabilityController(this);
 
         HISTORY.addActionListener(new ActionListener() {
@@ -36,11 +40,14 @@ public class Traceability extends javax.swing.JFrame {
                 controller.handleHistorySelection();
             }
         });
+
         VARIABLES.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 controller.handleVariableSelection();
                 controller.handleElementSelection();
+                flag = false;
+                PMENU.setVisible(flag);
             }
         });
 
@@ -61,12 +68,26 @@ public class Traceability extends javax.swing.JFrame {
                 }
             }
         });
+        
+        BMENU.addActionListener(e -> {
+            flag = flag != true;
+            PMENU.setVisible(flag);
+        });
 
-        LOAD.addActionListener(e -> {
-            if (new DataLoad().dataProcessor()) {
+        BLOAD.addActionListener(e -> {
+            if (dataLoad.dataProcessor()) {
                 controller.loadHistory();
             }
         });
+
+        BDELETE.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dataLoad.deleteData((Timestamp) getSelectedHistory());
+                controller.loadHistory();
+            }
+        });
+        
 
     }
 
@@ -105,12 +126,12 @@ public class Traceability extends javax.swing.JFrame {
 
     public void resetVariablesComboBox() {
         VARIABLES.removeAllItems();
-        VARIABLES.addItem("Choose a version");
+        VARIABLES.addItem("Select a version");
     }
 
     // Metodos para obtener el elemento
     public Object getSelectedHistory() {
-        return (HISTORY.getSelectedItem() != null) ? (HISTORY.getSelectedItem()) : null;
+        return (HISTORY.getSelectedItem() != null) ? (HISTORY.getSelectedItem()) : "Select a Version";
     }
 
     public String getSelectedVariable() {
@@ -139,12 +160,13 @@ public class Traceability extends javax.swing.JFrame {
     public void updateComboBoxHistory(List<Timestamp> items) {
         HISTORY.removeAllItems();
         HISTORY.addItem("Select a Version");
-        items.forEach(HISTORY::addItem);
+        if (items != null) items.forEach(HISTORY::addItem);
     }
 
     public void updateComboBoxVariables(List<String> items) {
         VARIABLES.removeAllItems();
-        items.forEach(VARIABLES::addItem);
+        VARIABLES.addItem("Select a variable");
+        if (items != null) items.forEach(VARIABLES::addItem);
     }
 
     public void updateProcessName(String processName) {
@@ -167,8 +189,8 @@ public class Traceability extends javax.swing.JFrame {
         CountMethods.setText(count);
     }
 
-    public void updateImageIcon() {
-        JMODEL.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/images.png"))));
+    public void updateImageIcon(String icon) {
+        JMODEL.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(icon))));
     }
 
     public void updateContainerText(String containerName) {
@@ -226,16 +248,6 @@ public class Traceability extends javax.swing.JFrame {
         JMODEL.setIcon(scaledIcon);
     }
 
-    public void showProgressBar (){
-// Establecer colores de fondo y de la barra de progreso
-        PROGRESSBAR.setForeground(Color.red); // Color de la barra de progreso
-        PROGRESSBAR.setVisible(true);
-    }
-
-    public void hideProgressBar (){
-        PROGRESSBAR.setVisible(false);
-    }
-
     public void addOpenImageListener(ActionListener listener) {
         BIMAGE.addActionListener(listener);
     }
@@ -252,7 +264,6 @@ public class Traceability extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jFrame1 = new javax.swing.JFrame();
         CONTENEDOR = new javax.swing.JPanel();
         PARTICIPANT = new javax.swing.JLabel();
         PROCESS = new javax.swing.JLabel();
@@ -266,12 +277,11 @@ public class Traceability extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         LCLASSES = new javax.swing.JList<>();
         CountClasses = new javax.swing.JLabel();
-        PROGRESSBAR = new javax.swing.JProgressBar();
         jLabel4 = new javax.swing.JLabel();
         CONTAINER = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         VARIABLES = new javax.swing.JComboBox<>();
-        LOAD = new javax.swing.JButton();
+        BMENU = new javax.swing.JButton();
         BIMAGE = new javax.swing.JButton();
         BDIAGRAM = new javax.swing.JButton();
         HISTORY = new javax.swing.JComboBox();
@@ -282,17 +292,10 @@ public class Traceability extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         LMETHODS = new javax.swing.JList<>();
         CountMethods = new javax.swing.JLabel();
-
-        javax.swing.GroupLayout jFrame1Layout = new javax.swing.GroupLayout(jFrame1.getContentPane());
-        jFrame1.getContentPane().setLayout(jFrame1Layout);
-        jFrame1Layout.setHorizontalGroup(
-            jFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        jFrame1Layout.setVerticalGroup(
-            jFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        PMENU = new javax.swing.JPanel();
+        BLOAD = new javax.swing.JButton();
+        BDELETE = new javax.swing.JButton();
+        BANNOTATION = new javax.swing.JButton();
 
         CONTENEDOR.setBackground(new java.awt.Color(255, 255, 255));
         CONTENEDOR.setEnabled(false);
@@ -413,14 +416,6 @@ public class Traceability extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        PROGRESSBAR.setFocusable(false);
-        PROGRESSBAR.setIndeterminate(true);
-        PROGRESSBAR.setMaximumSize(new java.awt.Dimension(792, 9));
-        PROGRESSBAR.setMinimumSize(new java.awt.Dimension(792, 9));
-        PROGRESSBAR.setPreferredSize(new java.awt.Dimension(792, 9));
-        PROGRESSBAR.setRequestFocusEnabled(false);
-        PROGRESSBAR.setVerifyInputWhenFocusTarget(false);
-
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel4.setText("CONTAINER");
         jLabel4.setFocusable(false);
@@ -434,11 +429,16 @@ public class Traceability extends javax.swing.JFrame {
         VARIABLES.setBorder(null);
         VARIABLES.setName("Select a variable"); // NOI18N
 
-        LOAD.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        LOAD.setText("Generate New Trace");
-        LOAD.setBorder(null);
-        LOAD.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        LOAD.setPreferredSize(new java.awt.Dimension(80, 26));
+        BMENU.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        BMENU.setIcon(new javax.swing.ImageIcon(getClass().getResource("/menuIcon.png"))); // NOI18N
+        BMENU.setBorder(null);
+        BMENU.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        BMENU.setPreferredSize(new java.awt.Dimension(80, 26));
+        BMENU.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BMENUActionPerformed(evt);
+            }
+        });
 
         BIMAGE.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         BIMAGE.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image.png"))); // NOI18N
@@ -527,6 +527,43 @@ public class Traceability extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        PMENU.setBackground(new java.awt.Color(255, 255, 255));
+
+        BLOAD.setText("Generate New Trace");
+        BLOAD.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BLOADActionPerformed(evt);
+            }
+        });
+
+        BDELETE.setText("Delete the Version");
+
+        BANNOTATION.setText("Generate Annotations");
+
+        javax.swing.GroupLayout PMENULayout = new javax.swing.GroupLayout(PMENU);
+        PMENU.setLayout(PMENULayout);
+        PMENULayout.setHorizontalGroup(
+            PMENULayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PMENULayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PMENULayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(BANNOTATION, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(BDELETE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(BLOAD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        PMENULayout.setVerticalGroup(
+            PMENULayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PMENULayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(BLOAD)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(BDELETE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(BANNOTATION)
+                .addContainerGap(13, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout CONTENEDORLayout = new javax.swing.GroupLayout(CONTENEDOR);
         CONTENEDOR.setLayout(CONTENEDORLayout);
         CONTENEDORLayout.setHorizontalGroup(
@@ -535,22 +572,8 @@ public class Traceability extends javax.swing.JFrame {
                 .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(CONTENEDORLayout.createSequentialGroup()
                         .addGap(12, 12, 12)
-                        .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jSeparator1)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CONTENEDORLayout.createSequentialGroup()
-                                .addGap(4, 4, 4)
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(HISTORY, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGap(18, 18, 18)
-                                .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGap(18, 18, 18)
-                                .addComponent(LOAD, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(CONTENEDORLayout.createSequentialGroup()
+                        .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, CONTENEDORLayout.createSequentialGroup()
                                 .addComponent(PPROJECTS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -560,19 +583,37 @@ public class Traceability extends javax.swing.JFrame {
                                         .addGap(27, 27, 27)
                                         .addComponent(CONTAINER)))
                                 .addGap(55, 55, 55)
-                                .addComponent(PMETHODS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                .addComponent(PMETHODS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(CONTENEDORLayout.createSequentialGroup()
+                                .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(CONTENEDORLayout.createSequentialGroup()
+                                        .addComponent(jLabel1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(HISTORY, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(VARIABLES, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(45, 45, 45)
+                                        .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(PMENU, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addGroup(CONTENEDORLayout.createSequentialGroup()
+                                                .addComponent(PARTICIPANT, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(31, 31, 31)
+                                                .addComponent(PROCESS, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(BMENU, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(jSeparator1))
+                                .addGap(16, 16, 16))))
                     .addGroup(CONTENEDORLayout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(PROGRESSBAR, javax.swing.GroupLayout.PREFERRED_SIZE, 792, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(CONTENEDORLayout.createSequentialGroup()
                                 .addComponent(JMODEL, javax.swing.GroupLayout.PREFERRED_SIZE, 792, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(81, 81, 81)
+                                .addGap(72, 72, 72)
                                 .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(BIMAGE, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(BDIAGRAM, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(14, 14, 14)))
-                .addGap(7, 7, 7))
+                        .addGap(25, 25, 25)))
+                .addContainerGap())
         );
         CONTENEDORLayout.setVerticalGroup(
             CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -583,30 +624,26 @@ public class Traceability extends javax.swing.JFrame {
                         .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(HISTORY, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(VARIABLES))
+                            .addComponent(VARIABLES)
+                            .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(7, 7, 7))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CONTENEDORLayout.createSequentialGroup()
-                        .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(PROCESS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(PARTICIPANT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CONTENEDORLayout.createSequentialGroup()
-                        .addComponent(LOAD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                    .addComponent(BMENU, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(CONTENEDORLayout.createSequentialGroup()
-                        .addGap(149, 149, 149)
-                        .addComponent(BIMAGE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(51, 51, 51)
-                        .addComponent(BDIAGRAM, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(150, 150, 150))
-                    .addGroup(CONTENEDORLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(JMODEL, javax.swing.GroupLayout.PREFERRED_SIZE, 397, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(PROGRESSBAR, javax.swing.GroupLayout.PREFERRED_SIZE, 9, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE))
+                    .addGroup(CONTENEDORLayout.createSequentialGroup()
+                        .addComponent(PMENU, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(37, 37, 37)
+                        .addComponent(BIMAGE, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(50, 50, 50)
+                        .addComponent(BDIAGRAM, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(CONTENEDORLayout.createSequentialGroup()
                         .addGroup(CONTENEDORLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -620,7 +657,7 @@ public class Traceability extends javax.swing.JFrame {
                             .addComponent(PMETHODS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(PCLASSES, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(PPROJECTS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap(16, Short.MAX_VALUE))))
         );
 
         HISTORY.getAccessibleContext().setAccessibleName("");
@@ -638,12 +675,20 @@ public class Traceability extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(CONTENEDOR, javax.swing.GroupLayout.PREFERRED_SIZE, 705, Short.MAX_VALUE)
+                .addComponent(CONTENEDOR, javax.swing.GroupLayout.DEFAULT_SIZE, 729, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void BLOADActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BLOADActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BLOADActionPerformed
+
+    private void BMENUActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BMENUActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BMENUActionPerformed
 
     public static Traceability instance;
 
@@ -651,7 +696,7 @@ public class Traceability extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -678,30 +723,32 @@ public class Traceability extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    public javax.swing.JButton BDIAGRAM;
-    public javax.swing.JButton BIMAGE;
-    public javax.swing.JLabel CONTAINER;
-    public javax.swing.JPanel CONTENEDOR;
-    public javax.swing.JLabel CountClasses;
-    public javax.swing.JLabel CountMethods;
-    public javax.swing.JLabel CountProjects;
-    public javax.swing.JComboBox HISTORY;
-    public javax.swing.JLabel JMODEL;
-    public javax.swing.JList<String> LCLASSES;
-    public javax.swing.JList<String> LMETHODS;
-    public javax.swing.JButton LOAD;
-    public javax.swing.JList<String> LPROJECTS;
-    public javax.swing.JLabel PARTICIPANT;
-    public javax.swing.JPanel PCLASSES;
-    public javax.swing.JPanel PMETHODS;
+    private javax.swing.JButton BANNOTATION;
+    private javax.swing.JButton BDELETE;
+    private javax.swing.JButton BDIAGRAM;
+    private javax.swing.JButton BIMAGE;
+    private javax.swing.JButton BLOAD;
+    private javax.swing.JButton BMENU;
+    private javax.swing.JLabel CONTAINER;
+    private javax.swing.JPanel CONTENEDOR;
+    private javax.swing.JLabel CountClasses;
+    private javax.swing.JLabel CountMethods;
+    private javax.swing.JLabel CountProjects;
+    private javax.swing.JComboBox HISTORY;
+    private javax.swing.JLabel JMODEL;
+    private javax.swing.JList<String> LCLASSES;
+    private javax.swing.JList<String> LMETHODS;
+    private javax.swing.JList<String> LPROJECTS;
+    private javax.swing.JLabel PARTICIPANT;
+    private javax.swing.JPanel PCLASSES;
+    private javax.swing.JPanel PMENU;
+    private javax.swing.JPanel PMETHODS;
     private javax.swing.JPanel PPROJECTS;
     private javax.swing.JLabel PROCESS;
-    private javax.swing.JProgressBar PROGRESSBAR;
-    public javax.swing.JComboBox<String> VARIABLES;
-    private javax.swing.JFrame jFrame1;
+    private javax.swing.JComboBox<String> VARIABLES;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
-    public javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JScrollPane jScrollPane1;

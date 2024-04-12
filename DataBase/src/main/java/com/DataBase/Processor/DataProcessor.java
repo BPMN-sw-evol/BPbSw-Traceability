@@ -6,28 +6,21 @@ import com.DataBase.Extraction.BPMNInfoExtractor;
 import com.DataBase.Extraction.ProjectInfoExtractor;
 import org.json.JSONObject;
 
+import java.sql.Timestamp;
+
+
 public class DataProcessor {
-    private final commonDataExtraction commonDataExtractor;
-    private final BPMNInfoExtractor bpmnDataExtractor;
-    private final ProjectInfoExtractor projectDataExtractor;
 
-    public DataProcessor(JSONObject projectFilePath, JSONObject bpmnFilePath, String name) {
-        // Inicializar instancias de los extractores de datos
-        commonDataExtractor = new commonDataExtraction(projectFilePath, bpmnFilePath, name);
-        bpmnDataExtractor = new BPMNInfoExtractor(bpmnFilePath);
-        projectDataExtractor = new ProjectInfoExtractor(projectFilePath);
-
-        // Ejecutar los métodos de extracción e inserción
-        executeAllExtractors();
+    public void executeAllExtractors(JSONObject projectFilePath, JSONObject bpmnFilePath, String name) {
+        new BPMNInfoExtractor(bpmnFilePath).insertData();
+        new ProjectInfoExtractor(projectFilePath).insertData();
+        new commonDataExtraction(projectFilePath, bpmnFilePath, name).insertData();
     }
 
-    private void executeAllExtractors() {
-        executeExtractor(bpmnDataExtractor);
-        executeExtractor(projectDataExtractor);
-        executeExtractor(commonDataExtractor);
+    public void executeAllDeletes(Timestamp date ) {
+        new BPMNInfoExtractor().deleteData(date);
+        new ProjectInfoExtractor().deleteData(date);
+        new commonDataExtraction().deleteData(date);
     }
 
-    private void executeExtractor(IDataExtractor extractor) {
-        extractor.insertData();
-    }
 }

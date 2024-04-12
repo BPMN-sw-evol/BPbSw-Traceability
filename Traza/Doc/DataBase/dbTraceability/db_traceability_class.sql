@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.34, for Win64 (x86_64)
 --
--- Host: localhost    Database: db_traceability
+-- Host: localhost    Database: dbTraceability
 -- ------------------------------------------------------
 -- Server version	8.0.33
 
@@ -16,32 +16,29 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `used_by_method`
+-- Table structure for table `class`
 --
 
-DROP TABLE IF EXISTS `used_by_method`;
+-- Verificar si la tabla existe
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `used_by_method` (
-  `id_used_by_method` int NOT NULL AUTO_INCREMENT,
-  `id_variable` int NOT NULL,
-  `id_method` int NOT NULL,
-  `modify` tinyint NOT NULL,
-  PRIMARY KEY (`id_used_by_method`),
-  KEY `id_variable_idx` (`id_variable`),
-  KEY `id_method_idx` (`id_method`),
-  CONSTRAINT `id_method` FOREIGN KEY (`id_method`) REFERENCES `method` (`id_method`),
-  CONSTRAINT `id_variable` FOREIGN KEY (`id_variable`) REFERENCES `variable` (`id_variable`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+
+CREATE TABLE IF NOT EXISTS `class` (
+   `id_class` int NOT NULL AUTO_INCREMENT,
+   `id_project` int NOT NULL,
+   `name_class` varchar(100) NOT NULL,
+    PRIMARY KEY (`id_class`),
+    KEY `id_project_idx` (`id_project`),
+    CONSTRAINT `id_project` FOREIGN KEY (`id_project`) REFERENCES `project` (`id_project`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `used_by_method`
+-- Dumping data for table `class`
 --
 
-LOCK TABLES `used_by_method` WRITE;
-/*!40000 ALTER TABLE `used_by_method` DISABLE KEYS */;
-/*!40000 ALTER TABLE `used_by_method` ENABLE KEYS */;
+LOCK TABLES `class` WRITE;
+/*!40000 ALTER TABLE `class` DISABLE KEYS */;
+/*!40000 ALTER TABLE `class` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

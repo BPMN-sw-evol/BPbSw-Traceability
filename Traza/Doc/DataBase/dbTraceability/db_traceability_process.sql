@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.34, for Win64 (x86_64)
 --
--- Host: localhost    Database: db_traceability
+-- Host: localhost    Database: dbTraceability
 -- ------------------------------------------------------
 -- Server version	8.0.33
 
@@ -19,17 +19,17 @@
 -- Table structure for table `process`
 --
 
-DROP TABLE IF EXISTS `process`;
+-- Verificar si la tabla existe
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `process` (
-  `id_process` int NOT NULL AUTO_INCREMENT,
-  `process_name` varchar(100) NOT NULL,
-  `model_name` varchar(100) NOT NULL,
-  `path` varchar(1000) NOT NULL,
-  PRIMARY KEY (`id_process`)
+
+CREATE TABLE IF NOT EXISTS `process` (
+                           `id_process` int NOT NULL AUTO_INCREMENT,
+                           `process_name` varchar(100) NOT NULL,
+                           `model_name` varchar(100) NOT NULL,
+                           `path` varchar(1000) NOT NULL,
+                           PRIMARY KEY (`id_process`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `process`

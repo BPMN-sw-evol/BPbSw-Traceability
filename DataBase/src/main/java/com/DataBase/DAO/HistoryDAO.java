@@ -53,4 +53,34 @@ public class HistoryDAO {
         return historyDates;
     }
 
+    public int searchHistory(Timestamp date) {
+        try {
+            String sql = "SELECT id_history FROM history WHERE date = ?";
+            ps = connection.prepareStatement(sql);
+            ps.setTimestamp(1, date);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("id_history");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al buscar historia: " + e.getMessage());
+        }
+        return -1;
+    }
+
+    public boolean deleteHistory(Timestamp date) {
+        try {
+            String sql = "DELETE FROM history WHERE date = ?";
+            ps = connection.prepareStatement(sql);
+            ps.setTimestamp(1, date);
+            int rowsAffected = ps.executeUpdate();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al eliminar historia: " + e.getMessage());
+        }
+        return false;
+    }
+
 }

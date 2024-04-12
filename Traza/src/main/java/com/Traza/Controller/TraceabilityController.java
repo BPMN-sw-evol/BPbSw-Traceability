@@ -5,7 +5,10 @@ import Interfaces.Traceability;
 import com.Traza.ImageGenerate.BpmnColor;
 import com.Traza.ImageGenerate.ImageCapture;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -13,6 +16,8 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,14 +47,16 @@ public class TraceabilityController {
         // Agrega otros listeners aquí si es necesario
     }
 
+    public void deleteHistory(){
+        daoManager.getHistoryDAO().deleteHistory((Timestamp) view.getSelectedHistory());
+    }
+
     public void loadHistory() {
         try {
             List<Timestamp> historyIDs = daoManager.getHistoryDAO().getAllHistorys();
-            if (!historyIDs.isEmpty()) {
                 view.updateComboBoxHistory(historyIDs);
-            } else {
-                throw new RuntimeException("No se encontraron nombres de variables.");
-            }
+
+
         } catch (RuntimeException e) {
             handleException(e);
         }
@@ -59,13 +66,8 @@ public class TraceabilityController {
     private void loadVariableNames(Timestamp history) {
         try {
             List<String> variableNames = daoManager.getVariableDAO().getAllVariableNames(history);
-            variableNames.addFirst("Choose a variable");
+            view.updateComboBoxVariables(variableNames);
 
-            if (!variableNames.isEmpty()) {
-                view.updateComboBoxVariables(variableNames);
-            } else {
-                throw new RuntimeException("No se encontraron nombres de variables.");
-            }
         } catch (RuntimeException e) {
             handleException(e);
         }
@@ -80,6 +82,7 @@ public class TraceabilityController {
             view.resetVariablesComboBox();
             view.setBImageVisible(false);
             view.setBDiagramVisible(false);
+            view.updateImageIcon("/images.png");
 
         }
     }
@@ -87,7 +90,7 @@ public class TraceabilityController {
     public void handleVariableSelection() {
         String selectedVariable = view.getSelectedVariable();
 
-        if (!"Choose a variable".equals(selectedVariable) && !"Choose a version".equals(selectedVariable)) {
+        if (!"Select a variable".equals(selectedVariable) && !"Select a version".equals(selectedVariable)) {
             selectedVariableId = daoManager.getVariableDAO().searchVariableByName(selectedVariable);
 
             List<String> projectNames = daoManager.getProjectDAO().searchProjectByVariableId(selectedVariableId);
@@ -104,13 +107,13 @@ public class TraceabilityController {
                 view.updateProjectCount("0");
                 view.updateClassCount("0");
                 view.updateMethodCount("0");
-            }
 
+            }
         } else {
             view.updateProjectsList(null);
             view.updateProcessName("Select a variable");
             view.updateParticipant("Select a variable");
-            view.updateImageIcon();
+            view.updateImageIcon("/images.png");
         }
     }
 
@@ -141,14 +144,16 @@ public class TraceabilityController {
         }
     }
 
-
     public void handleElementSelection() {
-        view.updateImageIcon();
-        if (selectedVariableId <= 0) {
+        if (selectedVariableId <= 0 || Objects.equals(view.getSelectedVariable(), "Select a variable")) {
             // Manejar el caso de un ID de variable no válido
+            view.updateImageIcon("/images.png");
+            view.setBImageVisible(false);
+            view.setBDiagramVisible(false);
             return;
         }
-        view.showProgressBar();
+        view.updateImageIcon("/sandClock.gif");
+
         // Ejecutar la lógica relacionada con la selección de elementos en un hilo de fondo
         new Thread(() -> {
             List<String> usedElementNames = daoManager.getElementDAO().searchElementsUsed(selectedVariableId);
@@ -162,25 +167,20 @@ public class TraceabilityController {
 
 
                 // Cargar la imagen en la vista dentro del EDT
-                 loadImage();
+                loadImage();
 
             } else {
                 System.out.println("No se encontraron elementos usados para la variable con ID " + selectedVariableId);
                 // Ocultar la barra de progreso en caso de que no se encuentren elementos
             }
         }).start();
-
     }
-
-
 
     private void loadImage() {
         String rutaImagen = Paths.get(System.getProperty("user.dir"), "output", "MSGF-Test-Color.png").toString();
         view.displayImage(rutaImagen);
-        view.hideProgressBar();
         view.setBImageVisible(true);
         view.setBDiagramVisible(true);
-
     }
 
     private void openImage() {

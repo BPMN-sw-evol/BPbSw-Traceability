@@ -104,4 +104,17 @@ public class ContainerDAO {
             return "Error al realizar la búsqueda";
         }
     }
+
+    public boolean deleteContainer(int id_variable){
+        try {
+            String sql = "DELETE FROM contained_in WHERE id_variable = ?";
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, id_variable);
+            int filasAfectadas = ps.executeUpdate();
+            return filasAfectadas > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al realizar la eliminación: " + e);
+            return false;
+        }
+    }
 }

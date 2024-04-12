@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.34, for Win64 (x86_64)
 --
--- Host: localhost    Database: db_traceability
+-- Host: localhost    Database: dbTraceability
 -- ------------------------------------------------------
 -- Server version	8.0.33
 
@@ -16,29 +16,32 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `data_container`
+-- Table structure for table `contained_in`
 --
 
-DROP TABLE IF EXISTS `data_container`;
+-- Verificar si la tabla existe
+    -- Si no existe, crear la tabla
+
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `data_container` (
-  `id_data_container` int NOT NULL AUTO_INCREMENT,
-  `name_container` varchar(100) NOT NULL,
-  `id_project` int NOT NULL,
-  PRIMARY KEY (`id_data_container`),
-  KEY `id_project_idx` (`id_project`),
-  CONSTRAINT `id_projects` FOREIGN KEY (`id_project`) REFERENCES `project` (`id_project`)
+CREATE TABLE IF NOT EXISTS `contained_in` (
+                                `id_contained_in` int NOT NULL AUTO_INCREMENT,
+                                `id_variable` int NOT NULL,
+                                `id_data_container` int NOT NULL,
+                                PRIMARY KEY (`id_contained_in`),
+                                KEY `id_variablex_idx` (`id_variable`),
+                                KEY `id_container_idx` (`id_data_container`),
+                                CONSTRAINT `id_container` FOREIGN KEY (`id_data_container`) REFERENCES `data_container` (`id_data_container`),
+                                CONSTRAINT `id_variablex` FOREIGN KEY (`id_variable`) REFERENCES `variable` (`id_variable`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `data_container`
+-- Dumping data for table `contained_in`
 --
 
-LOCK TABLES `data_container` WRITE;
-/*!40000 ALTER TABLE `data_container` DISABLE KEYS */;
-/*!40000 ALTER TABLE `data_container` ENABLE KEYS */;
+LOCK TABLES `contained_in` WRITE;
+/*!40000 ALTER TABLE `contained_in` DISABLE KEYS */;
+/*!40000 ALTER TABLE `contained_in` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -50,4 +53,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-02-04 19:16:56
+-- Dump completed on 2024-02-04 19:16:57

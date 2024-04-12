@@ -2,6 +2,7 @@ package com.DataBase.Extraction;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.sql.Timestamp;
 
 import com.DataBase.DAO.*;
 import com.DataBase.Interface.IDataExtractor;
@@ -10,21 +11,21 @@ import org.json.JSONObject;
 
 
 public class commonDataExtraction implements IDataExtractor {
-    private final JSONObject projectInfo;
-    private final JSONObject bpmnInfo;
-    private final int history;
+    private JSONObject projectInfo;
+    private JSONObject bpmnInfo;
+    private int history;
     private final ArrayList<String> variables = new ArrayList<String>();
     private final ArrayList<String> projects = new ArrayList<String>();
     private final ArrayList<String> paths = new ArrayList<String>();
-    private final DAOManager daoManager;
+    private final DAOManager daoManager = DAOManager.getInstance();;
+
+    public commonDataExtraction() {}
+
 
     public commonDataExtraction(JSONObject projectFilePath, JSONObject bpmnFilePath, String name) {
         // Obtener las rutas de los archivos
         this.projectInfo = projectFilePath;
         this.bpmnInfo = bpmnFilePath;
-
-        // Obtener la instancia del DAOManager
-        this.daoManager = DAOManager.getInstance();
 
         // Utiliza DAO History
         this.history = daoManager.getHistoryDAO().createHistory(name);
@@ -49,10 +50,13 @@ public class commonDataExtraction implements IDataExtractor {
 
     }
 
-    public boolean isDataInitialized() {
-        return projectInfo != null && bpmnInfo != null && history != -1;
-    }
+    @Override
+    public void deleteData(Timestamp date) {
 
+        deleteVariable(date);
+        deleteHistory(date);
+
+    }
 
     private void setVariables(){
         JSONArray p = this.bpmnInfo.getJSONArray("trace");
@@ -212,4 +216,16 @@ public class commonDataExtraction implements IDataExtractor {
             }
         }
     }
+
+    private void deleteVariable(Timestamp date){
+        int id = daoManager.getHistoryDAO().searchHistory(date);
+        if(id!=-1){
+            daoManager.getVariableDAO().deleteVariable(id);
+        }
+    }
+
+    private void deleteHistory(Timestamp date){
+        daoManager.getHistoryDAO().deleteHistory(date);
+    }
+
 }

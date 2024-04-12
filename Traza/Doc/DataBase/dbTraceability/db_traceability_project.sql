@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.34, for Win64 (x86_64)
 --
--- Host: localhost    Database: db_traceability
+-- Host: localhost    Database: dbTraceability
 -- ------------------------------------------------------
 -- Server version	8.0.33
 
@@ -16,27 +16,27 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `history`
+-- Table structure for table `project`
 --
 
-DROP TABLE IF EXISTS `history`;
+-- Verificar si la tabla existe
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `history` (
-  `id_history` int NOT NULL AUTO_INCREMENT,
-  `date` datetime NOT NULL,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`id_history`)
+
+CREATE TABLE IF NOT EXISTS `project` (
+                           `id_project` int NOT NULL AUTO_INCREMENT,
+                           `name_project` varchar(100) NOT NULL,
+                           `path` varchar(1000) NOT NULL,
+                           PRIMARY KEY (`id_project`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `history`
+-- Dumping data for table `project`
 --
 
-LOCK TABLES `history` WRITE;
-/*!40000 ALTER TABLE `history` DISABLE KEYS */;
-/*!40000 ALTER TABLE `history` ENABLE KEYS */;
+LOCK TABLES `project` WRITE;
+/*!40000 ALTER TABLE `project` DISABLE KEYS */;
+/*!40000 ALTER TABLE `project` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

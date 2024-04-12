@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.34, for Win64 (x86_64)
 --
--- Host: localhost    Database: db_traceability
+-- Host: localhost    Database: dbTraceability
 -- ------------------------------------------------------
 -- Server version	8.0.33
 
@@ -16,31 +16,27 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `contained_in`
+-- Table structure for table `history`
 --
 
-DROP TABLE IF EXISTS `contained_in`;
+-- Verificar si la tabla existe
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `contained_in` (
-  `id_contained_in` int NOT NULL AUTO_INCREMENT,
-  `id_variable` int NOT NULL,
-  `id_data_container` int NOT NULL,
-  PRIMARY KEY (`id_contained_in`),
-  KEY `id_variablex_idx` (`id_variable`),
-  KEY `id_container_idx` (`id_data_container`),
-  CONSTRAINT `id_container` FOREIGN KEY (`id_data_container`) REFERENCES `data_container` (`id_data_container`),
-  CONSTRAINT `id_variablex` FOREIGN KEY (`id_variable`) REFERENCES `variable` (`id_variable`)
+
+CREATE TABLE IF NOT EXISTS `history` (
+                           `id_history` int NOT NULL AUTO_INCREMENT,
+                           `date` datetime NOT NULL,
+                           `name` varchar(100) NOT NULL,
+                           PRIMARY KEY (`id_history`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `contained_in`
+-- Dumping data for table `history`
 --
 
-LOCK TABLES `contained_in` WRITE;
-/*!40000 ALTER TABLE `contained_in` DISABLE KEYS */;
-/*!40000 ALTER TABLE `contained_in` ENABLE KEYS */;
+LOCK TABLES `history` WRITE;
+/*!40000 ALTER TABLE `history` DISABLE KEYS */;
+/*!40000 ALTER TABLE `history` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -52,4 +48,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-02-04 19:16:57
+-- Dump completed on 2024-02-04 19:16:56

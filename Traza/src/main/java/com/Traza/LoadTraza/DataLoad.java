@@ -1,17 +1,22 @@
 package com.Traza.LoadTraza;
 
 import com.DataBase.Processor.DataProcessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.JsonObject;
 import org.json.JSONObject;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
+
+import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.sql.Timestamp;
 
 
 public class DataLoad {
 
+    private final DataProcessor dataProcessor = new DataProcessor();
     public boolean dataProcessor() {
 
         BpmnProcessor bpmnProcessor = new BpmnProcessor();
@@ -30,21 +35,9 @@ public class DataLoad {
         ObjectNode successProject = projectProcessor.processProject("MSG-Foundation", projectPaths);
 
         if (!successBpmn.isEmpty() && !successProject.isEmpty()) {
-            try {
-
-                new DataProcessor(new JSONObject(new ObjectMapper().writeValueAsString(successProject)), new JSONObject(successBpmn.toString()), "MSG-Foundation");
-
-                // Si llegamos aquí, significa que no hubo excepciones durante el proceso
-                String successMessage = "La información se ha guardado con éxito.";
-                JOptionPane.showMessageDialog(null, successMessage, "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-            } catch (IOException e) {
-                // Si hay una excepción, se captura aquí y se muestra un mensaje de error
-                String errorMessage = "Error al guardar la información: " + e.getMessage();
-                JOptionPane.showMessageDialog(null, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
-            }
-
+            this.insertData(successBpmn, successProject);
             return true;
+
         } else {
             String errorMessage = "Hubo un problema al procesar y guardar la información de BPMN y/o proyectos.";
             JOptionPane.showMessageDialog(null, errorMessage, "Error", JOptionPane.INFORMATION_MESSAGE);
@@ -52,9 +45,40 @@ public class DataLoad {
         return false;
     }
 
+    private void insertData(JsonObject successBpmn, ObjectNode successProject){
+        // Mostrar el cuadro de diálogo
+        final JDialog dialog = new JDialog();
 
 
+        new Thread(() -> {
+            try {
+                dataProcessor.executeAllExtractors(new JSONObject(new ObjectMapper().writeValueAsString(successProject)), new JSONObject(successBpmn.toString()), "MSG-Foundation");
+                dialog.dispose();
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
 
+        final JOptionPane optionPane = new JOptionPane("Cargando.....", JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[]{}, null);
+
+        dialog.setTitle("Cargando");
+        dialog.setContentPane(optionPane);
+        dialog.setLocationRelativeTo(null);
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        dialog.pack();
+        dialog.setModal(true);
+        dialog.setVisible(true);
+
+
+        // Si llegamos aquí, significa que no hubo excepciones durante el proceso
+        String successMessage = "La información se ha guardado con éxito.";
+        JOptionPane.showMessageDialog(null, successMessage, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+    }
+
+    public void deleteData(Timestamp data){
+        dataProcessor.executeAllDeletes(data);
+    }
 
 
 

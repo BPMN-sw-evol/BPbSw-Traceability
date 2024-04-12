@@ -2,6 +2,8 @@ package com.DataBase.Extraction;
 
 import com.DataBase.DAO.*;
 import com.DataBase.Interface.IDataExtractor;
+import java.sql.Timestamp;
+import java.util.List;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,18 +11,19 @@ import java.util.ArrayList;
 import org.json.JSONObject;
 
 public class ProjectInfoExtractor implements IDataExtractor {
-    private final JSONObject projectInfo;
+    private  JSONObject projectInfo;
     private final ArrayList<String> projects = new ArrayList<>();
     private final ArrayList<String> paths = new ArrayList<>();
-    private final DAOManager daoManager;
+    private final DAOManager daoManager = DAOManager.getInstance();;
+
+    public ProjectInfoExtractor() {}
+
 
     public ProjectInfoExtractor(JSONObject projectFilePath) {
 
         // Obtener la ruta del archivo
         this.projectInfo = projectFilePath;
 
-        // Obtener la instancia del DAOManager
-        this.daoManager = DAOManager.getInstance();
     }
 
     @Override
@@ -33,7 +36,12 @@ public class ProjectInfoExtractor implements IDataExtractor {
 
     }
 
+    @Override
+    public void deleteData(Timestamp date) {
 
+        deleteMethod(date);
+        deleteContainer(date);
+    }
 
     private void setProjects(){
         for (String i : this.projectInfo.keySet()) {
@@ -99,5 +107,26 @@ public class ProjectInfoExtractor implements IDataExtractor {
         }
     }
 
+    private void deleteMethod(Timestamp date){
+        int id = daoManager.getHistoryDAO().searchHistory(date);
+        if(id!=-1){
+            List<Integer> variables = daoManager.getVariableDAO().getVariablesHistory(id);
+
+            for(int i : variables){
+                daoManager.getMethodDAO().deleteMethod(i);
+            }
+        }
+    }
+
+    private void deleteContainer(Timestamp date){
+        int id = daoManager.getHistoryDAO().searchHistory(date);
+        if(id!=-1){
+            List<Integer> variables = daoManager.getVariableDAO().getVariablesHistory(id);
+
+            for(int i : variables){
+                daoManager.getContainerDAO().deleteContainer(i);
+            }
+        }
+    }
 
 }

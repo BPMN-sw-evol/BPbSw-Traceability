@@ -6,11 +6,11 @@ version: '3'
 services:
   traceability_db:
     image: mysql:latest
-    container_name: db_traceability
+    container_name: dbTraceability
     environment:
-      MYSQL_DATABASE: db_traceability
+      MYSQL_DATABASE: dbTraceability
       MYSQL_ROOT_PASSWORD: mysql
     ports:
       - "3326:3306"
     volumes:
-      - .\Traza\Doc\DataBase\db_traceability:/docker-entrypoint-initdb.d
+      - .\Traza\Doc\DataBase\dbTraceability:/docker-entrypoint-initdb.d
