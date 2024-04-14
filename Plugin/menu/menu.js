@@ -2,6 +2,7 @@
 
 var path = require("path");
 var electron = require("electron");
+const { exec } = require('child_process');
 
 var jarPath = path.join(__dirname, "api-traceability-1.0-SNAPSHOT.jar");
 const comando = 'java -jar '+jarPath.replace("\\menu\\","\\"); // O cualquier comando que sea necesario para ejecutar tu archivo Java

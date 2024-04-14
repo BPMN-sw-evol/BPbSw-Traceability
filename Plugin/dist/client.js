@@ -377,7 +377,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const _ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
-
+let v = "";
 
 /**
  * add tooltip regarding an element, using the given tooltip-id in html

@@ -120,6 +120,7 @@ public class Traceability extends javax.swing.JFrame {
         if (opcion == JOptionPane.YES_OPTION) {
             new DataLoad().dataProcessor();
             controller.loadHistory();
+            setVariable(variable);
         }
     }
 

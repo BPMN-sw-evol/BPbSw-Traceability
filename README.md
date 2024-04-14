@@ -8,6 +8,8 @@ This repository integrates tools for implementing a BP based software traceabili
 2. [Applications](#applications)
 3. [Prerequisites](#prerequisites)
 4. [Usage](#usage)
+   1. [Plugin Installation](#plugin-installation)
+   2. [Plugin Usage](#plugin-usage)
 
 ## Description
 
@@ -38,7 +40,7 @@ To use this program you need the following:
 
 1. **Version control system**: Install GIT from the [GIT official website](https://git-scm.com/downloads).
 
-2. **IntelliJ IDEA**: To run and/or modify the project, you can download it from the [IntelliJ official website](https://www.jetbrains.com/es-es/idea/download/?section=windows).
+2. **IntelliJ IDEA**: To modify the project, you can download it from the [IntelliJ official website](https://www.jetbrains.com/es-es/idea/download/?section=windows).
 
 3. **Java 21 **: You can get help to download and install the java version by following [this link](https://www.youtube.com/watch?v=oAin-q1oTDw&pp=ygUXY29tbyBjb25maWd1cmFyIGphdmEgMTc%3D)
 
@@ -51,22 +53,82 @@ To use this program you need the following:
 6. **Camunda Modeler**: you can download to install Camunda Modeler here [official website](https://camunda.com/download/modeler/)
 ## Usage
 
-To use this program you must:
+### Plugin Installation
 
-1. Make sure the Docker daemon is running.
+To install this plugin you must:
+
+1. Make sure that Docker Desktop is running.
 
 2. Open the Git Bash terminal in the folder where you want to download the program and clone it with the following command:
    ```
-   https://github.com/BPMN-sw-evol/BPbSw-Traceability
+   git clone https://github.com/BPMN-sw-evol/BPbSw-Traceability
    ```
-3. Once the repository is cloned, navigate to the folder and run the build-and-run.sh file using the Git Bash terminal:
+3. Once the repository is cloned, open to the folder ```BPbSw-Traceability``` and run the ```build-and-run.sh``` file using the Git Bash terminal:
    ```
    ./build-and-run.sh
    ```
+   In case it is not the ```first time``` and you have the Docker image of the database, open ```docker desktop``` and run the ```dbTraceability container```.
+   ![comando de ejecucion](Doc/Img/ExecuteDockerImage.png)
+
+
 4. Wait while the Database image is being built and its respective container is started. The waiting time may vary depending on the computing power of your system.
+   ![comando de ejecucion](Doc/Img/FinishedSH.png)
 
-5. Once the previous step is completed, copy the file ```api-traceability-1.0-SNAPSHOT.jar``` located in the ```api-traceability/target/``` folder and paste it inside the ```plugin``` folder.
+5. Once the previous step is completed, copy the file ```api-traceability-1.0-SNAPSHOT.jar``` located in the ```api-traceability/target/``` folder
 
-6. Then, copy the ```plugin``` folder and paste it into the ```resources``` folder of the Camunda installation directory.
+   ![comando de ejecucion](Doc/Img/SearchJAR.png)
 
-7. You are done! After these steps, you will be able to interact with the ```BPbSw-Traceability tool``` through the Camunda interface."
+   and paste it inside the ```plugin``` folder.
+
+   ![comando de ejecucion](Doc/Img/PasteJAR.png)
+
+6. Then, copy the ```Plugin``` folder and paste it into the ```resources/plugins``` folder of the Camunda installation directory.
+   ![comando de ejecucion](Doc/Img/PastePlugin.png)
+
+7. You have finished installing the PLUGIN! After these steps, you will be able to interact with the ```BPbSw-Traceability``` tool through the Camunda interface.
+
+### Plugin Usage
+
+To use this plugin you must:
+
+1. Open the ```camunda modeler```.
+   ![comando de ejecucion](Doc/Img/OpenCamunda.png)
+
+2. We open our model that we are going to analyze, and clicking on any activity we will be able to visualize the tooltip provided by the ``PlUGIN`` just installed.
+![comando de ejecucion](Doc/Img/Part1Plugin.png)
+3. By clicking on any of the ``variables`` visible in the tooltip, the traceability tool window will be displayed (if it is the ``first time``, a trace to the desired project will be requested).
+   ![comando de ejecucion](Doc/Img/Opentool.png)
+4. If the desired project is already ``correctly annotated``, click on the ``yes`` option, this option will display the respective file managers: the first one will load the ``.BPMN model`` and the second one will load ``all the projects`` previously annotated.
+   ![comando de ejecucion](Doc/Img/OpenFileBPMN.png)
+   ![comando de ejecucion](Doc/Img/OpenAllProjects.png)
+5. Once the traceability process is finished, the tool will show the following information.
+   ![comando de ejecucion](Doc/Img/ResultTool.png)
+
+   #### The tool is divided into 3 sections as follows:
+
+   * The first part consists of:
+     * The versions of traces that have been made.
+     * The variables that have been traced.
+     * The name of the Pool.
+     * The name of the file that was traced.
+     * And a menu button with the options: 
+       - **Generate New Trace**: Option used to generate a new trace. 
+       - **Delete the Version**: Option to delete a selected version. 
+       - **Generate Annotations**: Option to annotate projects
+   
+   ![comando de ejecucion](Doc/Img/Part1Tool.png)
+
+   * The second part consists of:
+     * The visualization of the model pointing out the activities where the selected variable is located.
+     * The button to open the image of the visualized model.
+     * The button to open the model with the selected activities.
+
+   ![comando de ejecucion](Doc/Img/Part2Tool.png)
+  
+   * The third part consists of:
+     * A selectable list of PROJECTS where the variable is being used.
+     * The structure where the variable is contained in the respective project.
+     * A selectable list of CLASSES where the variable is being used.
+     * A selectable list of METHODS where the variable is being used.
+
+   ![comando de ejecucion](Doc/Img/Part3Tool.png)

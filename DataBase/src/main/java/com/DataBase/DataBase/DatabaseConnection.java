@@ -9,7 +9,7 @@ public class DatabaseConnection {
     private final Connection connection;
 
     private DatabaseConnection() {
-        String url = "jdbc:mysql://localhost:3326/db_traceability";
+        String url = "jdbc:mysql://localhost:3326/dbTraceability";
 //        String url = "jdbc:mysql://localhost:3306/test_traceability";
         String usuario = "root";
         String contraseña = "mysql";

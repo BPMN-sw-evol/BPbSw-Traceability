@@ -16,7 +16,7 @@ import {
 } from "./GeneralServiceModule";
 
 const _ = require('lodash');
-
+let v = "";
 
 /**
  * add tooltip regarding an element, using the given tooltip-id in html
