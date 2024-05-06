@@ -47,10 +47,6 @@ public class TraceabilityController {
         // Agrega otros listeners aquí si es necesario
     }
 
-    public void deleteHistory(){
-        daoManager.getHistoryDAO().deleteHistory((Timestamp) view.getSelectedHistory());
-    }
-
     public void loadHistory() {
         try {
             List<Timestamp> historyIDs = daoManager.getHistoryDAO().getAllHistorys();

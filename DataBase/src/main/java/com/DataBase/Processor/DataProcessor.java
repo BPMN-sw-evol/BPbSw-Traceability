@@ -1,7 +1,6 @@
 package com.DataBase.Processor;
 
 import com.DataBase.Extraction.commonDataExtraction;
-import com.DataBase.Interface.IDataExtractor;
 import com.DataBase.Extraction.BPMNInfoExtractor;
 import com.DataBase.Extraction.ProjectInfoExtractor;
 import org.json.JSONObject;

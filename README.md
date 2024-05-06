@@ -7,7 +7,7 @@ This repository integrates tools for implementing a BP based software traceabili
 1. [Description](#description)
 2. [Applications](#applications)
 3. [Prerequisites](#prerequisites)
-4. [Usage](#usage)
+4. [Tool Usage](#Tool-usage)
    1. [Plugin Installation](#plugin-installation)
    2. [Plugin Usage](#plugin-usage)
 
@@ -36,13 +36,15 @@ The applications created in this implementation were developed using the Java pr
 
 ## Prerequisites
 
+### Environment
+
 To use this program you need the following:
 
 1. **Version control system**: Install GIT from the [GIT official website](https://git-scm.com/downloads).
 
 2. **IntelliJ IDEA**: To modify the project, you can download it from the [IntelliJ official website](https://www.jetbrains.com/es-es/idea/download/?section=windows).
 
-3. **Java 21 **: You can get help to download and install the java version by following [this link](https://www.youtube.com/watch?v=oAin-q1oTDw&pp=ygUXY29tbyBjb25maWd1cmFyIGphdmEgMTc%3D)
+3. **Java 21**: You can get help to download and install the java version by following [this link](https://www.youtube.com/watch?v=oAin-q1oTDw&pp=ygUXY29tbyBjb25maWd1cmFyIGphdmEgMTc%3D)
 
 4. **Maven 3.9**: You can get help to download and install the maven version by following [this link](https://www.youtube.com/watch?v=1QfiyR_PWxU&pp=ygUSaW5zdGFsYXIgbWF2ZW4gMy45)
 
@@ -51,7 +53,32 @@ To use this program you need the following:
     - Step 2: Create a Docker Hub account from the official website, and log in to Docker Desktop. (If you already have an account, log in directly to Docker Desktop) WSL2: According to your need: Use the following command to install WSL2 wsl --list --o to know the available distributions. wsl --install -d "distribution-version" to install WSL2 with a specific distribution. Use the following command for upgrade to WSL2 wsl --version if you want to know the installed WSL version wsl --set-default-version 2 to change the version to WSL2.
    
 6. **Camunda Modeler**: you can download to install Camunda Modeler here [official website](https://camunda.com/download/modeler/)
-## Usage
+
+### Usage
+
+#### BPMN Model
+
+1. Add inputs and outputs to each activity reflected in the information systems, as long as they are not UserTask with "Generated Task Forms" implementation.
+   ![comando de ejecucion](Doc/Img/InputsOutputs.png)
+
+#### Java Projects
+
+1. Make use of the Data Transfer Object (DTO) pattern in information systems.
+   ![comando de ejecucion](Doc/Img/DTO.png)
+
+2. Use the following nomenclature for the naming of classes according to the following structure:
+   
+    **CredictAnalyst_RevDetDeSol**
+
+    **CredictAnalyst**: refers to the lane of the activity that the  external system reflects in the class.
+   
+    **RevDetDeSol**: refers to the first 3 letters of each word that makes up the name of the activity that the external system reflects in the class.
+   
+    ![comando de ejecucion](Doc/Img/nomenclatura.png)
+    ![comando de ejecucion](Doc/Img/actividadNomenclatura.png)
+
+
+## Tool Usage
 
 ### Plugin Installation
 

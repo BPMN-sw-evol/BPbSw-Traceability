@@ -1,6 +1,7 @@
 package com.Traza.LoadTraza;
 
 import com.Biptrac.AnnotationAnalyzer;
+import com.Biptrac.Formats;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -40,7 +41,7 @@ public class ProjectProcessor {
             }
 
             if (!result.isEmpty()) {
-                AnnotationAnalyzer.saveJsonToFile(outputFileName, AnnotationAnalyzer.formatJson(result.toString()));
+                AnnotationAnalyzer.saveJsonToFile(outputFileName, Formats.formatJson(result.toString()));
             }
             return result; // Se completó exitosamente
         } catch (Exception e) {

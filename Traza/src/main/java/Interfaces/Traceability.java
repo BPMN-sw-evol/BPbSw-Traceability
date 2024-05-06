@@ -2,9 +2,10 @@ package Interfaces;
 
 import com.Traza.Controller.TraceabilityController;
 import com.Traza.LoadTraza.DataLoad;
+import com.Trazability.BPMN.bpmnExtractor;
+import com.Trazability.PROJECT.JavaClassExtractor;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -12,8 +13,6 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 public class Traceability extends javax.swing.JFrame {
 
@@ -34,43 +33,29 @@ public class Traceability extends javax.swing.JFrame {
         
         controller = new TraceabilityController(this);
 
-        HISTORY.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                controller.handleHistorySelection();
+        HISTORY.addActionListener(e -> controller.handleHistorySelection());
+
+        VARIABLES.addActionListener(e -> {
+            controller.handleVariableSelection();
+            controller.handleElementSelection();
+            flag = false;
+            PMENU.setVisible(flag);
+        });
+
+        LPROJECTS.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                controller.handleProjectSelection();
             }
         });
 
-        VARIABLES.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                controller.handleVariableSelection();
-                controller.handleElementSelection();
-                flag = false;
-                PMENU.setVisible(flag);
-            }
-        });
-
-        LPROJECTS.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    controller.handleProjectSelection();
-                }
-            }
-        });
-
-        LCLASSES.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    controller.handleClassSelection();
-                }
+        LCLASSES.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                controller.handleClassSelection();
             }
         });
         
         BMENU.addActionListener(e -> {
-            flag = flag != true;
+            flag = !flag;
             PMENU.setVisible(flag);
         });
 
@@ -80,14 +65,16 @@ public class Traceability extends javax.swing.JFrame {
             }
         });
 
-        BDELETE.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dataLoad.deleteData((Timestamp) getSelectedHistory());
-                controller.loadHistory();
-            }
+        BDELETE.addActionListener(e -> {
+            dataLoad.deleteData((Timestamp) getSelectedHistory());
+            controller.loadHistory();
         });
-        
+
+        BANNOTATION.addActionListener(e -> {
+            String[] args = {}; // Si no necesitas pasar argumentos específicos, puedes dejarlo vacío
+            new JavaClassExtractor().javaProcessor(bpmnExtractor.bpmnProcessor());
+            controller.loadHistory();
+        });
 
     }
 
@@ -435,11 +422,6 @@ public class Traceability extends javax.swing.JFrame {
         BMENU.setBorder(null);
         BMENU.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         BMENU.setPreferredSize(new java.awt.Dimension(80, 26));
-        BMENU.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BMENUActionPerformed(evt);
-            }
-        });
 
         BIMAGE.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         BIMAGE.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image.png"))); // NOI18N
@@ -531,11 +513,6 @@ public class Traceability extends javax.swing.JFrame {
         PMENU.setBackground(new java.awt.Color(255, 255, 255));
 
         BLOAD.setText("Generate New Trace");
-        BLOAD.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BLOADActionPerformed(evt);
-            }
-        });
 
         BDELETE.setText("Delete the Version");
 
@@ -683,13 +660,6 @@ public class Traceability extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void BLOADActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BLOADActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_BLOADActionPerformed
-
-    private void BMENUActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BMENUActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_BMENUActionPerformed
 
     public static Traceability instance;
 

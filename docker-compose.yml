@@ -13,4 +13,4 @@ services:
     ports:
       - "3326:3306"
     volumes:
-      - .\Traza\Doc\DataBase\dbTraceability:/docker-entrypoint-initdb.d
+      - .\Doc\DataBase\dbTraceability:/docker-entrypoint-initdb.d

@@ -12,8 +12,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.XMLtracer.CamundaElement.*;
-import static com.XMLtracer.CamundaElement.formatJson;
+import static com.BPMNTracer.CamundaElement.*;
+import static com.BPMNTracer.CamundaElement.formatJson;
 
 public class BpmnProcessor {
 
