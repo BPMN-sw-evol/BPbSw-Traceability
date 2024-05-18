@@ -1,7 +1,7 @@
 package com.Traza.Controller;
 
-import com.DataBase.DAO.DAOManager;
 import Interfaces.Traceability;
+import com.DataBase.DAO.DAOManager;
 import com.Traza.ImageGenerate.BpmnColor;
 import com.Traza.ImageGenerate.ImageCapture;
 
