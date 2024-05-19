@@ -6,44 +6,99 @@
     "D:\\Laboral\\trace-hub\\Treasury"
   ],
   "BPM-Engine": {
-    "BPM Class: DatabaseServiceTaskDelegate": {
-      "BPM Class: DatabaseServiceTaskDelegate": {
-        "type": "ServiceTask",
-        "name": "Consultar información financiera"
+    "BPM Class: CreditAnalyst_HabEdiFor": {
+      "BPM Class: CreditAnalyst_HabEdiFor": {
+        "type": "serviceTask",
+        "name": "Habilitar edición formulario"
       },
-      "BPM Method: getterVariables (getter)": {
+      "BPM Method: execute (getter)": {
         "variables": [
-          "quotaValue",
-          "housePrices",
-          "coupleSavings"
-        ]
-      },
-      "BPM Method: setterVariables (setter)": {
-        "variables": [
-          "quotaValue",
-          "housePrices",
-          "coupleSavings"
+          "codRequest"
         ]
       }
     },
-    "BPM Class: RequestRejectDelegateExpression": {
-      "BPM Class: RequestRejectDelegateExpression": {
-        "type": "Send Task",
+    "BPM Class: CreditCommittee_ConInfFin": {
+      "BPM Class: CreditCommittee_ConInfFin": {
+        "type": "serviceTask",
+        "name": "Consultar información financiera"
+      },
+      "BPM Method: setterVariables (setter)": {
+        "variables": [
+          "coupleSavings",
+          "quotaValue"
+        ]
+      },
+      "BPM Method: execute (getter)": {
+        "variables": [
+          "codRequest"
+        ]
+      }
+    },
+    "BPM Class: CreditAnalyst_InfInc": {
+      "BPM Class: CreditAnalyst_InfInc": {
+        "type": "sendTask",
+        "name": "Informar inconsistencias"
+      },
+      "BPM Method: execute (getter)": {
+        "variables": [
+          "coupleName1",
+          "coupleName2",
+          "workSupport",
+          "coupleEmail2",
+          "coupleEmail1",
+          "creationDate"
+        ]
+      }
+    },
+    "BPM Class: CreditCommittee_InfRecDeSol": {
+      "BPM Class: CreditCommittee_InfRecDeSol": {
+        "type": "sendTask",
+        "name": "Informar rechazo de solicitud"
+      },
+      "BPM Method: execute (getter)": {
+        "variables": [
+          "coupleName1",
+          "coupleName2",
+          "coupleEmail2",
+          "coupleEmail1"
+        ]
+      }
+    },
+    "BPM Class: LegalOffice_InfConJurNoVia": {
+      "BPM Class: LegalOffice_InfConJurNoVia": {
+        "type": "sendTask",
+        "name": "Informar concepto jurídico no viable"
+      },
+      "BPM Method: execute (getter)": {
+        "variables": [
+          "coupleName1",
+          "coupleName2",
+          "coupleEmail2",
+          "coupleEmail1"
+        ]
+      }
+    },
+    "BPM Class: LegalOffice_InfSolAnuPorInc": {
+      "BPM Class: LegalOffice_InfSolAnuPorInc": {
+        "type": "sendTask",
         "name": "Informar solicitud anulada por incumplimiento"
       },
       "BPM Method: execute (getter)": {
         "variables": [
           "coupleName1",
           "coupleName2",
-          "quotaValue"
+          "pdfSupport",
+          "workSupport",
+          "coupleEmail2",
+          "coupleEmail1"
         ]
       }
     }
   },
   "CentralSys": {
-    "BPM Class: CreditAnalystServices": {
-      "BPM Class: CreditAnalystServices": {
-        "type": "UserTask",
+    "BPM Class: CreditAnalyst_RevDetDeSol": {
+      "BPM Class: CreditAnalyst_RevDetDeSol": {
+        "type": "userTask",
         "name": "Revisar detalles de solicitud"
       },
       "BPM Method: getProcessVariablesById (getter)": {
@@ -51,12 +106,12 @@
         "variables": [
           "coupleName1",
           "coupleName2",
-          "coupleEmail1",
-          "coupleEmail2",
+          "countReviewsBpm",
           "marriageYears",
           "bothEmployees",
-          "creationDate",
-          "countReviewsBpm"
+          "coupleEmail2",
+          "coupleEmail1",
+          "creationDate"
         ]
       },
       "BPM Method: approveTask (setter)": {
@@ -69,71 +124,38 @@
         "variables": "countReviewsBpm"
       }
     },
-    "BPM Class: CreditCommitteeServices": {
-      "BPM Class: CreditCommitteeServices": {
-        "type": "UserTask",
-        "name": "Evaluar crédito"
+    "BPM Class: CreditCommittee_EvaCre": {
+      "BPM Class: CreditCommittee_EvaCre": {
+        "type": "userTask",
+        "name": "Evaluar credito"
       },
       "BPM Method: getProcessVariablesById (getter)": {
         "container": "CreditRequestDTO",
         "variables": [
-          "coupleName1",
-          "coupleName2",
-          "coupleEmail1",
-          "coupleEmail2",
-          "marriageYears",
-          "bothEmployees",
-          "housePrices",
-          "quotaValue",
           "coupleSavings",
-          "creationDate",
-          "countReviewsBpm"
+          "marriageYears",
+          "housePrices",
+          "bothEmployees",
+          "quotaValue"
         ]
       },
       "BPM Method: approveTask (setter)": {
-        "variables": "isValid"
+        "variables": [
+          "isValid"
+        ]
       },
       "BPM Method: rejectTask (setter)": {
-        "variables": "isValid"
+        "variables": [
+          "isValid"
+        ]
       },
       "BPM Method: updateReviewAndStatus (setter)": {
         "variables": "countReviewsBpm"
       }
     },
-    "BPM Class: LegalOfficeSupportsServices": {
-      "BPM Class: LegalOfficeSupportsServices": {
-        "type": "UserTask",
-        "name": "Revisar soportes de solicitud"
-      },
-      "BPM Method: getProcessVariablesById (getter)": {
-        "container": "CreditRequestDTO",
-        "variables": [
-          "coupleName1",
-          "coupleName2",
-          "coupleEmail1",
-          "coupleEmail2",
-          "marriageYears",
-          "bothEmployees",
-          "housePrices",
-          "quotaValue",
-          "coupleSavings",
-          "creationDate",
-          "countReviewsBpm"
-        ]
-      },
-      "BPM Method: approveTask (setter)": {
-        "variables": "validSupports"
-      },
-      "BPM Method: rejectTask (setter)": {
-        "variables": "validSupports"
-      },
-      "BPM Method: updateReviewAndStatus (setter)": {
-        "variables": "countReviewsBpm"
-      }
-    },
-    "BPM Class: LegalOfficeViabilityServices": {
-      "BPM Class: LegalOfficeViabilityServices": {
-        "type": "UserTask",
+    "BPM Class: LegalOffice_DetViaFin": {
+      "BPM Class: LegalOffice_DetViaFin": {
+        "type": "userTask",
         "name": "Determinar viabilidad financiera"
       },
       "BPM Method: getProcessVariablesById (getter)": {
@@ -153,18 +175,57 @@
         ]
       },
       "BPM Method: approveTask (setter)": {
-        "variables": "legalConcept"
+        "variables": [
+          "legalConcept"
+        ]
       },
       "BPM Method: rejectTask (setter)": {
-        "variables": "legalConcept"
+        "variables": [
+          "legalConcept"
+        ]
       },
       "BPM Method: updateReviewAndStatus (setter)": {
         "variables": "countReviewsBpm"
       }
     },
-    "BPM Class: TreasuryServices": {
-      "BPM Class: TreasuryServices": {
-        "type": "UserTask",
+    "BPM Class: LegalOffice_RevSopDeSol": {
+      "BPM Class: LegalOffice_RevSopDeSol": {
+        "type": "userTask",
+        "name": "Revisar soportes de solicitud"
+      },
+      "BPM Method: getProcessVariablesById (getter)": {
+        "container": "CreditRequestDTO",
+        "variables": [
+          "coupleName1",
+          "coupleName2",
+          "coupleEmail1",
+          "coupleEmail2",
+          "marriageYears",
+          "bothEmployees",
+          "housePrices",
+          "quotaValue",
+          "coupleSavings",
+          "creationDate",
+          "countReviewsBpm"
+        ]
+      },
+      "BPM Method: approveTask (setter)": {
+        "variables": [
+          "validSupports"
+        ]
+      },
+      "BPM Method: rejectTask (setter)": {
+        "variables": [
+          "validSupports"
+        ]
+      },
+      "BPM Method: updateReviewAndStatus (setter)": {
+        "variables": "countReviewsBpm"
+      }
+    },
+    "BPM Class: Treasury_AprProDePag": {
+      "BPM Class: Treasury_AprProDePag": {
+        "type": "userTask",
         "name": "Aprobar proceso de pago"
       },
       "BPM Method: getProcessVariablesById (getter)": {
@@ -189,36 +250,50 @@
     }
   },
   "CreditRequest": {
-    "BPM Class: MarriedCoupleServiceImpl": {
-      "BPM Class: MarriedCoupleServiceImpl": {
-        "type": "usertask",
+    "BPM Class: MarriedCouple_DilForDeSol": {
+      "BPM Class: MarriedCouple_DilForDeSol": {
+        "type": "userTask",
         "name": "Diligenciar formulario de solicitud"
       },
       "BPM Method: startProcessInstance (setter)": {
-        "container": "creditInfoDTO",
+        "container": "CreditInfoDTO.java",
         "variables": [
-          "codRequest",
-          "marriageYears",
-          "bothEmployees",
-          "applicantCouple",
           "coupleName1",
           "coupleName2",
-          "coupleEmail1",
+          "pdfSupport",
+          "countReviewsBpm",
           "coupleEmail2",
+          "coupleEmail1",
+          "applicantCouple",
           "creationDate",
-          "countReviewsBpm"
+          "marriageYears",
+          "bothEmployees",
+          "workSupport",
+          "codRequest"
         ]
       },
       "BPM Method: updateProcessVariables (setter)": {
         "variables": [
-          "marriageYears",
-          "bothEmployees",
-          "applicantCouple",
           "coupleName1",
           "coupleName2",
+          "pdfSupport",
+          "coupleEmail2",
+          "coupleEmail1",
           "creationDate",
+          "applicantCouple",
+          "marriageYears",
+          "bothEmployees",
+          "workSupport",
           "codRequest"
         ]
+      }
+    }
+  },
+  "Treasury": {
+    "BPM Class: Treasury_InfDesAParYAVen": {
+      "BPM Class: Treasury_InfDesAParYAVen": {
+        "type": "sendTask",
+        "name": "Informar desembolso a pareja y a vendedor"
       }
     }
   }

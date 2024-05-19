@@ -1,5 +1,5 @@
 {
-  "bpmPath": "C:\\Users\\SOPORTES JPVM\\Desktop\\MSGF-CreditRequest.bpmn",
+  "bpmPath": "D:\\Laboral\\BPbSw-Traceability\\Doc\\Model\\MSGF-CreditRequest.bpmn",
   "bpmNameFile": "MSGF-CreditRequest.bpmn",
   "bpmNameProcess": "MsgFoundation - Credit Request",
   "trace": [
@@ -54,7 +54,7 @@
       "taskName": "Consultar información financiera",
       "taskType": "Service Task",
       "taskImplementationType": "Java Class",
-      "taskReferenceOrImplementation": "com.msgfoundation.delegation.DatabaseServiceTaskDelegate",
+      "taskReferenceOrImplementation": "com.msgfoundation.delegation.CreditCommittee_ConInfFin",
       "variables": [
         "coupleSavings",
         "quotaValue",
@@ -127,7 +127,7 @@
       "taskName": "Informar concepto jurídico no viable",
       "taskType": "Send Task",
       "taskImplementationType": "Java Class",
-      "taskReferenceOrImplementation": "com.msgfoundation.messages.RequestInviableDelegate",
+      "taskReferenceOrImplementation": "com.msgfoundation.messages.LegalOffice_InfConJurNoVia",
       "variables": [
         "coupleName1",
         "coupleEmail1",
@@ -193,7 +193,7 @@
       "taskName": "Informar rechazo de solicitud",
       "taskType": "Send Task",
       "taskImplementationType": "Java Class",
-      "taskReferenceOrImplementation": "com.msgfoundation.messages.RequestRejectByCommitteeDelegate",
+      "taskReferenceOrImplementation": "com.msgfoundation.messages.CreditCommittee_InfRecDeSol",
       "variables": [
         "coupleName1",
         "coupleEmail1",
@@ -225,7 +225,7 @@
       "taskName": "Informar inconsistencias",
       "taskType": "Send Task",
       "taskImplementationType": "Java Class",
-      "taskReferenceOrImplementation": "com.msgfoundation.messages.InconsistenciesDelegate",
+      "taskReferenceOrImplementation": "com.msgfoundation.messages.CreditAnalyst_InfInc",
       "variables": [
         "coupleName1",
         "coupleEmail1",
