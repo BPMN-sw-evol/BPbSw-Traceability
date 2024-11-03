@@ -5,19 +5,14 @@ import com.DataBase.DAO.DAOManager;
 import com.Traza.ImageGenerate.BpmnColor;
 import com.Traza.ImageGenerate.ImageCapture;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,11 +33,9 @@ public class TraceabilityController {
     private void initView() {
         view.setResizable(false);
         view.setTitle("TRACEABILITY");
-        view.setBImageVisible(false);
         view.setBDiagramVisible(false);
 
         loadHistory();
-        openImage();
         openDiagram();
         // Agrega otros listeners aquí si es necesario
     }
@@ -76,9 +69,7 @@ public class TraceabilityController {
             loadVariableNames((Timestamp) selectedHistory);
         } else {
             view.resetVariablesComboBox();
-            view.setBImageVisible(false);
             view.setBDiagramVisible(false);
-            view.updateImageIcon("/images.png");
 
         }
     }
@@ -87,7 +78,7 @@ public class TraceabilityController {
         String selectedVariable = view.getSelectedVariable();
 
         if (!"Select a variable".equals(selectedVariable) && !"Select a version".equals(selectedVariable)) {
-            selectedVariableId = daoManager.getVariableDAO().searchVariableByName(selectedVariable);
+            selectedVariableId = daoManager.getVariableDAO().searchVariableByName(selectedVariable, (Timestamp) view.getSelectedHistory());
 
             List<String> projectNames = daoManager.getProjectDAO().searchProjectByVariableId(selectedVariableId);
             Map<String, String> processInfo = daoManager.getProcessDAO().searchProcessByVariableId(selectedVariableId);
@@ -109,7 +100,6 @@ public class TraceabilityController {
             view.updateProjectsList(null);
             view.updateProcessName("Select a variable");
             view.updateParticipant("Select a variable");
-            view.updateImageIcon("/images.png");
         }
     }
 
@@ -143,12 +133,10 @@ public class TraceabilityController {
     public void handleElementSelection() {
         if (selectedVariableId <= 0 || Objects.equals(view.getSelectedVariable(), "Select a variable")) {
             // Manejar el caso de un ID de variable no válido
-            view.updateImageIcon("/images.png");
-            view.setBImageVisible(false);
             view.setBDiagramVisible(false);
             return;
         }
-        view.updateImageIcon("/sandClock.gif");
+        System.out.println("Elemento encontrado");
 
         // Ejecutar la lógica relacionada con la selección de elementos en un hilo de fondo
         new Thread(() -> {
@@ -156,14 +144,13 @@ public class TraceabilityController {
             String path = daoManager.getPathDAO().getModelBPMNPath(selectedVariableId);
 
             if (!usedElementNames.isEmpty() && !usedElementNames.get(0).equals("Elemento no encontrado")) {
+                System.out.println("Elemento encontrado");
+
                 BpmnColor.getInstance().modifyActivityColors(usedElementNames, path);
 
                 // Captura la imagen
-                new ImageCapture();
+                //new ImageCapture();
 
-
-                // Cargar la imagen en la vista dentro del EDT
-                loadImage();
 
             } else {
                 System.out.println("No se encontraron elementos usados para la variable con ID " + selectedVariableId);
@@ -172,19 +159,6 @@ public class TraceabilityController {
         }).start();
     }
 
-    private void loadImage() {
-        String rutaImagen = Paths.get(System.getProperty("user.dir"), "output", "MSGF-Test-Color.png").toString();
-        view.displayImage(rutaImagen);
-        view.setBImageVisible(true);
-        view.setBDiagramVisible(true);
-    }
-
-    private void openImage() {
-        view.addOpenImageListener(e -> {
-            String rutaImagen = Paths.get(System.getProperty("user.dir"), "output", "MSGF-Test-Color.png").toString();
-            openFile(rutaImagen);
-        });
-    }
 
     private void openDiagram() {
         view.addOpenDiagramListener(e -> {

@@ -10,7 +10,7 @@ const child = exec(comando);
 
 module.exports = function (electronApp, menuState) {
   electronApp.on('will-quit', () => {
-    fetch('http://localhost:8080/exit')
+    fetch('http://localhost:9999/exit')
   })
 
   return menu(electronApp, menuState);

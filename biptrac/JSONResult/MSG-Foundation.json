@@ -9,7 +9,7 @@
     "BPM Class: CreditAnalyst_HabEdiFor": {
       "BPM Class: CreditAnalyst_HabEdiFor": {
         "type": "serviceTask",
-        "name": "Habilitar ediciÃ³n formulario"
+        "name": "Habilitar edición formulario"
       },
       "BPM Method: execute (getter)": {
         "variables": [
@@ -20,7 +20,7 @@
     "BPM Class: CreditCommittee_ConInfFin": {
       "BPM Class: CreditCommittee_ConInfFin": {
         "type": "serviceTask",
-        "name": "Consultar informaciÃ³n financiera"
+        "name": "Consultar información financiera"
       },
       "BPM Method: setterVariables (setter)": {
         "variables": [
@@ -67,7 +67,7 @@
     "BPM Class: LegalOffice_InfConJurNoVia": {
       "BPM Class: LegalOffice_InfConJurNoVia": {
         "type": "sendTask",
-        "name": "Informar concepto jurÃ­dico no viable"
+        "name": "Informar concepto jurídico no viable"
       },
       "BPM Method: execute (getter)": {
         "variables": [
@@ -259,6 +259,7 @@
         "container": "CreditInfoDTO.java",
         "variables": [
           "coupleName1",
+          "quotaValue",
           "coupleName2",
           "pdfSupport",
           "countReviewsBpm",

@@ -95,6 +95,7 @@ public class ContainerDAO {
 
                 if (rs1.next()) {
                     container = rs1.getString("name_container");
+                    System.out.println(container);
                 }
             }
 

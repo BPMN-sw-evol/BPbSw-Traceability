@@ -84,12 +84,20 @@ public class commonDataExtraction implements IDataExtractor {
                         if(v!=null){
 
                             for(Object m : v){
-                                if(m.toString().equals(i) && this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).keySet().contains("container")){
-                                    int container = daoManager.getContainerDAO().searchContainer(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).getString("container"),project);
-                                    if(daoManager.getContainerDAO().searchContainedIn(variable, container)==-1){
-                                        daoManager.getContainerDAO().insertContainedIn(variable, container);
+                                if(m.toString().equals(i)){
+                                    if (this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).keySet().contains("container")) {
+                                        int container = daoManager.getContainerDAO().searchContainer(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).getString("container"),project);
+                                        if(daoManager.getContainerDAO().searchContainedIn(variable, container)==-1){
+                                            daoManager.getContainerDAO().insertContainedIn(variable, container);
+                                        }
+                                        break;
+                                    }else{
+                                        int container = daoManager.getContainerDAO().searchContainer("NA",project);
+                                        if(daoManager.getContainerDAO().searchContainedIn(variable, container)==-1){
+                                            daoManager.getContainerDAO().insertContainedIn(variable, container);
+                                        }
+                                        break;
                                     }
-                                    break;
                                 }
                             }
                         }else if(this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).optString("variables").equals(i) && this.projectInfo.getJSONObject(this.projects.get(j)).getJSONObject(k).getJSONObject(l).keySet().contains("container")){

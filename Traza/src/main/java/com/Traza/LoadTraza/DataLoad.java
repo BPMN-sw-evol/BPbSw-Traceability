@@ -49,7 +49,6 @@ public class DataLoad {
         // Mostrar el cuadro de diálogo
         final JDialog dialog = new JDialog();
 
-
         new Thread(() -> {
             try {
                 dataProcessor.executeAllExtractors(new JSONObject(new ObjectMapper().writeValueAsString(successProject)), new JSONObject(successBpmn.toString()), "MSG-Foundation");

@@ -5,7 +5,7 @@
   "trace": [
     {
       "taskID": "StartEvent_1",
-      "taskName": "Deseo obtener un crÃ©dito con MsgFoundation",
+      "taskName": "Deseo obtener un crédito con MsgFoundation",
       "taskType": "Start Event",
       "taskImplementationType": "None",
       "taskReferenceOrImplementation": "None"
@@ -51,7 +51,7 @@
     },
     {
       "taskID": "Activity_0pz6k7s",
-      "taskName": "Consultar informaciÃ³n financiera",
+      "taskName": "Consultar información financiera",
       "taskType": "Service Task",
       "taskImplementationType": "Java Class",
       "taskReferenceOrImplementation": "com.msgfoundation.delegation.CreditCommittee_ConInfFin",
@@ -124,7 +124,7 @@
     },
     {
       "taskID": "Activity_1es89wk",
-      "taskName": "Informar concepto jurÃ­dico no viable",
+      "taskName": "Informar concepto jurídico no viable",
       "taskType": "Send Task",
       "taskImplementationType": "Java Class",
       "taskReferenceOrImplementation": "com.msgfoundation.messages.LegalOffice_InfConJurNoVia",
@@ -140,7 +140,7 @@
     },
     {
       "taskID": "Event_1j6gctc",
-      "taskName": "Solicitud con concepto jurÃ­dico no viable",
+      "taskName": "Solicitud con concepto jurídico no viable",
       "taskType": "End Event",
       "taskImplementationType": "None",
       "taskReferenceOrImplementation": "None"
@@ -212,7 +212,7 @@
     },
     {
       "taskID": "Activity_0r194vo",
-      "taskName": "Habilitar ediciÃ³n formulario",
+      "taskName": "Habilitar edición formulario",
       "taskType": "Service Task",
       "taskImplementationType": "Delegate Expression",
       "taskReferenceOrImplementation": "#{activateForm}",
@@ -244,7 +244,7 @@
     },
     {
       "taskID": "Event_081wxiz",
-      "taskName": "15 dÃ­as",
+      "taskName": "15 días",
       "taskType": "Timer Intermediate Event",
       "taskImplementationType": "Duration",
       "taskReferenceOrImplementation": "P15D"

@@ -394,7 +394,7 @@ function addTooltip(elementOverlays, overlays, element, tooltipId) {
     elemento.addEventListener('click', function() {
       if (!elemento.textContent.includes(":") && v!=elemento.textContent){
         v = elemento.textContent;
-        fetch('http://localhost:8080/open/traceability?variable='+v)
+        fetch('http://localhost:9999/open/traceability?variable='+v)
       }
     });
   });

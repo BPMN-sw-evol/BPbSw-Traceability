@@ -86,11 +86,14 @@ public class VariableDAO {
     }
 
 
-    public int searchVariableByName(String name) {
+    public int searchVariableByName(String name, Timestamp history) {
+        int historyId = getHistoryIdByDate(history);
+
         try {
-            String sql = "SELECT id_variable FROM variable WHERE variable_name = ?";
+            String sql = "SELECT id_variable FROM variable WHERE variable_name = ? AND id_history = ?";
             ps = connection.prepareStatement(sql);
             ps.setString(1, name);
+            ps.setInt(2, historyId);
             rs = ps.executeQuery();
 
             if (rs.next()) {
