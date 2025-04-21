@@ -53,8 +53,12 @@ public class VariableDAO {
                 ps.setInt(1, historyId);
                 rs = ps.executeQuery();
 
+                System.out.println("historyId: "+historyId);
+
                 while (rs.next()) {
+                    
                     String variableName = rs.getString("variable_name");
+                    System.out.println("Variable name: "+variableName);
                     variableNames.add(variableName);
                 }
             } catch (SQLException e) {
@@ -63,6 +67,7 @@ public class VariableDAO {
                 // Cerrar recursos (ps, rs) aquí si es necesario
             }
         }
+        System.out.println("Variable names:"+variableNames);
         return variableNames;
     }
 
@@ -74,7 +79,10 @@ public class VariableDAO {
             ps.setTimestamp(1, historyDate);
             rs = ps.executeQuery();
 
+            System.out.println("historyDate: "+historyDate);
+
             if (rs.next()) {
+                System.out.println("historyId: "+rs.getInt("id_history"));
                 historyId = rs.getInt("id_history");
             }
         } catch (SQLException e) {

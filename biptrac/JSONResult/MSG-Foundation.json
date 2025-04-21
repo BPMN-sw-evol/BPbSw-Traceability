@@ -1,9 +1,9 @@
 {
   "ProjectPath": [
-    "D:\\Laboral\\trace-hub\\BPM-Engine",
-    "D:\\Laboral\\trace-hub\\CentralSys",
-    "D:\\Laboral\\trace-hub\\CreditRequest",
-    "D:\\Laboral\\trace-hub\\Treasury"
+    "D:\\Programacion\\EPI\\MSGF-hub\\BPM-Engine",
+    "D:\\Programacion\\EPI\\MSGF-hub\\CentralSys",
+    "D:\\Programacion\\EPI\\MSGF-hub\\CreditRequest",
+    "D:\\Programacion\\EPI\\MSGF-hub\\Treasury"
   ],
   "BPM-Engine": {
     "BPM Class: CreditAnalyst_HabEdiFor": {
@@ -24,6 +24,7 @@
       },
       "BPM Method: setterVariables (setter)": {
         "variables": [
+          "housePrices",
           "coupleSavings",
           "quotaValue"
         ]
@@ -60,7 +61,10 @@
           "coupleName1",
           "coupleName2",
           "coupleEmail2",
-          "coupleEmail1"
+          "coupleEmail1",
+          "housePrices",
+          "coupleSavings",
+          "quotaValue"
         ]
       }
     },
@@ -74,7 +78,9 @@
           "coupleName1",
           "coupleName2",
           "coupleEmail2",
-          "coupleEmail1"
+          "coupleEmail1",
+          "bothEmployees",
+          "pdfSupport"
         ]
       }
     },
@@ -256,7 +262,7 @@
         "name": "Diligenciar formulario de solicitud"
       },
       "BPM Method: startProcessInstance (setter)": {
-        "container": "CreditInfoDTO.java",
+        "container": "CreditInfoDTO",
         "variables": [
           "coupleName1",
           "coupleName2",
@@ -268,6 +274,9 @@
           "creationDate",
           "marriageYears",
           "bothEmployees",
+          "housePrices",
+          "coupleSavings",
+          "quotaValue",
           "workSupport",
           "codRequest"
         ]
@@ -283,6 +292,9 @@
           "applicantCouple",
           "marriageYears",
           "bothEmployees",
+          "housePrices",
+          "coupleSavings",
+          "quotaValue",
           "workSupport",
           "codRequest"
         ]

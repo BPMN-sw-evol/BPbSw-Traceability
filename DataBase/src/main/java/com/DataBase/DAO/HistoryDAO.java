@@ -15,7 +15,7 @@ public class HistoryDAO {
 
     public int createHistory(String name) {
         try {
-            String sql = "INSERT INTO history (name,date) VALUES (?,NOW())";
+            String sql = "INSERT INTO history (name,date) VALUES (?,NOW()::timestamp(3))";
             ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setString(1, name);
             int rowsAffected = ps.executeUpdate();

@@ -9,10 +9,10 @@ public class DatabaseConnection {
     private final Connection connection;
 
     private DatabaseConnection() {
-        String url = "jdbc:mysql://localhost:3326/dbTraceability";
-        //String url = "jdbc:mysql://localhost:3306/test_traceability";
-        String usuario = "root";
-        String contraseña = "mysql";
+        
+        String url = PropertiesUtil.getProperty("spring.datasource.url");
+        String usuario = PropertiesUtil.getProperty("spring.datasource.username").split(":")[1].split("}")[0];
+        String contraseña = PropertiesUtil.getProperty("spring.datasource.password").split(":")[1].split("}")[0];
 
         try {
             connection = DriverManager.getConnection(url, usuario, contraseña);
