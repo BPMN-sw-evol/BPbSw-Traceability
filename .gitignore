@@ -3,6 +3,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 output/
+/Plugin/api-traceability-1.0-SNAPSHOT.jar
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
