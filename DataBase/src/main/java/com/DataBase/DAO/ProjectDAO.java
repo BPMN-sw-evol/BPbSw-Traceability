@@ -100,6 +100,46 @@ public class ProjectDAO {
                     }
                 }
             }
+
+            containerQuery = "SELECT id_method FROM used_by_method WHERE id_variable = ?";
+            containerPs = connection.prepareStatement(containerQuery);
+            containerPs.setInt(1, variableId);
+            containerRs = containerPs.executeQuery();
+
+            while (containerRs.next()) {
+                int methodId = containerRs.getInt("id_method");
+
+                String methodQuery = "SELECT id_class FROM method WHERE id_method = ?";
+                PreparedStatement methodPs = connection.prepareStatement(methodQuery);
+                methodPs.setInt(1, methodId);
+                ResultSet methodRs = methodPs.executeQuery();
+
+                while (methodRs.next()) {
+                    int classId = methodRs.getInt("id_class");
+
+                    String classQuery = "SELECT id_project FROM class WHERE id_class = ?";
+                    PreparedStatement classPs = connection.prepareStatement(classQuery);
+                    classPs.setInt(1, classId);
+                    ResultSet classRs = classPs.executeQuery();
+
+                    if(classRs.next()){
+                        int projectId = classRs.getInt("id_project");
+
+                        String projectQuery = "SELECT name_project FROM project WHERE id_project = ?";
+                        PreparedStatement projectPs = connection.prepareStatement(projectQuery);
+                        projectPs.setInt(1, projectId);
+                        ResultSet projectRs = projectPs.executeQuery();
+
+                        if (projectRs.next()) {
+                            String projectName = projectRs.getString("name_project");
+                            if (!projectNames.contains(projectName)) {
+                                projectNames.add(projectName);
+                            }
+                        }
+                    }
+                }
+            }
+
         } catch (SQLException e) {
             System.err.println("Error al realizar la búsqueda: " + e);
         }

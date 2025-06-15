@@ -1,0 +1,17 @@
+{
+  "bpmPath": "Ruta absoluta en el sistema de archivos donde se encuentra almacenado el modelo BPMN.",
+  "bpmNameFile": "Nombre del archivo BPMN que contiene el modelo del proceso de negocio.",
+  "bpmNameProcess": "Nombre descriptivo del proceso de negocio definido dentro del archivo BPMN.",
+  "trace": [
+    {
+      "taskID": "Identificador único del elemento BPMN (actividad, evento, tarea) dentro del modelo.",
+      "taskName": "Nombre legible y descriptivo de la tarea o evento tal como aparece en el diagrama.",
+      "taskType": "Tipo de elemento BPMN (por ejemplo: 'Start Event', 'User Task', 'Service Task', 'End Event').",
+      "taskImplementationType": "Tipo de implementación que ejecutará la tarea (por ejemplo: 'Java Class', 'Connector', 'Delegate Expression', 'Camunda Form').",
+      "taskReferenceOrImplementation": "Valor que indica la referencia concreta a la implementación (por ejemplo: nombre de clase Java, expresión delegate, nombre de formulario o nombre de conector HTTP).",
+      "variables": [
+        "Lista de nombres de variables de proceso que esta tarea utiliza, modifica o consulta durante su ejecución. Este campo es opcional y aparece solo cuando la tarea gestiona variables."
+      ]
+    }
+  ]
+}

@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>Traza</artifactId>
+    <artifactId>traza</artifactId>
 
     <dependencies>
         <dependency>
@@ -69,13 +69,13 @@
         </dependency>
         <dependency>
             <groupId>com.Trazability</groupId>
-            <artifactId>DataBase</artifactId>
+            <artifactId>dataBase</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.Trazability</groupId>
-            <artifactId>Annotation</artifactId>
+            <artifactId>annotation</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

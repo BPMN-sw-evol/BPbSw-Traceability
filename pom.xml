@@ -10,14 +10,14 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>Traza</module>
+        <module>traza</module>
         <module>BPMN-tracer</module>
-        <module>DataBase</module>
-        <module>api-traceability</module>
-        <module>Plugin</module>
+        <module>dataBase</module>
+        <module>apiTraceability</module>
+        <module>plugin</module>
         <module>biptrac</module>
-        <module>Annotation</module>
-        <module>db_Initializer</module>
+        <module>annotation</module>
+        <module>dbInitializer</module>
     </modules>
 
     <properties>

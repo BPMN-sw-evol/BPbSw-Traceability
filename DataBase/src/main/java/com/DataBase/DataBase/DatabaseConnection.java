@@ -16,7 +16,7 @@ public class DatabaseConnection {
 
         try {
             connection = DriverManager.getConnection(url, usuario, contraseña);
-            System.out.println("Conexión exitosa a la base de datos MySQL");
+            System.out.println("Conexión exitosa a la base de datos");
         } catch (SQLException e) {
             // Lanza una excepción para que el cliente pueda manejarla adecuadamente
             throw new IllegalStateException("Error al conectar a la base de datos", e);

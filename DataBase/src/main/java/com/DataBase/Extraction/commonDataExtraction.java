@@ -160,46 +160,46 @@ public class commonDataExtraction implements IDataExtractor {
         ArrayList<String> serviceVariables = new ArrayList<String>();
         for(Object i : p){
             JSONObject j = (JSONObject) i;
-            if(j.getString("taskType").equals("Service Task")){
-                for (String k : this.projectInfo.keySet()) {
-                    if(!k.equals("ProjectPath")){
-                        for (String l : this.projectInfo.getJSONObject(k).keySet()) {
-                            boolean flag = false;
-                            String element = null;
-                            for (String m: this.projectInfo.getJSONObject(k).getJSONObject(l).keySet()) {
-                                if(m.contains("Class") && this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("name").equals(j.getString("taskName"))){
-                                    flag = true;
-                                    element = this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("name");
-                                    continue;
-                                }
-                                if(flag){
-                                    JSONArray v = this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).optJSONArray("variables");
-                                    if(v!=null){
-                                        for(Object n : v){
-                                            if(!serviceVariables.contains(n.toString())){
-                                                serviceVariables.add(n.toString());
-                                            }
-                                        }
-                                    }else{
-                                        if(!serviceVariables.contains(this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("variables"))){
-                                            serviceVariables.add(this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("variables"));
-                                        }
-                                    }
-                                }
-                            }
+            // if(j.getString("taskType").equals("Service Task")){
+            //     for (String k : this.projectInfo.keySet()) {
+            //         if(!k.equals("ProjectPath")){
+            //             for (String l : this.projectInfo.getJSONObject(k).keySet()) {
+            //                 boolean flag = false;
+            //                 String element = null;
+            //                 for (String m: this.projectInfo.getJSONObject(k).getJSONObject(l).keySet()) {
+            //                     if(m.contains("Class") && this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("name").equals(j.getString("taskName"))){
+            //                         flag = true;
+            //                         element = this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("name");
+            //                         continue;
+            //                     }
+            //                     if(flag){
+            //                         JSONArray v = this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).optJSONArray("variables");
+            //                         if(v!=null){
+            //                             for(Object n : v){
+            //                                 if(!serviceVariables.contains(n.toString())){
+            //                                     serviceVariables.add(n.toString());
+            //                                 }
+            //                             }
+            //                         }else{
+            //                             if(!serviceVariables.contains(this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("variables"))){
+            //                                 serviceVariables.add(this.projectInfo.getJSONObject(k).getJSONObject(l).getJSONObject(m).getString("variables"));
+            //                             }
+            //                         }
+            //                     }
+            //                 }
 
-                            if(!serviceVariables.isEmpty()){
-                                for (String n : serviceVariables) {
-                                    int id_variable = daoManager.getVariableDAO().searchVariable(n,this.history);
-                                    int id_element = daoManager.getElementDAO().searchElement(element);
-                                    daoManager.getElementDAO().insertElementUsed(id_variable, id_element,"NA");
-                                }
-                                serviceVariables = new ArrayList<String>();
-                            }
-                        }
-                    }
-                }
-            }else{
+            //                 if(!serviceVariables.isEmpty()){
+            //                     for (String n : serviceVariables) {
+            //                         int id_variable = daoManager.getVariableDAO().searchVariable(n,this.history);
+            //                         int id_element = daoManager.getElementDAO().searchElement(element);
+            //                         daoManager.getElementDAO().insertElementUsed(id_variable, id_element,"NA");
+            //                     }
+            //                     serviceVariables = new ArrayList<String>();
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }else{
                 JSONArray k = j.optJSONArray("variables");
                 if(k!=null){
                     for(int l=0; l<k.length();l++){
@@ -213,7 +213,7 @@ public class commonDataExtraction implements IDataExtractor {
                     int id_element = daoManager.getElementDAO().searchElement(j.getString("taskName"));
                     daoManager.getElementDAO().insertElementUsed(id_variable, id_element,"NA");
                 }
-            }
+            //}
         }
     }
 

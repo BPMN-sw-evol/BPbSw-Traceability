@@ -1,0 +1,23 @@
+{
+  "ProjectPath": "Lista de rutas absolutas en el sistema de archivos que representan los directorios raíz de los distintos proyectos involucrados en la solución BPM.",
+  
+  "BPM-Engine": "Objeto que agrupa las clases BPM y sus tareas relacionadas dentro del proyecto 'BPM-Engine'. Cada entrada representa una clase BPM con su respectiva definición de tareas, métodos y variables asociadas.",
+
+  "CentralSys": "Objeto que contiene las definiciones de las clases BPM pertenecientes al proyecto 'CentralSys', especificando las tareas de usuario y los métodos que manipulan variables de proceso.",
+
+  "CreditRequest": "Contenedor que incluye las definiciones de las clases BPM específicas para el proyecto 'CreditRequest', principalmente enfocadas en el inicio y actualización de variables de proceso desde un formulario de solicitud.",
+
+  "Treasury": "Objeto que agrupa las definiciones de las clases BPM correspondientes al proyecto 'Treasury', encargadas de tareas de notificación o procesos financieros.",
+
+  "BPM Class: <nombre_clase>": "Identificador de la clase BPM específica que contiene la lógica o implementación de una tarea BPM en Java u otro lenguaje compatible.",
+
+  "type": "Tipo de tarea BPMN asociada a la clase. Por ejemplo: 'serviceTask' para tareas de servicio, 'userTask' para tareas de usuario, 'sendTask' para tareas de notificación o envío.",
+
+  "name": "Nombre descriptivo de la tarea BPMN tal como aparece en el diagrama de procesos, facilitando su identificación y trazabilidad.",
+
+  "BPM Method: <nombre_método> (<tipo>)": "Nombre de un método dentro de la clase BPM. El valor entre paréntesis indica si es 'getter' (obtiene variables del proceso) o 'setter' (actualiza o establece variables en el proceso).",
+
+  "container": "Nombre del objeto o DTO (Data Transfer Object) donde se almacenan agrupadas las variables de proceso que se manipulan desde este método. Solo presente cuando aplica.",
+
+  "variables": "Lista de nombres de variables de proceso utilizadas o actualizadas por el método indicado. Puede ser un arreglo (si maneja varias) o un valor único (si maneja una sola variable)."
+}

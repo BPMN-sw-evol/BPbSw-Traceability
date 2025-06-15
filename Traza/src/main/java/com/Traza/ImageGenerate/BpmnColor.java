@@ -3,6 +3,8 @@ package com.Traza.ImageGenerate;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.UserTask;
+import org.camunda.bpm.model.bpmn.instance.ServiceTask;
+import org.camunda.bpm.model.bpmn.instance.SendTask;
 
 import java.io.*;
 import java.util.*;
@@ -37,12 +39,38 @@ public class BpmnColor {
                 activityIds.add(activityName);
             } else {
                 UserTask userTask = findUserTaskByName(modelInstance, activityName);
+                ServiceTask serviceTask = findServiceTaskByName(modelInstance, activityName);
+                SendTask sendTask = findSendTaskByName(modelInstance, activityName);
+                if (sendTask != null) {
+                    activityIds.add(sendTask.getId());
+                }
+                if (serviceTask != null) {
+                    activityIds.add(serviceTask.getId());
+                }
                 if (userTask != null) {
                     activityIds.add(userTask.getId());
                 }
             }
         }
         return activityIds;
+    }
+
+    private SendTask findSendTaskByName(BpmnModelInstance modelInstance, String activityName) {
+        for (SendTask sendTask : modelInstance.getModelElementsByType(SendTask.class)) {
+            if (activityName.equals(sendTask.getName())) {
+                return sendTask;
+            }
+        }
+        return null;
+    }
+
+    private ServiceTask findServiceTaskByName(BpmnModelInstance modelInstance, String activityName) {
+        for (ServiceTask serviceTask : modelInstance.getModelElementsByType(ServiceTask.class)) {
+            if (activityName.equals(serviceTask.getName())) {
+                return serviceTask;
+            }
+        }
+        return null;
     }
 
     private UserTask findUserTaskByName(BpmnModelInstance modelInstance, String activityName) {
